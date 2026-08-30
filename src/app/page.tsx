@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Star,
   ChevronLeft,
+  ChevronRight,
   Send,
   Sparkles,
   CheckCircle2,
@@ -16,12 +17,80 @@ import {
   TrendingUp,
   ChevronDown,
   Menu,
-  X
+  X,
+  Copy,
+  ExternalLink,
+  MapPin,
+  Check
 } from "lucide-react";
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const slides = [
+    {
+      stepNumber: "1",
+      stepTitle: "Scan & Rate",
+      header: "Step 1: Scan Table Standee",
+      content: {
+        greeting: "Hi Sarah!",
+        sub: "How was your experience with us today?",
+        rating: 5,
+        badgeText: "5 Stars • Excellent",
+        actionText: "Continue to Quick Tags",
+      },
+    },
+    {
+      stepNumber: "2",
+      stepTitle: "Pick Tags",
+      header: "Step 2: Tap What You Loved",
+      content: {
+        title: "Select your highlights:",
+        tags: [
+          { name: "☕ Specialty Latte", selected: true },
+          { name: "🥐 Warm Croissant", selected: true },
+          { name: "⚡ Fast Free Wi-Fi", selected: true },
+          { name: "😊 Friendly Staff", selected: true },
+          { name: "🎵 Chill Ambience", selected: false },
+        ],
+        actionText: "Generate Review with AI ⚡",
+      },
+    },
+    {
+      stepNumber: "3",
+      stepTitle: "AI Magic",
+      header: "Step 3: 30-Second AI Generation",
+      content: {
+        review: "Had a wonderful morning at The Coffee House! The Specialty Latte was rich and delicious, and the warm croissants were fresh out of the oven. Super fast Wi-Fi and friendly staff make this my favorite spot in town!",
+        actionText: "Copy & Open Google Review",
+        copied: true,
+      },
+    },
+    {
+      stepNumber: "4",
+      stepTitle: "Google 5★",
+      header: "Step 4: Live on Google Maps",
+      content: {
+        reviewerName: "Sarah Jenkins",
+        reviewerRole: "Local Guide • 42 reviews",
+        timeAgo: "2 minutes ago",
+        reviewSnippet: "The Coffee House is easily our favorite spot in town! Incredible Specialty Latte, warm fresh croissants, and awesome staff. 10/10 recommend!",
+        rankingBadge: "🏆 Ranked #1 in Google Maps Local Pack",
+      },
+    },
+  ];
+
+  // Auto-play slideshow every 3.5 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3600);
+    return () => clearInterval(timer);
+  }, [isPaused, slides.length]);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -155,7 +224,7 @@ export default function LandingPage() {
 
       {/* 
         ========================================================================
-        HERO SECTION (Optimized for Mobile & Desktop)
+        HERO SECTION (Optimized for Mobile & Desktop with Interactive Slideshow)
         ========================================================================
       */}
       <section className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 pt-4 sm:pt-6 pb-16 sm:pb-20 relative z-10">
@@ -219,18 +288,20 @@ export default function LandingPage() {
 
           {/* 
             ========================================================================
-            RIGHT COLUMN: BOLD OUTLINED PHONE FRAME WITH OFFSET SHADOW + PURPLE GLOW
+            RIGHT COLUMN: INTERACTIVE SLIDESHOW PHONE FRAME (4-STEP WALKTHROUGH)
             ========================================================================
           */}
-          <div className="lg:col-span-5 flex justify-center items-center relative py-4 sm:py-6 overflow-visible">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative py-4 sm:py-6 overflow-visible">
             
             {/* RICH PURPLE/VIOLET AMBIENT GLOW DIRECTLY BEHIND PHONE */}
             <div className="absolute w-[280px] sm:w-[440px] h-[400px] sm:h-[560px] bg-gradient-to-tr from-purple-600/40 via-violet-500/45 to-indigo-500/35 rounded-[50px] sm:rounded-[60px] blur-[60px] sm:blur-[80px] pointer-events-none -z-10 animate-pulse duration-1000" />
             <div className="absolute w-[240px] sm:w-[360px] h-[320px] sm:h-[480px] bg-purple-400/30 rounded-full blur-[80px] sm:blur-[100px] pointer-events-none -z-10" />
 
-            {/* PHONE DEVICE WITH BOLD BLACK OUTLINE & HARD DROP SHADOW (Exact Match to User Reference) */}
+            {/* PHONE DEVICE WITH BOLD BLACK OUTLINE & HARD DROP SHADOW */}
             <div 
-              className="w-full max-w-[285px] xs:max-w-[300px] sm:max-w-[315px] bg-white rounded-[44px] sm:rounded-[48px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none transition-transform duration-300 hover:translate-x-[-2px] hover:translate-y-[-2px]"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              className="w-full max-w-[290px] xs:max-w-[305px] sm:max-w-[320px] bg-white rounded-[44px] sm:rounded-[48px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none transition-transform duration-300 hover:translate-x-[-2px] hover:translate-y-[-2px]"
               style={{
                 boxShadow: "8px 10px 0px #000000",
               }}
@@ -240,75 +311,185 @@ export default function LandingPage() {
                 <div className="w-[76px] sm:w-[84px] h-[16px] sm:h-[18px] bg-black rounded-full mx-auto" />
               </div>
 
-              {/* Inside Screen Graphic */}
-              <div className="p-3.5 sm:p-4 min-h-[440px] sm:min-h-[470px] flex flex-col justify-between text-left">
+              {/* Inside Screen Graphic with Dynamic Slideshow */}
+              <div className="p-3.5 sm:p-4 min-h-[460px] sm:min-h-[480px] flex flex-col justify-between text-left">
                 
-                {/* App Header */}
+                {/* Screen Header Bar */}
                 <div className="flex items-center justify-between pb-2.5 pt-0.5 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <ChevronLeft className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-slate-700 stroke-[2.5]" />
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-slate-950 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold">
                       R
                     </div>
-                    <span className="text-[10.5px] sm:text-[11px] font-bold text-slate-900 tracking-tight">
-                      RevüAssist | Setup Review
+                    <span className="text-[10.5px] sm:text-[11px] font-bold text-slate-900 tracking-tight truncate max-w-[160px]">
+                      {slides[currentSlide].header}
                     </span>
                   </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full">
+                    {currentSlide + 1}/4
+                  </span>
                 </div>
 
-                {/* Main Screen Body */}
-                <div className="space-y-3 my-auto py-1.5">
-                  {/* Timestamp */}
-                  <div className="text-center">
-                    <span className="text-[9px] font-medium text-slate-400">
-                      Today
-                    </span>
-                  </div>
-
-                  {/* Customer Greeting Bubble */}
-                  <div className="bg-[#F4F5F9] p-3 sm:p-3.5 rounded-2xl rounded-tl-sm space-y-2 relative border border-slate-200/50">
-                    <div className="flex items-start gap-2">
-                      <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-gradient-to-tr from-amber-400 to-rose-400 flex items-center justify-center text-white text-[8.5px] sm:text-[9px] font-bold shrink-0 mt-0.5 shadow-xs">
-                        S
+                {/* DYNAMIC SLIDE CONTENT */}
+                <div className="my-auto py-1">
+                  {/* SLIDE 1: SCAN & RATE */}
+                  {currentSlide === 0 && (
+                    <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="text-center">
+                        <span className="text-[9px] font-medium text-slate-400">Step 1 • Table Standee Scan</span>
                       </div>
-                      <div className="space-y-0.5">
-                        <p className="text-[10.5px] sm:text-[11px] font-semibold text-slate-900 leading-tight">Hi Sarah!</p>
-                        <p className="text-[9.5px] sm:text-[10px] text-slate-600 leading-relaxed font-normal">
-                          How was your experience with us today?
+                      <div className="bg-[#F4F5F9] p-3.5 rounded-2xl rounded-tl-sm space-y-2 border border-slate-200/60">
+                        <div className="flex items-start gap-2">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-rose-400 flex items-center justify-center text-white text-[9px] font-bold shrink-0 mt-0.5">
+                            S
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[11px] font-bold text-slate-900">Hi Sarah!</p>
+                            <p className="text-[10px] text-slate-600">How was your coffee & visit today?</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.04)] space-y-3 text-center">
+                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Rate Your Visit</span>
+                        <div className="flex justify-center gap-1.5 text-amber-400">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star key={s} className="w-6 h-6 fill-amber-400 text-amber-400 transition-transform hover:scale-110" />
+                          ))}
+                        </div>
+                        <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block">
+                          5 Stars • Excellent
+                        </span>
+                        <button 
+                          onClick={() => setCurrentSlide(1)}
+                          className="w-full py-2.5 bg-slate-950 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm"
+                        >
+                          Next: Pick Highlights <ArrowRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SLIDE 2: PICK TAGS */}
+                  {currentSlide === 1 && (
+                    <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="text-center">
+                        <span className="text-[9px] font-medium text-slate-400">Step 2 • Tap Highlights</span>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-bold text-slate-900">What did you enjoy most?</p>
+                        <p className="text-[9.5px] text-slate-500">Tap pills to weave keywords into your review:</p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 py-1">
+                        {[
+                          { name: "☕ Specialty Latte", sel: true },
+                          { name: "🥐 Warm Croissant", sel: true },
+                          { name: "⚡ Fast Free Wi-Fi", sel: true },
+                          { name: "😊 Friendly Staff", sel: true },
+                          { name: "🎵 Chill Vibes", sel: false },
+                        ].map((t, idx) => (
+                          <span
+                            key={idx}
+                            className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-xl border flex items-center gap-1 ${
+                              t.sel
+                                ? "bg-slate-950 text-white border-slate-950"
+                                : "bg-slate-50 text-slate-600 border-slate-200"
+                            }`}
+                          >
+                            {t.name} {t.sel && <Check className="w-2.5 h-2.5 text-emerald-400" />}
+                          </span>
+                        ))}
+                      </div>
+
+                      <button 
+                        onClick={() => setCurrentSlide(2)}
+                        className="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-600/20"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" /> Generate Review with AI
+                      </button>
+                    </div>
+                  )}
+
+                  {/* SLIDE 3: AI MAGIC */}
+                  {currentSlide === 2 && (
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="text-center">
+                        <span className="text-[9px] font-medium text-slate-400">Step 3 • AI Assistant Magic</span>
+                      </div>
+                      <div className="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9.5px] font-bold text-indigo-900 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-indigo-600" /> AI Generated Review:
+                          </span>
+                          <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                            <CheckCircle2 className="w-2.5 h-2.5" /> Ready
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-800 leading-relaxed italic bg-white/80 p-2.5 rounded-xl border border-indigo-100/80">
+                          "Had a wonderful morning at The Coffee House! The Specialty Latte was rich and delicious, and the warm croissants were fresh out of the oven. Super fast Wi-Fi and friendly staff make this my favorite spot!"
                         </p>
                       </div>
-                    </div>
-                    <div className="flex gap-1 text-amber-400 pl-7">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} className="w-3 h-3 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Star Rating & Action Card */}
-                  <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.04)] space-y-3">
-                    {/* 4 Filled Stars, 1 Empty Star */}
-                    <div className="flex justify-center gap-1.5 text-amber-400">
-                      <Star className="w-5 sm:w-6 h-5 sm:h-6 fill-amber-400 text-amber-400" />
-                      <Star className="w-5 sm:w-6 h-5 sm:h-6 fill-amber-400 text-amber-400" />
-                      <Star className="w-5 sm:w-6 h-5 sm:h-6 fill-amber-400 text-amber-400" />
-                      <Star className="w-5 sm:w-6 h-5 sm:h-6 fill-amber-400 text-amber-400" />
-                      <Star className="w-5 sm:w-6 h-5 sm:h-6 text-slate-200 fill-slate-100" />
+                      <button 
+                        onClick={() => setCurrentSlide(3)}
+                        className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                      >
+                        <Copy className="w-3.5 h-3.5" /> Copy & Open Google Maps
+                      </button>
                     </div>
+                  )}
 
-                    {/* Black Action Pill Button */}
-                    <div className="w-full py-2.5 sm:py-3 bg-[#111318] text-white rounded-xl text-[10.5px] sm:text-[11px] font-bold flex items-center justify-center shadow-md shadow-slate-900/10">
-                      Leave a Google Review
+                  {/* SLIDE 4: GOOGLE MAPS 5★ */}
+                  {currentSlide === 3 && (
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="text-center">
+                        <span className="text-[9px] font-medium text-slate-400">Step 4 • Posted on Google Maps</span>
+                      </div>
+                      <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-xs space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[9px] font-bold">
+                            S
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10.5px] font-bold text-slate-900">Sarah Jenkins</p>
+                            <p className="text-[8.5px] text-slate-400">Local Guide • 42 reviews</p>
+                          </div>
+                          <div className="flex text-amber-400">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star key={s} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-[9.5px] text-slate-700 leading-relaxed">
+                          The Coffee House is our favorite spot in town! Incredible Specialty Latte, warm fresh croissants, and awesome staff. 10/10 recommend!
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-center">
+                        <span className="text-[10px] font-bold text-amber-900 flex items-center justify-center gap-1">
+                          🏆 Ranked #1 in Google Maps Local Pack
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
-                {/* Bottom Input Message Bar */}
-                <div className="flex items-center gap-2 bg-[#F4F5F9] px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-full border border-slate-200/60 shadow-xs">
-                  <span className="flex-1 text-[9.5px] sm:text-[10px] text-slate-400 font-normal">Type a message...</span>
-                  <div className="w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-transparent text-slate-400 flex items-center justify-center">
-                    <Send className="w-3 h-3 text-slate-400" />
-                  </div>
+                {/* Bottom Step Pills Bar for Direct Manual Control */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
+                  {slides.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setCurrentSlide(idx)}
+                      className={`flex-1 py-1.5 px-1 rounded-lg text-[9px] font-bold transition-all text-center ${
+                        currentSlide === idx
+                          ? "bg-slate-950 text-white shadow-xs scale-105"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      {s.stepTitle}
+                    </button>
+                  ))}
                 </div>
 
               </div>
