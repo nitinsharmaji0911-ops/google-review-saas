@@ -4,23 +4,23 @@ interface LogoProps {
   inverted?: boolean;
   style?: React.CSSProperties;
   className?: string;
-  /** numeric width fallback */
-  width?: number;
+  /** Height of the mark in pixels (default 44px) */
   height?: number;
+  width?: number;
 }
 
 export default function Logo({
   inverted = false,
   style = {},
   className = "",
-  width = 56,
-  height,
+  height = 42,
+  width,
 }: LogoProps) {
   const src = inverted ? "/wr-logo-white.png" : "/wr-logo-black.png";
 
   const effectiveStyle: React.CSSProperties = {
-    width: width ? `${width}px` : "38px",
-    height: height ? `${height}px` : "auto",
+    height: height ? `${height}px` : "42px",
+    width: width ? `${width}px` : "auto",
     display: "block",
     objectFit: "contain",
     ...style,
