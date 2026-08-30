@@ -99,7 +99,7 @@ export default function LandingPage() {
   const faqs = [
     {
       q: "Does this violate Google's Review Gating policies?",
-      a: "No. ReviewBoost is 100% Google policy compliant. All customers have direct access to leave a Google review regardless of their rating. We provide a private feedback option for direct feedback without restricting anyone from posting on Google.",
+      a: "No. Welurik Review is 100% Google policy compliant. All customers have direct access to leave a Google review regardless of their rating. We provide a private feedback option for direct feedback without restricting anyone from posting on Google.",
     },
     {
       q: "How does this boost my Google Maps (GMB) ranking?",
@@ -137,9 +137,9 @@ export default function LandingPage() {
       */}
       <header className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 py-5 sm:py-7 flex items-center justify-between z-30 relative">
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-          <span className="font-black text-xl sm:text-2xl text-slate-950 tracking-tight">R</span>
+          <span className="font-black text-xl sm:text-2xl text-slate-950 tracking-tight">W</span>
           <span className="text-slate-300 font-light text-lg sm:text-xl -mt-0.5">|</span>
-          <span className="font-bold text-base sm:text-lg text-slate-950 tracking-tight">RevüAssist</span>
+          <span className="font-bold text-base sm:text-lg text-slate-950 tracking-tight">Welurik Review</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -318,7 +318,7 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between pb-2.5 pt-0.5 border-b border-slate-100">
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-slate-950 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold">
-                      R
+                      W
                     </div>
                     <span className="text-[10.5px] sm:text-[11px] font-bold text-slate-900 tracking-tight truncate max-w-[160px]">
                       {slides[currentSlide].header}
@@ -808,7 +808,7 @@ export default function LandingPage() {
         ========================================================================
       */}
       <footer className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8 border-t border-slate-100/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4 z-10 text-center sm:text-left">
-        <p>© 2026 RevüAssist. Built for local businesses to collect authentic 5-star Google reviews.</p>
+        <p>© 2026 Welurik Review. Built for local businesses to collect authentic 5-star Google reviews.</p>
         <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-6 font-medium text-slate-500">
           <Link href="/login" className="hover:text-slate-900 transition-colors">Sign In</Link>
           <Link href="/dashboard" className="hover:text-slate-900 transition-colors">Dashboard</Link>

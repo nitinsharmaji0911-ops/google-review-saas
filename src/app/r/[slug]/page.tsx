@@ -537,7 +537,7 @@ export default function CustomerReviewPage() {
 
       <div className="text-center mt-8">
         <p className="text-[11px] text-slate-300 font-medium">
-          Powered by ReviewBoost
+          Powered by Welurik Review
         </p>
       </div>
     </div>

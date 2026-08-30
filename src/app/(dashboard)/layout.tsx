@@ -74,10 +74,10 @@ export default function DashboardLayout({
           {/* Brand Logo & SaaS Name */}
           <div className="flex items-center gap-3 px-2 py-1.5">
             <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-xs">
-              R
+              W
             </div>
             <div>
-              <span className="font-bold text-sm text-slate-900 tracking-tight block">ReviewBoost</span>
+              <span className="font-bold text-sm text-slate-900 tracking-tight block">Welurik Review</span>
               <span className="text-[10px] font-medium text-slate-400 block -mt-0.5">Google Review Assistant</span>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function DashboardLayout({
           </a>
 
           <div className="px-2 flex items-center justify-between text-[11px] text-slate-400">
-            <span>ReviewBoost v1.2</span>
+            <span>Welurik Review v1.2</span>
             <Link href="/login" className="hover:text-slate-900 font-medium">
               Switch
             </Link>

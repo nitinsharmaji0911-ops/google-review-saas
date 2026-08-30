@@ -60,9 +60,9 @@ export default function OnboardingPage() {
       {/* Top Bar */}
       <header className="max-w-6xl w-full mx-auto px-4 flex items-center justify-between z-10">
         <Link href="/" className="flex items-center gap-3">
-          <span className="font-black text-2xl text-slate-950 tracking-tight">R</span>
+          <span className="font-black text-2xl text-slate-950 tracking-tight">W</span>
           <span className="text-slate-300 font-light text-xl -mt-0.5">|</span>
-          <span className="font-bold text-lg text-slate-950 tracking-tight">RevüAssist</span>
+          <span className="font-bold text-lg text-slate-950 tracking-tight">Welurik Review</span>
         </Link>
         <span className="text-xs font-semibold text-slate-400">Step {step} of 3</span>
       </header>
@@ -246,7 +246,7 @@ export default function OnboardingPage() {
       </div>
 
       <footer className="text-center text-xs text-slate-400 z-10">
-        © 2026 RevüAssist. Built for local businesses.
+        © 2026 Welurik Review. Built for local businesses.
       </footer>
     </div>
   );

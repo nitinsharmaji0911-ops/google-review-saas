@@ -217,7 +217,7 @@ export default function PrivateFeedbackPage() {
 
       <div className="text-center mt-6">
         <p className="text-[11px] text-slate-400">
-          ReviewBoost Customer Care System
+          Welurik Review Customer Care System
         </p>
       </div>
     </div>

@@ -21,7 +21,7 @@ export async function sendPasswordResetEmail({
     const smtpUser = process.env.SMTP_USER || process.env.SMTP_EMAIL;
     const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
     const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
-    const smtpFrom = process.env.SMTP_FROM || `"RevüAssist" <noreply@revuassist.com>`;
+    const smtpFrom = process.env.SMTP_FROM || `"Welurik Review" <noreply@welurik.com>`;
 
     let isEthereal = false;
 
@@ -81,7 +81,7 @@ export async function sendPasswordResetEmail({
       </head>
       <body>
         <div class="card">
-          <div class="logo">R <span style="color:#cbd5e1; font-weight:300;">|</span> RevüAssist</div>
+          <div class="logo">W <span style="color:#cbd5e1; font-weight:300;">|</span> Welurik Review</div>
           <div class="badge">Security Notification</div>
           <h1>Password Reset Request</h1>
           <p>Hello,</p>
@@ -96,7 +96,7 @@ export async function sendPasswordResetEmail({
           <div class="footer">
             <p>If the button above doesn't work, copy and paste this link into your browser:</p>
             <p><a href="${resetLink}" class="link-fallback">${resetLink}</a></p>
-            <p style="margin-top: 16px;">© 2026 RevüAssist • 100% Google Policy Compliant Review Assistant</p>
+            <p style="margin-top: 16px;">© 2026 Welurik Review • 100% Google Policy Compliant Review Assistant</p>
           </div>
         </div>
       </body>
@@ -106,7 +106,7 @@ export async function sendPasswordResetEmail({
     const info = await transporter.sendMail({
       from: smtpFrom,
       to,
-      subject: `Reset your RevüAssist account password`,
+      subject: `Reset your Welurik Review account password`,
       text: `Reset your password by opening this link in your browser: ${resetLink} (Valid for 1 hour)`,
       html: htmlContent,
     });

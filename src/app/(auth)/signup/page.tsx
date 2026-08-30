@@ -46,9 +46,9 @@ export default function SignupPage() {
       {/* Top Simple Header */}
       <header className="max-w-6xl w-full mx-auto px-8 py-7 flex items-center justify-between z-10">
         <Link href="/" className="flex items-center gap-3 group">
-          <span className="font-black text-2xl text-slate-950 tracking-tight">R</span>
+          <span className="font-black text-2xl text-slate-950 tracking-tight">W</span>
           <span className="text-slate-300 font-light text-xl -mt-0.5">|</span>
-          <span className="font-bold text-lg text-slate-950 tracking-tight">RevüAssist</span>
+          <span className="font-bold text-lg text-slate-950 tracking-tight">Welurik Review</span>
         </Link>
         <Link
           href="/login"
@@ -174,7 +174,7 @@ export default function SignupPage() {
 
       {/* Footer */}
       <footer className="max-w-6xl w-full mx-auto px-8 py-6 text-center text-xs text-slate-400 z-10">
-        © 2026 RevüAssist. 100% Google Policy Compliant.
+        © 2026 Welurik Review. 100% Google policy compliant.
       </footer>
     </div>
   );
