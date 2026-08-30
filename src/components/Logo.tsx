@@ -16,7 +16,7 @@ export default function Logo({
   width = 38,
   height,
 }: LogoProps) {
-  const src = inverted ? "/logo-white.svg" : "/logo-black.svg";
+  const src = inverted ? "/wr-logo-white.png" : "/wr-logo-black.png";
 
   const effectiveStyle: React.CSSProperties = {
     width: width ? `${width}px` : "38px",
@@ -31,7 +31,7 @@ export default function Logo({
     <img
       src={src}
       alt="Welurik Review"
-      className={`transition-transform duration-200 hover:scale-[1.05] select-none ${className}`}
+      className={`transition-transform duration-200 hover:scale-[1.06] select-none ${className}`}
       style={effectiveStyle}
     />
   );
