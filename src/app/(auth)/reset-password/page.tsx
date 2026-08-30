@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import WelurikLogo from "@/components/Logo";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -132,10 +133,8 @@ export default function ResetPasswordPage() {
 
       {/* Top Bar */}
       <header className="max-w-6xl w-full mx-auto px-8 py-7 flex items-center justify-between z-10">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="font-black text-2xl text-slate-950 tracking-tight">W</span>
-          <span className="text-slate-300 font-light text-xl -mt-0.5">|</span>
-          <span className="font-bold text-lg text-slate-950 tracking-tight">Welurik Review</span>
+        <Link href="/" className="group">
+          <WelurikLogo size="md" />
         </Link>
       </header>
 

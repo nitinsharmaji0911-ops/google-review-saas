@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, ArrowRight, CheckCircle2, ChevronLeft, ExternalLink, Sparkles } from "lucide-react";
+import WelurikLogo from "@/components/Logo";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -47,10 +48,8 @@ export default function ForgotPasswordPage() {
 
       {/* Top Header */}
       <header className="max-w-6xl w-full mx-auto px-8 py-7 flex items-center justify-between z-10">
-        <Link href="/" className="flex items-center gap-3 group">
-          <span className="font-black text-2xl text-slate-950 tracking-tight">W</span>
-          <span className="text-slate-300 font-light text-xl -mt-0.5">|</span>
-          <span className="font-bold text-lg text-slate-950 tracking-tight">Welurik Review</span>
+        <Link href="/" className="group">
+          <WelurikLogo size="md" />
         </Link>
         <Link
           href="/login"
