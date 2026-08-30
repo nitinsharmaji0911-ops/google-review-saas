@@ -16,6 +16,7 @@ import {
   QrCode,
   Star
 } from "lucide-react";
+import WelurikLogo from "@/components/Logo";
 
 export default function DashboardLayout({
   children,
@@ -72,14 +73,8 @@ export default function DashboardLayout({
       <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-4 shrink-0 hidden md:flex no-print">
         <div className="space-y-6">
           {/* Brand Logo & SaaS Name */}
-          <div className="flex items-center gap-3 px-2 py-1.5">
-            <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-xs">
-              W
-            </div>
-            <div>
-              <span className="font-bold text-sm text-slate-900 tracking-tight block">Welurik Review</span>
-              <span className="text-[10px] font-medium text-slate-400 block -mt-0.5">Google Review Assistant</span>
-            </div>
+          <div className="px-2 py-1.5">
+            <WelurikLogo size="sm" />
           </div>
 
           {/* Active Business Switcher Card */}

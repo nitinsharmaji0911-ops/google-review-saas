@@ -23,6 +23,7 @@ import {
   MapPin,
   Check
 } from "lucide-react";
+import WelurikLogo from "@/components/Logo";
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -136,10 +137,8 @@ export default function LandingPage() {
         ========================================================================
       */}
       <header className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 py-5 sm:py-7 flex items-center justify-between z-30 relative">
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-          <span className="font-black text-xl sm:text-2xl text-slate-950 tracking-tight">W</span>
-          <span className="text-slate-300 font-light text-lg sm:text-xl -mt-0.5">|</span>
-          <span className="font-bold text-base sm:text-lg text-slate-950 tracking-tight">Welurik Review</span>
+        <Link href="/" className="group">
+          <WelurikLogo size="md" />
         </Link>
 
         {/* Desktop Nav */}
