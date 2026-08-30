@@ -138,7 +138,7 @@ export default function LandingPage() {
       */}
       <header className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 py-5 sm:py-7 flex items-center justify-between z-30 relative">
         <Link href="/" className="group hover:opacity-80 transition-opacity flex items-center">
-          <WelurikLogo height={44} />
+          <WelurikLogo height={68} />
         </Link>
 
         {/* Desktop Nav */}

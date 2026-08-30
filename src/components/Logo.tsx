@@ -13,13 +13,13 @@ export default function Logo({
   inverted = false,
   style = {},
   className = "",
-  height = 42,
+  height = 64,
   width,
 }: LogoProps) {
   const src = inverted ? "/wr-logo-white.png" : "/wr-logo-black.png";
 
   const effectiveStyle: React.CSSProperties = {
-    height: height ? `${height}px` : "42px",
+    height: height ? `${height}px` : "64px",
     width: width ? `${width}px` : "auto",
     display: "block",
     objectFit: "contain",
