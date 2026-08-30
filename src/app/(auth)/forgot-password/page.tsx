@@ -48,8 +48,8 @@ export default function ForgotPasswordPage() {
 
       {/* Top Header */}
       <header className="max-w-6xl w-full mx-auto px-8 py-7 flex items-center justify-between z-10">
-        <Link href="/" className="group hover:opacity-80 transition-opacity">
-          <WelurikLogo width={34} />
+        <Link href="/" className="group hover:opacity-80 transition-opacity flex items-center">
+          <WelurikLogo width={52} />
         </Link>
         <Link
           href="/login"

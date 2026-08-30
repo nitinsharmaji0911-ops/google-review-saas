@@ -13,7 +13,7 @@ export default function Logo({
   inverted = false,
   style = {},
   className = "",
-  width = 38,
+  width = 56,
   height,
 }: LogoProps) {
   const src = inverted ? "/wr-logo-white.png" : "/wr-logo-black.png";
