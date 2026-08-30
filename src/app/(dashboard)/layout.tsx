@@ -73,8 +73,8 @@ export default function DashboardLayout({
       <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-4 shrink-0 hidden md:flex no-print">
         <div className="space-y-6">
           {/* Brand Logo & SaaS Name */}
-          <div className="px-2 py-1.5">
-            <WelurikLogo width={150} />
+          <div className="px-2 py-1.5 flex items-center">
+            <WelurikLogo width={32} />
           </div>
 
           {/* Active Business Switcher Card */}
