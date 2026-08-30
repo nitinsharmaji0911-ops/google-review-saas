@@ -74,7 +74,7 @@ export default function DashboardLayout({
         <div className="space-y-6">
           {/* Brand Logo & SaaS Name */}
           <div className="px-2 py-1.5 flex items-center">
-            <WelurikLogo height={52} />
+            <WelurikLogo className="h-9 sm:h-[48px]" />
           </div>
 
           {/* Active Business Switcher Card */}
