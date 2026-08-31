@@ -140,10 +140,10 @@ export default function LandingPage() {
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-7 text-[13.5px] font-semibold text-slate-700">
-            <a href="#how-it-works" className="hover:text-black transition-colors">How It Works</a>
-            <a href="#features" className="hover:text-black transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
-            <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
+            <Link href="/#how-it-works" className="hover:text-black transition-colors">How It Works</Link>
+            <Link href="/#features" className="hover:text-black transition-colors">Features</Link>
+            <Link href="/#pricing" className="hover:text-black transition-colors">Pricing</Link>
+            <Link href="/#faq" className="hover:text-black transition-colors">FAQ</Link>
             <Link href="/r/the-coffee-house" className="text-[#15803D] font-bold hover:text-[#166534] transition-colors">Demo</Link>
             <Link href="/dashboard" className="hover:text-black transition-colors">Admin Dashboard</Link>
           </nav>
@@ -180,34 +180,34 @@ export default function LandingPage() {
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-3.5 right-3.5 mt-2 bg-white border-2 border-black rounded-3xl p-4 sm:p-5 shadow-[4px_4px_0px_#000000] space-y-2.5 z-50 animate-in fade-in slide-in-from-top-2">
-            <a
-              href="#how-it-works"
+            <Link
+              href="/#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-1 text-sm font-bold text-black"
             >
               How It Works
-            </a>
-            <a
-              href="#features"
+            </Link>
+            <Link
+              href="/#features"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-1 text-sm font-bold text-black"
             >
               Features
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              href="/#pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-1 text-sm font-bold text-black"
             >
               Pricing
-            </a>
-            <a
-              href="#faq"
+            </Link>
+            <Link
+              href="/#faq"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-1 text-sm font-bold text-black"
             >
               FAQ
-            </a>
+            </Link>
             <Link
               href="/r/the-coffee-house"
               onClick={() => setMobileMenuOpen(false)}
