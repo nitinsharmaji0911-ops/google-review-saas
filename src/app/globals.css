@@ -14,13 +14,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ambient soft sage/mint corner glows */
+/* Base warm canvas */
 .neo-canvas-bg {
   background-color: #FAF9F5;
+}
+
+/* Active architectural blueprint grid */
+.neo-grid-overlay {
+  background-size: 36px 36px;
   background-image: 
-    radial-gradient(ellipse 70% 60% at 5% 95%, rgba(187, 247, 208, 0.45), transparent 70%),
-    radial-gradient(ellipse 65% 55% at 95% 5%, rgba(187, 247, 208, 0.40), transparent 65%),
-    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(240, 253, 244, 0.5), transparent 80%);
+    linear-gradient(to right, rgba(0, 0, 0, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 95% 90% at 50% 30%, #000 65%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 30%, #000 65%, transparent 100%);
 }
 
 /* Custom subtle scrollbars */

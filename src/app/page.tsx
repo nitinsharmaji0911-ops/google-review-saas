@@ -125,6 +125,17 @@ export default function LandingPage() {
       
       {/* 
         ========================================================================
+        ACTIVE ARCHITECTURAL NEO-GRID & AMBIENT GLOW SYSTEM
+        ========================================================================
+      */}
+      <div className="neo-grid-overlay absolute inset-0 w-full h-full pointer-events-none -z-10 opacity-80" />
+      <div className="absolute top-[3%] right-[-5%] sm:right-[5%] w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] bg-[#bbf7d0]/45 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-[8%] left-[-10%] sm:left-[2%] w-[300px] sm:w-[550px] h-[300px] sm:h-[550px] bg-[#dcfce7]/55 rounded-full blur-[90px] sm:blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute top-[48%] right-[8%] w-[320px] sm:w-[520px] h-[320px] sm:h-[520px] bg-[#bbf7d0]/35 rounded-full blur-[110px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[10%] left-[5%] w-[340px] sm:w-[560px] h-[340px] sm:h-[560px] bg-[#dcfce7]/45 rounded-full blur-[120px] pointer-events-none -z-10" />
+
+      {/* 
+        ========================================================================
         FLOATING STADIUM PILL NAVBAR (Xocial Neo-Brutalist Theme)
         ========================================================================
       */}
