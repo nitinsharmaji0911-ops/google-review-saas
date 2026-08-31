@@ -536,9 +536,6 @@ export default function LandingPage() {
           <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
             How It Works in 3 Simple Steps
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-            Eliminate customer writer's block and make leaving 5-star reviews effortless.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -608,69 +605,6 @@ export default function LandingPage() {
               <div className="absolute bottom-2 left-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-md">
                 +42 Reviews Boost
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 
-        ========================================================================
-        VISUAL SHOWCASE / REAL-WORLD RESULTS GALLERY
-        ========================================================================
-      */}
-      <section className="py-14 sm:py-20 px-4 sm:px-8 max-w-6xl mx-auto space-y-10 sm:space-y-12">
-        <div className="bg-[#111827] text-white rounded-[36px] p-6 sm:p-12 border-2 border-black shadow-[6px_6px_0px_#000000] space-y-8 relative overflow-hidden">
-          {/* Background Ambient Glow */}
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#15803D]/20 rounded-full blur-[100px] pointer-events-none" />
-          
-          <div className="max-w-xl space-y-3 relative z-10">
-            <span className="text-[11px] font-black uppercase tracking-widest bg-[#15803D] text-white px-3 py-1 rounded-full inline-block">
-              Print & Place In 5 Minutes
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Sits Beautifully On Any Table, Reception Or Counter
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-              No expensive NFC hardware or monthly hardware rentals. Download print-ready vector designs from your dashboard and slide them into standard 4" x 6" acrylic frames.
-            </p>
-          </div>
-
-          {/* 3 Showcase Visual Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xs">
-              <img
-                src="/images/standee-cafe-counter.jpg"
-                alt="Cafes and Coffee Roasters"
-                className="w-full h-40 object-cover rounded-xl border border-white/10"
-              />
-              <h4 className="text-sm font-bold text-white">Specialty Cafes & Bakeries</h4>
-              <p className="text-xs text-slate-400">
-                Customers scan while waiting for their cold brew or brunch. Average 15+ new Google reviews every week.
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xs">
-              <img
-                src="/images/retail-display-mockup.jpg"
-                alt="Salons and Healthcare Clinics"
-                className="w-full h-40 object-cover rounded-xl border border-white/10"
-              />
-              <h4 className="text-sm font-bold text-white">Salons, Spas & Clinics</h4>
-              <p className="text-xs text-slate-400">
-                Position right beside your iPad billing terminal. Capture positive reviews right when customer satisfaction is highest.
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xs">
-              <img
-                src="/images/google-stars-boost.jpg"
-                alt="Google Map Pack Domination"
-                className="w-full h-40 object-cover rounded-xl border border-white/10"
-              />
-              <h4 className="text-sm font-bold text-white">Dominate Google Maps</h4>
-              <p className="text-xs text-slate-400">
-                Rich reviews containing your service keywords propel your profile into the top 3 recommendations on Google Maps.
-              </p>
             </div>
           </div>
         </div>
