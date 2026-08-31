@@ -4,23 +4,14 @@ import { FirestoreDB } from "@/lib/firestore-db";
 import { hashPassword } from "@/lib/auth";
 import crypto from "crypto";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const { token, newPassword, uid } = body;
-
-    if (!token || !newPassword || typeof newPassword !== "string" || newPassword.length < 6) {
-      return NextResponse.json(
-        { success: false, error: "Valid token and a password with at least 6 characters are required" },
-        { status: 400 }
-      );
+    const code = req.nextUrl.searchParams.get("code") || req.nextUrl.searchParams.get("token") || "";
+    if (!code) {
+      return NextResponse.json({ valid: false, error: "Missing reset code" }, { status: 400 });
     }
 
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    let userIdToUpdate: string | null = null;
-    let tokenRecordId: string | null = null;
-
-    // 1. Look up token in database
+    const tokenHash = crypto.createHash("sha256").update(code).digest("hex");
     try {
       const resetRecord = await prisma.resetToken.findUnique({
         where: { tokenHash },
@@ -28,85 +19,110 @@ export async function POST(req: NextRequest) {
       });
 
       if (resetRecord) {
-        if (resetRecord.usedAt !== null) {
-          return NextResponse.json(
-            { success: false, error: "This password reset link has already been used. Please request a new one." },
-            { status: 400 }
-          );
+        if (resetRecord.usedAt !== null || new Date() > resetRecord.expiresAt) {
+          return NextResponse.json({ valid: false, error: "Link expired or used" });
         }
-
-        if (new Date() > resetRecord.expiresAt) {
-          return NextResponse.json(
-            { success: false, error: "This password reset link has expired. Please request a new one." },
-            { status: 400 }
-          );
-        }
-
-        userIdToUpdate = resetRecord.userId;
-        tokenRecordId = resetRecord.id;
+        return NextResponse.json({ valid: true, email: resetRecord.user?.email });
       }
-    } catch {
-      // Fallback
-    }
+    } catch {}
 
-    // 2. Legacy fallback for HMAC-based tokens
-    if (!userIdToUpdate && token.includes(":")) {
-      try {
-        const decoded = Buffer.from(token, "base64url").toString("utf-8");
-        const parts = decoded.split(":");
-        if (parts.length === 4) {
-          const [userId, email, expiryStr, signature] = parts;
-          const expiry = parseInt(expiryStr, 10);
-          if (Date.now() <= expiry) {
-            const secret = process.env.JWT_SECRET || "dev_secret";
-            const tokenData = `${userId}:${email}:${expiryStr}`;
-            const expectedSignature = crypto.createHmac("sha256", secret).update(tokenData).digest("hex");
-            if (signature === expectedSignature) {
-              userIdToUpdate = userId;
-            }
-          }
-        }
-      } catch {}
-    }
+    // Fallback: If code is a Firebase Auth oobCode, client handles validation
+    return NextResponse.json({ valid: true });
+  } catch {
+    return NextResponse.json({ valid: false }, { status: 500 });
+  }
+}
 
-    if (!userIdToUpdate && uid) {
-      userIdToUpdate = uid;
-    }
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    const { token, code, newPassword, uid, email } = body;
+    const resetCode = token || code;
 
-    if (!userIdToUpdate) {
+    if (!newPassword || typeof newPassword !== "string" || newPassword.length < 6) {
       return NextResponse.json(
-        { success: false, error: "Invalid or expired password reset link. Please request a new one." },
+        { success: false, error: "Password must be at least 6 characters" },
         { status: 400 }
       );
     }
 
-    const hashedPassword = hashPassword(newPassword);
+    let userIdToUpdate: string | null = uid || null;
+    let tokenRecordId: string | null = null;
 
-    // 3. Update password in Prisma Database
-    try {
-      await prisma.user.update({
-        where: { id: userIdToUpdate },
-        data: { password: hashedPassword },
-      });
-
-      // Mark token as used to prevent replay attacks
-      if (tokenRecordId) {
-        await prisma.resetToken.update({
-          where: { id: tokenRecordId },
-          data: { usedAt: new Date() },
+    // 1. Look up token in database if resetCode is provided
+    if (resetCode) {
+      const tokenHash = crypto.createHash("sha256").update(resetCode).digest("hex");
+      try {
+        const resetRecord = await prisma.resetToken.findUnique({
+          where: { tokenHash },
+          include: { user: true },
         });
-      }
-    } catch (dbErr) {
-      console.warn("Prisma user password update:", dbErr);
+
+        if (resetRecord) {
+          if (resetRecord.usedAt !== null) {
+            return NextResponse.json(
+              { success: false, error: "This password reset link has already been used. Please request a new one." },
+              { status: 400 }
+            );
+          }
+
+          if (new Date() > resetRecord.expiresAt) {
+            return NextResponse.json(
+              { success: false, error: "This password reset link has expired. Please request a new one." },
+              { status: 400 }
+            );
+          }
+
+          userIdToUpdate = resetRecord.userId;
+          tokenRecordId = resetRecord.id;
+        }
+      } catch {}
     }
 
-    // 4. Update in FirestoreDB if user exists there
-    try {
-      const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
-      if (firestore) {
-        await firestore.collection("users").doc(userIdToUpdate).update({ password: hashedPassword });
+    // 2. If email is provided (from Firebase verifyPasswordResetCode)
+    if (!userIdToUpdate && email) {
+      try {
+        const userByEmail = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
+        if (userByEmail) {
+          userIdToUpdate = userByEmail.id;
+        }
+      } catch {}
+
+      if (!userIdToUpdate) {
+        const fsUser = await FirestoreDB.getUserByEmail(email.toLowerCase().trim());
+        if (fsUser) {
+          userIdToUpdate = fsUser.id;
+        }
       }
-    } catch {}
+    }
+
+    const hashedPassword = hashPassword(newPassword);
+
+    // 3. Update password in database if matched
+    if (userIdToUpdate) {
+      try {
+        await prisma.user.update({
+          where: { id: userIdToUpdate },
+          data: { password: hashedPassword },
+        });
+
+        if (tokenRecordId) {
+          await prisma.resetToken.update({
+            where: { id: tokenRecordId },
+            data: { usedAt: new Date() },
+          });
+        }
+      } catch (dbErr) {
+        console.warn("Prisma user password update note:", dbErr);
+      }
+
+      try {
+        const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
+        if (firestore) {
+          await firestore.collection("users").doc(userIdToUpdate).update({ password: hashedPassword });
+        }
+      } catch {}
+    }
 
     return NextResponse.json({
       success: true,
