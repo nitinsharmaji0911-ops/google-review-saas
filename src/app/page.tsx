@@ -316,9 +316,8 @@ export default function LandingPage() {
             {/* Micro Tags & Social Proof Strip */}
             <div className="pt-2 space-y-3">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[11px] sm:text-xs text-slate-600 font-bold">
-                <span className="bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-200">✓ Auto-Feedback Filter</span>
-                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full border border-slate-200">✓ Smart Keywords</span>
-                <span className="bg-amber-50 text-amber-900 px-2.5 py-1 rounded-full border border-amber-200">✓ 1-Click Google Handoff</span>
+                <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full border border-emerald-200">✓ Auto-Feedback Filter</span>
+                <span className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-200">✓ Smart Keywords</span>
               </div>
 
               {/* Real Human Avatar Social Proof Strip */}
@@ -344,7 +343,7 @@ export default function LandingPage() {
                   <span className="text-black font-black">250+ Business Owners</span> active<br />
                   <span className="text-[#15803D] font-extrabold flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    ★ 4.9/5 Average Rating Boost
+                    ★ 10x Your Reviews
                   </span>
                 </div>
               </div>
@@ -521,26 +520,6 @@ export default function LandingPage() {
 
           </div>
 
-        </div>
-      </section>
-
-      {/* 
-        ========================================================================
-        SOCIAL PROOF BAR
-        ========================================================================
-      */}
-      <section className="py-6 sm:py-8 border-y-2 border-black bg-white">
-        <div className="max-w-6xl mx-auto px-4 text-center space-y-2">
-          <p className="text-[10.5px] sm:text-xs font-black uppercase tracking-widest text-slate-500">
-            Trusted by 250+ Cafés, Salons, Clinics, Restaurants & Auto Studios
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-8 text-black text-xs sm:text-sm font-bold">
-            <span className="flex items-center gap-1">☕ Specialty Cafés</span>
-            <span className="flex items-center gap-1">💇‍♀️ Luxury Salons</span>
-            <span className="flex items-center gap-1">🍽️ Fine Dining</span>
-            <span className="flex items-center gap-1">🦷 Healthcare</span>
-            <span className="flex items-center gap-1">🚗 Auto Studios</span>
-          </div>
         </div>
       </section>
 
