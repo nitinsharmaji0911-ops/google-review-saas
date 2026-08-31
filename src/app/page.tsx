@@ -313,13 +313,7 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Micro Tags */}
-            <div className="pt-2">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[11px] sm:text-xs text-slate-600 font-bold">
-                <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full border border-emerald-200">✓ Auto-Feedback Filter</span>
-                <span className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-200">✓ Smart Keywords</span>
-              </div>
-            </div>
+
           </div>
 
           {/* RIGHT COLUMN: Interactive Smartphone Mockup + Standee Floating Card */}
