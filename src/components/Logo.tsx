@@ -16,8 +16,8 @@ export default function Logo({
   height,
   width,
 }: LogoProps) {
-  // Original WR Monogram Logo (Custom razor-tail ligature)
-  const src = inverted ? "/wr-logo-white.png" : "/wr-logo-black.png";
+  // Exact Welurik Review logo with green square + matte black W
+  const src = inverted ? "/welurik-review-dark.png" : "/welurik-review-light.png";
 
   const effectiveStyle: React.CSSProperties = {
     display: "block",
@@ -27,15 +27,15 @@ export default function Logo({
     ...style,
   };
 
-  // Default responsive sizing: clean, prominent and sharp
-  const defaultSizeClasses = !height && !width ? "h-10 sm:h-[58px] w-auto" : "";
+  // Clean responsive sizing on transparent background (zero black box)
+  const defaultSizeClasses = !height && !width ? "h-9 sm:h-11 w-auto" : "";
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
       alt="Welurik Review"
-      className={`transition-transform duration-200 hover:scale-[1.04] select-none ${defaultSizeClasses} ${className}`}
+      className={`transition-transform duration-200 hover:scale-[1.03] select-none ${defaultSizeClasses} ${className}`}
       style={effectiveStyle}
     />
   );

@@ -138,9 +138,9 @@ export default function LandingPage() {
       <div className="w-full max-w-[1080px] mx-auto px-4 pt-4 sm:pt-6 z-40 relative">
         <header className="w-full bg-white border-2 border-black rounded-full px-4 sm:px-6 py-2 sm:py-2.5 shadow-[4px_4px_0px_#000000] flex items-center justify-between">
           
-          {/* Original WR Monogram Brand Logo */}
+          {/* Welurik Review Brand Logo */}
           <Link href="/" className="group hover:opacity-90 transition-opacity flex items-center">
-            <WelurikLogo className="h-9 sm:h-12" />
+            <WelurikLogo className="h-8 sm:h-10" />
           </Link>
 
           {/* Clean Desktop Nav Links */}
