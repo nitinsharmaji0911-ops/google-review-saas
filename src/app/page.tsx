@@ -153,17 +153,18 @@ export default function LandingPage() {
           </nav>
 
           {/* Action / Auth Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <Link
               href="/login"
-              className="hidden sm:inline-block text-[13px] font-bold text-black hover:text-slate-600 transition-colors"
+              className="text-[12.5px] sm:text-[13px] font-bold text-black hover:text-slate-600 transition-colors"
             >
               Sign In
             </Link>
 
+            {/* Desktop Only: Get Started Button */}
             <Link
               href="/signup"
-              className="text-[12.5px] sm:text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-4 sm:px-5 py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all"
+              className="hidden md:inline-flex text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-5 py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all"
             >
               Get Started
             </Link>

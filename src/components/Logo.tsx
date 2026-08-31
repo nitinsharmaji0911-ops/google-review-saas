@@ -15,7 +15,9 @@ export default function Logo({
   height,
   width,
 }: LogoProps) {
-  // Pure crisp logo asset with matte black W and Review
+  // Pure transparent logo with green square + matte black W + black elurik + green Review
+  const src = inverted ? "/welurik-review-dark.png" : "/welurik-review-light.png";
+
   const effectiveStyle: React.CSSProperties = {
     display: "block",
     objectFit: "contain",
@@ -24,17 +26,15 @@ export default function Logo({
     ...style,
   };
 
-  const defaultSizeClasses = !height && !width ? "h-8 sm:h-10 w-auto" : "";
+  const defaultSizeClasses = !height && !width ? "h-8 sm:h-11 w-auto" : "";
 
   return (
-    <div className="inline-flex items-center bg-black px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl sm:rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:scale-[1.03] transition-transform select-none">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/welurik-review-logo.png"
-        alt="Welurik Review"
-        className={`${defaultSizeClasses} ${className}`}
-        style={effectiveStyle}
-      />
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="Welurik Review"
+      className={`transition-transform duration-200 hover:scale-[1.04] select-none ${defaultSizeClasses} ${className}`}
+      style={effectiveStyle}
+    />
   );
 }
