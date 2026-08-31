@@ -3,13 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, ArrowRight, Sparkles } from "lucide-react";
+import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, AlertCircle } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("owner@thecoffeehouse.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -27,140 +29,160 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success) {
-        router.push("/dashboard");
+        router.push(data.redirect || "/dashboard");
       } else {
-        setError(data.error || "Invalid credentials");
+        setError(data.error || "Invalid email or password");
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError("Unable to connect to the server. Please check your connection.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = () => {
-    router.push("/dashboard");
-  };
-
   return (
-    <div className="min-h-screen bg-[#FDFDFE] text-slate-900 font-sans selection:bg-slate-900 selection:text-white flex flex-col justify-between relative overflow-hidden">
-      {/* Ambient Neon Glow Diffusion */}
-      <div className="absolute top-[10%] right-[15%] w-[500px] h-[500px] bg-gradient-to-tr from-violet-300/20 via-indigo-200/25 to-purple-300/20 rounded-full blur-[130px] pointer-events-none -z-10" />
-      <div className="absolute bottom-[10%] left-[10%] w-[450px] h-[450px] bg-purple-200/15 rounded-full blur-[120px] pointer-events-none -z-10" />
-
-      {/* Top Simple Header */}
-      <header className="max-w-6xl w-full mx-auto px-8 py-7 flex items-center justify-between z-10">
+    <div className="min-h-screen bg-[#FAF9F5] text-black font-sans selection:bg-black selection:text-white flex flex-col justify-between relative overflow-hidden">
+      {/* Top Brand Header */}
+      <header className="max-w-6xl w-full mx-auto px-6 sm:px-8 py-6 flex items-center justify-between z-10">
         <Link href="/" className="group hover:opacity-80 transition-opacity flex items-center">
-          <WelurikLogo className="h-10 sm:h-[56px]" />
+          <WelurikLogo className="h-9 sm:h-[48px]" />
         </Link>
-        <Link
-          href="/signup"
-          className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2 rounded-full border border-slate-200/80 bg-white/80 hover:bg-slate-50 transition-all"
-        >
-          Create Account
-        </Link>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-500 font-medium hidden sm:inline">New to Welurik?</span>
+          <Link
+            href="/signup"
+            className="text-xs font-black text-black px-4 py-2 rounded-full border-2 border-black bg-white hover:bg-slate-50 shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all"
+          >
+            Create Account
+          </Link>
+        </div>
       </header>
 
-      {/* Centered Login Container */}
-      <main className="max-w-md w-full mx-auto px-6 py-6 my-auto z-10 space-y-6 text-center">
-        {/* Logo Badge & Header */}
-        <div className="space-y-2">
-          <div className="w-12 h-12 bg-slate-950 text-white rounded-2xl flex items-center justify-center font-black text-xl mx-auto shadow-md shadow-slate-900/10">
-            R
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
-            Welcome Back
+      {/* Centered Login Card */}
+      <main className="max-w-[440px] w-full mx-auto px-4 sm:px-6 py-6 my-auto z-10 space-y-5 text-center">
+        {/* Title Header */}
+        <div className="space-y-1.5">
+          <h1 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
+            Sign In to Welurik
           </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            Sign in to manage your Google reviews & QR standees
+          <p className="text-xs sm:text-[13px] text-slate-600 font-medium">
+            Manage your QR standees, AI review prompts & analytics
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-[32px] p-7 sm:p-8 space-y-6 text-left shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
+        {/* Neo-brutalist Main Card */}
+        <div className="bg-white border-2 border-black rounded-[28px] p-6 sm:p-8 space-y-5 text-left shadow-[5px_5px_0px_#000000]">
           {error && (
-            <div className="p-3 bg-rose-50 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200">
-              {error}
+            <div className="p-3.5 bg-rose-50 border-2 border-rose-400 text-rose-800 text-xs font-bold rounded-2xl flex items-start gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
-          {/* Form */}
+          {/* 1-Click Google Sign-In */}
+          <div className="space-y-3">
+            <GoogleAuthButton
+              text="Continue with Google"
+              onError={(err) => setError(err)}
+              onSuccess={() => setError("")}
+            />
+
+            {/* Clean Divider */}
+            <div className="relative flex items-center justify-center py-1">
+              <div className="border-t-2 border-black/10 w-full" />
+              <span className="bg-white px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+                or sign in with email
+              </span>
+              <div className="border-t-2 border-black/10 w-full" />
+            </div>
+          </div>
+
+          {/* Email / Password Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-black text-black mb-1.5">
                 Business Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="owner@yourbusiness.com"
-                  className="w-full text-xs pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 font-medium text-slate-900 transition-all"
+                  className="w-full text-xs sm:text-sm pl-10 pr-4 py-3 bg-slate-50 border-2 border-black rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#15803D] font-bold text-black shadow-[2px_2px_0px_#000000] transition-all"
                 />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-slate-700">
+                <label className="text-xs font-black text-black">
                   Password
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-[11px] font-semibold text-slate-500 hover:text-slate-950 transition-colors"
+                  className="text-[11px] font-bold text-slate-600 hover:text-black transition-colors"
                 >
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full text-xs pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 font-medium text-slate-900 transition-all"
+                  className="w-full text-xs sm:text-sm pl-10 pr-10 py-3 bg-slate-50 border-2 border-black rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#15803D] font-bold text-black shadow-[2px_2px_0px_#000000] transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-black"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-slate-950 hover:bg-slate-900 disabled:bg-slate-300 text-white rounded-full text-xs font-bold shadow-[0_10px_20px_rgba(15,23,42,0.18)] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] disabled:bg-slate-300 text-white rounded-full text-xs sm:text-sm font-black border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  Sign In to Dashboard <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Sign In to Dashboard</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
         </div>
 
-        <p className="text-xs text-slate-400">
+        {/* Bottom Sign-Up Link */}
+        <p className="text-xs text-slate-500 font-medium">
           Don't have an account yet?{" "}
-          <Link href="/signup" className="font-semibold text-slate-900 hover:underline">
-            Claim lifetime access
+          <Link href="/signup" className="font-bold text-black underline decoration-2 hover:text-[#15803D]">
+            Claim ₹1,999 Lifetime License
           </Link>
         </p>
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-6xl w-full mx-auto px-8 py-6 text-center text-xs text-slate-400 z-10 flex flex-wrap items-center justify-center gap-4">
+      {/* Modern Minimal Footer */}
+      <footer className="max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-slate-500 font-medium z-10 flex flex-wrap items-center justify-center gap-4 border-t-2 border-black/10">
         <span>© 2026 Welurik Review. All rights reserved.</span>
         <div className="flex items-center gap-3">
-          <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
+          <Link href="/privacy" className="hover:text-black">Privacy Policy</Link>
           <span>•</span>
-          <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
+          <Link href="/terms" className="hover:text-black">Terms of Service</Link>
           <span>•</span>
-          <Link href="/refund" className="hover:text-slate-600">Refund Policy</Link>
+          <Link href="/refund" className="hover:text-black">Refund Policy</Link>
         </div>
       </footer>
     </div>
