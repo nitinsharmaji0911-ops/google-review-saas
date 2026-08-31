@@ -163,19 +163,37 @@ export default function CustomerReviewPage() {
   const handleCopyAndOpenGoogle = async () => {
     if (!business) return;
 
+    const targetUrl =
+      business.googleReviewUrl && business.googleReviewUrl.trim().length > 0
+        ? business.googleReviewUrl.trim()
+        : "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4";
+
+    // 1. Copy review text to clipboard
     try {
-      await navigator.clipboard.writeText(generatedReview);
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(generatedReview);
+      } else {
+        throw new Error("Clipboard API unavailable");
+      }
       setIsCopied(true);
     } catch {
-      const textArea = document.createElement("textarea");
-      textArea.value = generatedReview;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      setIsCopied(true);
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = generatedReview;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        setIsCopied(true);
+      } catch {
+        setIsCopied(true);
+      }
     }
 
+    // 2. Confetti effect on high ratings
     if (rating >= 4) {
       try {
         confetti({
@@ -186,6 +204,7 @@ export default function CustomerReviewPage() {
       } catch {}
     }
 
+    // 3. Track conversion analytics
     fetch("/api/analytics/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -195,9 +214,10 @@ export default function CustomerReviewPage() {
       }),
     }).catch(() => {});
 
+    // 4. Reliable redirect to Google Review Page (Avoids browser popup blockers)
     setTimeout(() => {
-      window.open(business.googleReviewUrl, "_blank", "noopener,noreferrer");
-    }, 600);
+      window.location.href = targetUrl;
+    }, 500);
   };
 
   if (loading) {
@@ -514,13 +534,13 @@ export default function CustomerReviewPage() {
                 type="button"
                 onClick={handleCopyAndOpenGoogle}
                 className={`w-full py-4 px-5 active:scale-[0.98] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all ${
-                  rating <= 2 ? "bg-slate-900 hover:bg-slate-800" : "bg-slate-900 hover:bg-slate-800"
+                  rating <= 2 ? "bg-slate-900 hover:bg-slate-800" : "bg-[#15803D] hover:bg-[#166534]"
                 }`}
               >
                 {isCopied ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Copied! Opening Google Reviews...
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    Copied! Redirecting to Google...
                   </>
                 ) : (
                   <>
@@ -531,9 +551,22 @@ export default function CustomerReviewPage() {
                 )}
               </button>
 
-              <p className="text-center text-[11px] text-slate-400">
-                Review is copied automatically. Simply paste and post on Google!
-              </p>
+              {isCopied ? (
+                <a
+                  href={
+                    business.googleReviewUrl && business.googleReviewUrl.trim().length > 0
+                      ? business.googleReviewUrl.trim()
+                      : "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4"
+                  }
+                  className="block text-center text-xs font-bold text-[#15803D] hover:underline pt-1 animate-pulse"
+                >
+                  Click here if Google doesn't open automatically →
+                </a>
+              ) : (
+                <p className="text-center text-[11px] text-slate-400">
+                  Review is copied automatically. Simply paste and post on Google!
+                </p>
+              )}
             </div>
           </div>
         )}
