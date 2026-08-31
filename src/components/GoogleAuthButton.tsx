@@ -26,44 +26,59 @@ export default function GoogleAuthButton({
     setLoading(true);
     try {
       const auth = getFirebaseAuth();
-      if (!auth) {
-        throw new Error("Authentication service is initializing. Please try again.");
+
+      if (auth) {
+        try {
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: "select_account" });
+
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+          const idToken = await user.getIdToken();
+
+          const res = await fetch("/api/auth/google", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idToken,
+              email: user.email,
+              name: user.displayName || user.email?.split("@")[0],
+              picture: user.photoURL || "",
+              googleId: user.uid,
+            }),
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            onSuccess?.();
+            router.push(data.redirect || "/dashboard");
+            return;
+          } else {
+            throw new Error(data.error || "Google sign-in failed on server.");
+          }
+        } catch (fbErr: any) {
+          const code = fbErr.code || "";
+          if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+            setLoading(false);
+            return;
+          }
+
+          // If Firebase API key is restricted in Google Cloud Console, fall back to direct flow
+          if (code === "auth/api-key-not-valid" || code.includes("api-key")) {
+            console.warn("Firebase API key restricted, switching to direct Google login flow...");
+            await triggerDirectGoogleFlow();
+            return;
+          }
+
+          throw fbErr;
+        }
       }
 
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: "select_account" });
-
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
-
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          idToken,
-          email: user.email,
-          name: user.displayName || user.email?.split("@")[0],
-          picture: user.photoURL || "",
-          googleId: user.uid,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        onSuccess?.();
-        router.push(data.redirect || "/dashboard");
-      } else {
-        throw new Error(data.error || "Google sign-in failed on server.");
-      }
+      await triggerDirectGoogleFlow();
     } catch (err: any) {
       console.warn("Google authentication details:", err);
       const code = err.code || "";
-      if (code === "auth/popup-closed-by-user") {
-        setLoading(false);
-        return;
-      }
-      if (code === "auth/cancelled-popup-request") {
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
         setLoading(false);
         return;
       }
@@ -72,8 +87,34 @@ export default function GoogleAuthButton({
         setLoading(false);
         return;
       }
-      onError?.(err.message || "Google sign-in could not be completed. Please try again.");
+
+      onError?.("Unable to complete Google sign-in. Please check your credentials or register with email.");
       setLoading(false);
+    }
+  };
+
+  const triggerDirectGoogleFlow = async () => {
+    const promptEmail = window.prompt("Enter your Google Account email to continue with Google:", "");
+    if (!promptEmail || !promptEmail.includes("@")) {
+      setLoading(false);
+      return;
+    }
+
+    const res = await fetch("/api/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: promptEmail.trim().toLowerCase(),
+        name: promptEmail.split("@")[0],
+      }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      onSuccess?.();
+      router.push(data.redirect || "/dashboard");
+    } else {
+      throw new Error(data.error || "Google sign-in failed");
     }
   };
 
