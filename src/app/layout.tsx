@@ -1,9 +1,86 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#15803D",
+};
+
 export const metadata: Metadata = {
-  title: "Welurik Review — 30-Second AI Google Review Assistant",
-  description: "Help happy customers leave genuine, detailed 5-star Google reviews in 30 seconds with custom QR codes and smart AI.",
+  metadataBase: new URL("https://google-review-saas.vercel.app"),
+  title: {
+    default: "Welurik Review — Turn Happy Customers into 5-Star Google Reviews",
+    template: "%s | Welurik Review",
+  },
+  description:
+    "AI-powered QR standees that eliminate customer writer's block and multiply your Google Maps reviews in 30 seconds. 100% Google policy compliant.",
+  keywords: [
+    "Google reviews",
+    "GMB ranking booster",
+    "Google Maps SEO",
+    "QR code review standee",
+    "AI review assistant",
+    "local business reviews",
+    "customer feedback system",
+    "Welurik Review",
+  ],
+  authors: [{ name: "Welurik Review Team" }],
+  creator: "Welurik Review",
+  publisher: "Welurik Review",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://google-review-saas.vercel.app",
+    siteName: "Welurik Review",
+    title: "Welurik Review — Turn Happy Customers into 5-Star Google Reviews",
+    description:
+      "AI-powered QR standees and 30-second review assistant to multiply your Google Maps 5-star reviews and dominate local search rankings.",
+    images: [
+      {
+        url: "/welurik-review-light.png",
+        width: 800,
+        height: 600,
+        alt: "Welurik Review",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Welurik Review — Turn Happy Customers into 5-Star Google Reviews",
+    description:
+      "AI-powered QR standees and 30-second review assistant to multiply your Google Maps reviews in 30 seconds.",
+    images: ["/welurik-review-light.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/welurik-review-light.png",
+    shortcut: "/welurik-review-light.png",
+    apple: "/welurik-review-light.png",
+  },
 };
 
 export default function RootLayout({
@@ -12,8 +89,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-slate-900 selection:text-white">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-[#FAF9F5] text-slate-900 font-sans antialiased selection:bg-[#15803D] selection:text-white">
         {children}
       </body>
     </html>
