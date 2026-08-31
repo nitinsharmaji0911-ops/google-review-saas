@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://google-review-saas.vercel.app"),
+  metadataBase: new URL("https://review.welurik.com"),
   title: {
     default: "Welurik Review — Turn Happy Customers into 5-Star Google Reviews",
     template: "%s | Welurik Review",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://google-review-saas.vercel.app",
+    url: "https://review.welurik.com",
     siteName: "Welurik Review",
     title: "Welurik Review — Turn Happy Customers into 5-Star Google Reviews",
     description:

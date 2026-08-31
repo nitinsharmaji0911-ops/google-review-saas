@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://google-review-saas.vercel.app";
+  const baseUrl = "https://review.welurik.com";
 
   return [
     {

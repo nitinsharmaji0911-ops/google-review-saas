@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/dashboard/", "/settings/", "/feedback/"],
     },
-    sitemap: "https://google-review-saas.vercel.app/sitemap.xml",
+    sitemap: "https://review.welurik.com/sitemap.xml",
   };
 }
