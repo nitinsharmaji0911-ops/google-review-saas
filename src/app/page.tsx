@@ -313,39 +313,11 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Micro Tags & Social Proof Strip */}
-            <div className="pt-2 space-y-3">
+            {/* Micro Tags */}
+            <div className="pt-2">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[11px] sm:text-xs text-slate-600 font-bold">
                 <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full border border-emerald-200">✓ Auto-Feedback Filter</span>
                 <span className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-200">✓ Smart Keywords</span>
-              </div>
-
-              {/* Real Human Avatar Social Proof Strip */}
-              <div className="flex items-center justify-center lg:justify-start gap-3 pt-1">
-                <div className="flex -space-x-2 overflow-hidden items-center">
-                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
-                    <img src="/images/standee-cafe-counter.jpg" alt="Cafe Owner" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
-                    <img src="/images/retail-display-mockup.jpg" alt="Clinic Founder" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
-                    <img src="/images/hero-standee-badge.jpg" alt="Salon Owner" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
-                    <img src="/images/google-stars-boost.jpg" alt="Restaurant Owner" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="inline-block h-9 w-9 rounded-full ring-2 ring-white bg-slate-900 text-white font-black text-[10px] flex items-center justify-center border border-black">
-                    +250
-                  </div>
-                </div>
-                <div className="text-left text-[11.5px] font-bold text-slate-700 leading-tight">
-                  <span className="text-black font-black">250+ Business Owners</span> active<br />
-                  <span className="text-[#15803D] font-extrabold flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    ★ 10x Your Reviews
-                  </span>
-                </div>
               </div>
             </div>
           </div>
