@@ -77,9 +77,13 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/welurik-review-light.png",
-    shortcut: "/welurik-review-light.png",
-    apple: "/welurik-review-light.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", sizes: "64x64", type: "image/png" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
 };
 
