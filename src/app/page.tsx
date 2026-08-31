@@ -16,12 +16,8 @@ import {
   Menu,
   X,
   Copy,
-  ExternalLink,
-  MapPin,
   Check,
-  Play,
-  Zap,
-  Smartphone
+  Play
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
 
@@ -84,7 +80,7 @@ export default function LandingPage() {
     },
   ];
 
-  // Auto-play slideshow every 3.5 seconds
+  // Auto-play slideshow every 3.6 seconds
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
@@ -128,48 +124,48 @@ export default function LandingPage() {
         ACTIVE ARCHITECTURAL NEO-GRID & AMBIENT GLOW SYSTEM
         ========================================================================
       */}
-      <div className="neo-grid-overlay absolute inset-0 w-full h-full pointer-events-none -z-10 opacity-80" />
-      <div className="absolute top-[3%] right-[-5%] sm:right-[5%] w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] bg-[#bbf7d0]/45 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10" />
-      <div className="absolute top-[8%] left-[-10%] sm:left-[2%] w-[300px] sm:w-[550px] h-[300px] sm:h-[550px] bg-[#dcfce7]/55 rounded-full blur-[90px] sm:blur-[130px] pointer-events-none -z-10" />
-      <div className="absolute top-[48%] right-[8%] w-[320px] sm:w-[520px] h-[320px] sm:h-[520px] bg-[#bbf7d0]/35 rounded-full blur-[110px] pointer-events-none -z-10" />
-      <div className="absolute bottom-[10%] left-[5%] w-[340px] sm:w-[560px] h-[340px] sm:h-[560px] bg-[#dcfce7]/45 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="neo-grid-overlay absolute inset-0 w-full h-full pointer-events-none -z-10 opacity-75" />
+      <div className="absolute top-[3%] right-[-5%] sm:right-[5%] w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] bg-[#bbf7d0]/40 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-[8%] left-[-10%] sm:left-[2%] w-[300px] sm:w-[550px] h-[300px] sm:h-[550px] bg-[#dcfce7]/50 rounded-full blur-[90px] sm:blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute top-[48%] right-[8%] w-[320px] sm:w-[520px] h-[320px] sm:h-[520px] bg-[#bbf7d0]/30 rounded-full blur-[110px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[10%] left-[5%] w-[340px] sm:w-[560px] h-[340px] sm:h-[560px] bg-[#dcfce7]/40 rounded-full blur-[120px] pointer-events-none -z-10" />
 
       {/* 
         ========================================================================
-        FLOATING STADIUM PILL NAVBAR (Xocial Neo-Brutalist Theme)
+        FLOATING STADIUM PILL NAVBAR (Neo-Brutalist Theme)
         ========================================================================
       */}
       <div className="w-full max-w-[1080px] mx-auto px-4 pt-4 sm:pt-6 z-40 relative">
-        <header className="w-full bg-white border-2 border-black rounded-full px-5 sm:px-7 py-2.5 sm:py-3 shadow-[4px_4px_0px_#000000] flex items-center justify-between">
+        <header className="w-full bg-white border-2 border-black rounded-full px-4 sm:px-6 py-2 sm:py-2.5 shadow-[4px_4px_0px_#000000] flex items-center justify-between">
           
-          {/* Brand Logo */}
-          <Link href="/" className="group hover:opacity-85 transition-opacity flex items-center gap-2">
-            <WelurikLogo className="h-9 sm:h-[44px]" />
+          {/* Clean Welurik Review Brand Logo */}
+          <Link href="/" className="group hover:opacity-90 transition-opacity flex items-center">
+            <WelurikLogo className="h-7 sm:h-9" />
           </Link>
 
-          {/* Clean Lowercase Desktop Nav Links */}
+          {/* Clean Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-7 text-[13.5px] font-semibold text-slate-700">
-            <a href="#how-it-works" className="hover:text-black transition-colors lowercase">how it works</a>
-            <a href="#features" className="hover:text-black transition-colors lowercase">features</a>
-            <a href="#pricing" className="hover:text-black transition-colors lowercase">pricing</a>
-            <a href="#faq" className="hover:text-black transition-colors lowercase">faq</a>
-            <Link href="/dashboard" className="hover:text-black transition-colors lowercase">demo</Link>
+            <a href="#how-it-works" className="hover:text-black transition-colors">How It Works</a>
+            <a href="#features" className="hover:text-black transition-colors">Features</a>
+            <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
+            <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
+            <Link href="/dashboard" className="hover:text-black transition-colors">Demo</Link>
           </nav>
 
           {/* Action / Auth Buttons */}
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="hidden sm:inline-block text-[13px] font-bold text-black hover:text-slate-600 transition-colors lowercase"
+              className="hidden sm:inline-block text-[13px] font-bold text-black hover:text-slate-600 transition-colors"
             >
-              log in
+              Sign In
             </Link>
 
             <Link
               href="/signup"
-              className="text-[12.5px] sm:text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all lowercase"
+              className="text-[12.5px] sm:text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-4 sm:px-5 py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all"
             >
-              sign up
+              Get Started
             </Link>
 
             {/* Mobile Hamburger Toggle */}
@@ -190,30 +186,30 @@ export default function LandingPage() {
             <a
               href="#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-1.5 text-sm font-bold text-black lowercase"
+              className="block py-1.5 text-sm font-bold text-black"
             >
-              how it works
+              How It Works
             </a>
             <a
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-1.5 text-sm font-bold text-black lowercase"
+              className="block py-1.5 text-sm font-bold text-black"
             >
-              features
+              Features
             </a>
             <a
               href="#pricing"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-1.5 text-sm font-bold text-black lowercase"
+              className="block py-1.5 text-sm font-bold text-black"
             >
-              pricing
+              Pricing
             </a>
             <a
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-1.5 text-sm font-bold text-black lowercase"
+              className="block py-1.5 text-sm font-bold text-black"
             >
-              faq
+              FAQ
             </a>
             <div className="pt-2 border-t-2 border-black/10 flex flex-col gap-2">
               <Link
@@ -221,14 +217,14 @@ export default function LandingPage() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-2.5 text-center text-xs font-bold text-black bg-slate-100 border border-black rounded-full"
               >
-                log in
+                Sign In
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border-2 border-black rounded-full shadow-[2px_2px_0px_#000000]"
               >
-                get lifetime access (₹1,999)
+                Get Lifetime Access (₹1,999)
               </Link>
             </div>
           </div>
@@ -237,79 +233,65 @@ export default function LandingPage() {
 
       {/* 
         ========================================================================
-        HERO SECTION (Neo-Brutalist Layout Matching Reference Image)
+        HERO SECTION (Original Content with Neo-Brutalist Theme)
         ========================================================================
       */}
       <section className="w-full max-w-[1140px] mx-auto px-4 sm:px-8 pt-8 sm:pt-14 pb-16 sm:pb-24 relative z-10">
         
-        {/* Floating Top Mini Badge */}
-        <div className="flex justify-center lg:justify-start mb-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[3px_3px_0px_#000000] text-[12px] font-bold text-black">
-            <span>ai replied in 2s</span>
-            <span className="text-[#16A34A]">⚡</span>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
-          {/* LEFT COLUMN: Hero Typography, CTAs & Platform Pills */}
+          {/* LEFT COLUMN: Typography, Badge & CTA (100% Original Content) */}
           <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-center lg:text-left pr-0 lg:pr-4">
             
-            {/* Main Punchy Headline with Forest Green Highlight */}
-            <h1 className="text-[36px] xs:text-[46px] sm:text-5xl lg:text-[62px] font-black text-black tracking-[-0.04em] leading-[1.08] sm:leading-[1.04]">
-              AI that captures, <br className="hidden xs:inline" />
-              <span className="text-[#15803D] underline decoration-4 decoration-[#15803D]/30">messages,</span> & converts.
+            {/* 4.9 Star Average Pill Badge */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border-2 border-black bg-white shadow-[3px_3px_0px_#000000] text-xs font-bold text-black select-none">
+              <span className="text-[12.5px] font-black text-black">4.9 Star Average</span>
+              <div className="flex text-amber-400 gap-0.5 items-center">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+            </div>
+
+            {/* Original Main Headline */}
+            <h1 className="text-[36px] xs:text-[46px] sm:text-5xl lg:text-[62px] font-black text-black tracking-[-0.035em] leading-[1.08] sm:leading-[1.05]">
+              Turn Happy Customers <br className="hidden xs:inline" />
+              into <span className="text-[#15803D] underline decoration-4 decoration-[#15803D]/30">5-Star Reviews</span>
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-sm sm:text-base lg:text-[17px] text-slate-700 font-medium leading-[1.6] max-w-[510px] mx-auto lg:mx-0">
+            {/* Original Subtitle */}
+            <p className="text-sm sm:text-base lg:text-[17px] text-slate-700 font-medium leading-[1.6] max-w-[530px] mx-auto lg:mx-0">
               Easily collect, manage, and showcase customer feedback to boost your Google rating and grow your business with 30-second AI review generation.
             </p>
 
-            {/* Neo-Brutalist Pill CTA Button Lockup */}
+            {/* Neo-Brutalist CTA Button Lockup */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-1">
-              {/* Primary Green CTA Pill */}
               <Link
                 href="/signup"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-[13.5px] sm:text-[14px] font-black border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-9 py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-[13.5px] sm:text-[14px] font-black border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
               >
-                start 1 month free →
+                Get Lifetime Access (₹1,999) <ArrowRight className="w-4 h-4" />
               </Link>
 
-              {/* Secondary White CTA Pill */}
-              <a
-                href="#how-it-works"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-black rounded-full text-[13.5px] sm:text-[14px] font-bold border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+              <Link
+                href="/dashboard"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-black rounded-full text-[13.5px] sm:text-[14px] font-bold border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
               >
-                <Play className="w-3.5 h-3.5 fill-black text-black" /> see it in action
-              </a>
+                <Play className="w-3.5 h-3.5 fill-black text-black" /> View Live Demo
+              </Link>
             </div>
 
-            {/* Micro Plan Text */}
-            <p className="text-[11.5px] sm:text-[12.5px] font-semibold text-slate-500">
-              free forever plan • no credit card • connect in 5 minutes
-            </p>
-
-            {/* Platform Badges with Black Borders */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-2.5 pt-2">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
-                <span className="text-[#25D366]">💬</span> whatsapp
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
-                <span className="text-[#E1306C]">📸</span> instagram
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
-                <span className="text-[#4285F4]">📍</span> google maps
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
-                <span className="text-[#15803D]">🖨️</span> qr standee
-              </span>
+            {/* Original Micro Tags Line */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-3.5 text-[12.5px] text-slate-600 font-bold pt-1">
+              <span className="bg-white border-2 border-black px-3 py-1 rounded-full shadow-[2px_2px_0px_#000000]">Auto-Feedback</span>
+              <span className="bg-white border-2 border-black px-3 py-1 rounded-full shadow-[2px_2px_0px_#000000]">Smart Prompts</span>
+              <span className="bg-white border-2 border-black px-3 py-1 rounded-full shadow-[2px_2px_0px_#000000]">Analytics</span>
             </div>
           </div>
 
           {/* 
             ========================================================================
-            RIGHT COLUMN: NEO-BRUTALIST PHONE MOCKUP (4-STEP SLIDESHOW)
+            RIGHT COLUMN: INTERACTIVE 4-STEP SLIDESHOW PHONE FRAME
             ========================================================================
           */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative py-4 sm:py-6">
@@ -821,9 +803,9 @@ export default function LandingPage() {
       <footer className="w-full max-w-[1080px] mx-auto px-4 sm:px-8 py-6 sm:py-8 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4 z-10 text-center sm:text-left">
         <p>© 2026 Welurik Review. Built for local businesses to collect authentic 5-star Google reviews.</p>
         <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-6 font-bold text-black">
-          <Link href="/login" className="hover:text-slate-600 transition-colors lowercase">sign in</Link>
-          <Link href="/dashboard" className="hover:text-slate-600 transition-colors lowercase">dashboard</Link>
-          <Link href="/r/the-coffee-house" target="_blank" className="hover:text-slate-600 transition-colors lowercase">live funnel</Link>
+          <Link href="/login" className="hover:text-slate-600 transition-colors">Sign In</Link>
+          <Link href="/dashboard" className="hover:text-slate-600 transition-colors">Dashboard</Link>
+          <Link href="/r/the-coffee-house" target="_blank" className="hover:text-slate-600 transition-colors">Live Funnel</Link>
         </div>
       </footer>
     </div>
