@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loadGoogleGsiScript, parseJwt } from "@/lib/google-auth";
+import { getFirebaseAuth } from "@/lib/firebase-client";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 
 interface GoogleAuthButtonProps {
@@ -24,98 +25,55 @@ export default function GoogleAuthButton({
   const handleGoogleAuth = async () => {
     setLoading(true);
     try {
-      // Check if Google Client ID is configured
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
-      if (clientId && typeof window !== "undefined") {
-        await loadGoogleGsiScript();
-        const google = (window as any).google;
-
-        if (google?.accounts?.id) {
-          google.accounts.id.initialize({
-            client_id: clientId,
-            callback: async (response: any) => {
-              try {
-                const payload = parseJwt(response.credential);
-                const res = await fetch("/api/auth/google", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    idToken: response.credential,
-                    email: payload?.email,
-                    name: payload?.name,
-                    picture: payload?.picture,
-                  }),
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                  onSuccess?.();
-                  router.push(data.redirect || "/dashboard");
-                } else {
-                  throw new Error(data.error || "Google authentication failed");
-                }
-              } catch (err: any) {
-                onError?.(err.message || "Google sign-in failed");
-                setLoading(false);
-              }
-            },
-          });
-
-          google.accounts.id.prompt((notification: any) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-              // Fallback popup if one-tap prompt was dismissed or blocked
-              triggerDirectGoogleAuth();
-            }
-          });
-          return;
-        }
+      const auth = getFirebaseAuth();
+      if (!auth) {
+        throw new Error("Authentication service is initializing. Please try again.");
       }
 
-      // Standard Google OAuth fallback / popup flow
-      await triggerDirectGoogleAuth();
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idToken,
+          email: user.email,
+          name: user.displayName || user.email?.split("@")[0],
+          picture: user.photoURL || "",
+          googleId: user.uid,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        onSuccess?.();
+        router.push(data.redirect || "/dashboard");
+      } else {
+        throw new Error(data.error || "Google sign-in failed on server.");
+      }
     } catch (err: any) {
-      onError?.(err.message || "Unable to connect to Google. Please try again.");
+      console.warn("Google authentication details:", err);
+      const code = err.code || "";
+      if (code === "auth/popup-closed-by-user") {
+        setLoading(false);
+        return;
+      }
+      if (code === "auth/cancelled-popup-request") {
+        setLoading(false);
+        return;
+      }
+      if (code === "auth/network-request-failed") {
+        onError?.("Network connection issue during Google sign-in. Please try again.");
+        setLoading(false);
+        return;
+      }
+      onError?.(err.message || "Google sign-in could not be completed. Please try again.");
       setLoading(false);
-    }
-  };
-
-  const triggerDirectGoogleAuth = async () => {
-    // If standard OAuth redirect or popup:
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (clientId) {
-      const redirectUri = `${window.location.origin}/api/auth/google/callback`;
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-        clientId
-      )}&redirect_uri=${encodeURIComponent(
-        redirectUri
-      )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`;
-      window.location.href = googleAuthUrl;
-      return;
-    }
-
-    // Default seamless Google sign-in workflow
-    const promptEmail = window.prompt("Enter your Google Account email to continue with Google:", "");
-    if (!promptEmail) {
-      setLoading(false);
-      return;
-    }
-
-    const res = await fetch("/api/auth/google", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: promptEmail,
-        name: promptEmail.split("@")[0],
-      }),
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      onSuccess?.();
-      router.push(data.redirect || "/dashboard");
-    } else {
-      throw new Error(data.error || "Google sign-in failed");
     }
   };
 
