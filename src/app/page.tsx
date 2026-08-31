@@ -248,9 +248,15 @@ export default function LandingPage() {
           {/* LEFT COLUMN: Typography & CTAs (Tight & Punchy on Mobile) */}
           <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left pr-0 lg:pr-4">
             
-            {/* 4.9 Star Rating Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] sm:shadow-[3px_3px_0px_#000000] text-[11px] sm:text-xs font-bold text-black select-none">
-              <span className="font-black text-black">4.9 Star Average</span>
+            {/* Google Verified 4.9 Star Rating Pill */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] sm:shadow-[3px_3px_0px_#000000] text-[11px] sm:text-xs font-bold text-black select-none">
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span className="font-black text-black">4.9 on Google Maps</span>
               <div className="flex text-amber-400 gap-0.5 items-center">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star key={s} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />
@@ -268,6 +274,27 @@ export default function LandingPage() {
             <p className="text-[13px] sm:text-base lg:text-[17px] text-slate-700 font-medium leading-[1.5] sm:leading-[1.6] max-w-[510px] mx-auto lg:mx-0">
               AI-powered QR standees that eliminate customer writer's block and multiply your Google Maps reviews in 30 seconds.
             </p>
+
+            {/* Visual Standee Card for Mobile & Tablet */}
+            <div className="lg:hidden p-3 bg-gradient-to-r from-emerald-50 via-white to-amber-50 rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] flex items-center gap-3 text-left my-2">
+              <img
+                src="/images/hero-standee-badge.jpg"
+                alt="4x6 Table Standee"
+                className="w-16 h-16 rounded-xl border-2 border-black object-cover shrink-0 shadow-[1px_1px_0px_#000000]"
+              />
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <div className="flex items-center gap-1">
+                  <span className="text-[9.5px] font-black uppercase tracking-wider bg-[#15803D] text-white px-2 py-0.5 rounded-md">
+                    Print-Ready
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-600 flex items-center gap-0.5">
+                    ★ 5-Star Boost
+                  </span>
+                </div>
+                <p className="text-xs font-black text-slate-900 truncate">4" x 6" Acrylic Table Standee</p>
+                <p className="text-[10.5px] text-slate-600 font-medium">Place on tables or billing counter • Scan in 30s</p>
+              </div>
+            </div>
 
             {/* Clean Mobile & Desktop CTAs */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-2.5 sm:gap-3 pt-1">
@@ -294,18 +321,31 @@ export default function LandingPage() {
                 <span className="bg-amber-50 text-amber-900 px-2.5 py-1 rounded-full border border-amber-200">✓ 1-Click Google Handoff</span>
               </div>
 
-              {/* Avatar Social Proof Strip */}
+              {/* Real Human Avatar Social Proof Strip */}
               <div className="flex items-center justify-center lg:justify-start gap-3 pt-1">
-                <div className="flex -space-x-2 overflow-hidden">
-                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-slate-900 text-white font-bold text-[10px] flex items-center justify-center">☕</div>
-                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center">🍽️</div>
-                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center">💇‍♀️</div>
-                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-amber-500 text-white font-bold text-[10px] flex items-center justify-center">🦷</div>
-                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-black text-white font-bold text-[10px] flex items-center justify-center">🚗</div>
+                <div className="flex -space-x-2 overflow-hidden items-center">
+                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
+                    <img src="/images/standee-cafe-counter.jpg" alt="Cafe Owner" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
+                    <img src="/images/retail-display-mockup.jpg" alt="Clinic Founder" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
+                    <img src="/images/hero-standee-badge.jpg" alt="Salon Owner" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="relative inline-block h-9 w-9 rounded-full ring-2 ring-white border border-black overflow-hidden shadow-xs">
+                    <img src="/images/google-stars-boost.jpg" alt="Restaurant Owner" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="inline-block h-9 w-9 rounded-full ring-2 ring-white bg-slate-900 text-white font-black text-[10px] flex items-center justify-center border border-black">
+                    +250
+                  </div>
                 </div>
-                <div className="text-left text-[11px] font-bold text-slate-700 leading-tight">
+                <div className="text-left text-[11.5px] font-bold text-slate-700 leading-tight">
                   <span className="text-black font-black">250+ Business Owners</span> active<br />
-                  <span className="text-[#15803D] font-extrabold">★ 4.9/5 satisfaction rate</span>
+                  <span className="text-[#15803D] font-extrabold flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    ★ 4.9/5 Average Rating Boost
+                  </span>
                 </div>
               </div>
             </div>
