@@ -650,29 +650,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Feature 2: Simplified & Understandable */}
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
-            <div className="space-y-2.5">
-              <div className="w-9 h-9 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <h3 className="text-sm sm:text-base font-black text-black">Smart 5-Star & Feedback Filter</h3>
-              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
-                <li className="flex items-start gap-2">
-                  <span className="text-[#15803D] font-bold">✓</span>
-                  <span><strong>5-Star reviews</strong> go straight to Google Maps</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#15803D] font-bold">✓</span>
-                  <span><strong>1–3 Star issues</strong> are sent privately to your inbox</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#15803D] font-bold">✓</span>
-                  <span>Stops negative reviews from damaging your rating</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+
 
           {/* Feature 3 */}
           <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
