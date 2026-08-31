@@ -237,10 +237,25 @@ export default function CustomerReviewPage() {
   const displayedTopics = rating <= 2 && issueTopics.length > 0 ? issueTopics : positiveTopics;
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-between items-center py-6 sm:py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
       <div className="w-full max-w-sm mx-auto">
-        {/* Apple Minimal Brand Identity */}
-        <div className="text-center mb-8 space-y-1.5">
+        
+        {/* Quick Demo Switcher Pill */}
+        <div className="mb-5 flex items-center justify-between bg-white border border-slate-200/90 rounded-2xl px-3.5 py-2 shadow-xs text-xs">
+          <span className="text-slate-600 font-semibold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Customer Review Mode
+          </span>
+          <Link
+            href="/dashboard"
+            className="text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-colors"
+          >
+            Admin Dashboard →
+          </Link>
+        </div>
+
+        {/* Brand Identity */}
+        <div className="text-center mb-6 space-y-1">
           <span className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
             Assisted Review
           </span>
@@ -535,8 +550,14 @@ export default function CustomerReviewPage() {
         </div>
       </div>
 
-      <div className="text-center mt-8">
-        <p className="text-[11px] text-slate-300 font-medium">
+      <div className="text-center mt-8 space-y-2">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-black bg-white hover:bg-slate-50 px-4 py-2 rounded-full border border-slate-200 shadow-xs transition-all"
+        >
+          <span>💼</span> View Business Admin Dashboard →
+        </Link>
+        <p className="text-[11px] text-slate-400 font-medium block">
           Powered by Welurik Review
         </p>
       </div>

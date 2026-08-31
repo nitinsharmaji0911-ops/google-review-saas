@@ -149,7 +149,8 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-black transition-colors">Features</a>
             <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
             <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
-            <Link href="/dashboard" className="hover:text-black transition-colors">Demo</Link>
+            <Link href="/r/the-coffee-house" className="hover:text-black transition-colors">Demo</Link>
+            <Link href="/dashboard" className="hover:text-black transition-colors">Admin Dashboard</Link>
           </nav>
 
           {/* Action / Auth Buttons */}
@@ -212,6 +213,20 @@ export default function LandingPage() {
             >
               FAQ
             </a>
+            <Link
+              href="/r/the-coffee-house"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-1.5 text-sm font-bold text-[#15803D]"
+            >
+              Customer Demo Funnel
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-1.5 text-sm font-bold text-black"
+            >
+              Admin Dashboard
+            </Link>
             <div className="pt-2 border-t-2 border-black/10 flex flex-col gap-2">
               <Link
                 href="/login"
@@ -275,10 +290,10 @@ export default function LandingPage() {
               </Link>
 
               <Link
-                href="/dashboard"
+                href="/r/the-coffee-house"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-black rounded-full text-[13.5px] sm:text-[14px] font-bold border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
               >
-                <Play className="w-3.5 h-3.5 fill-black text-black" /> View Live Demo
+                <Play className="w-3.5 h-3.5 fill-black text-black" /> View Customer Demo
               </Link>
             </div>
 
@@ -787,10 +802,10 @@ export default function LandingPage() {
               Get Started for ₹1,999 (Lifetime) →
             </Link>
             <Link
-              href="/dashboard"
+              href="/r/the-coffee-house"
               className="w-full sm:w-auto px-6 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-black border-2 border-black font-bold rounded-full text-xs shadow-[4px_4px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
             >
-              View Live Demo
+              View Customer Demo
             </Link>
           </div>
         </div>
@@ -805,8 +820,8 @@ export default function LandingPage() {
         <p>© 2026 Welurik Review. Built for local businesses to collect authentic 5-star Google reviews.</p>
         <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-6 font-bold text-black">
           <Link href="/login" className="hover:text-slate-600 transition-colors">Sign In</Link>
-          <Link href="/dashboard" className="hover:text-slate-600 transition-colors">Dashboard</Link>
-          <Link href="/r/the-coffee-house" target="_blank" className="hover:text-slate-600 transition-colors">Live Funnel</Link>
+          <Link href="/r/the-coffee-house" className="hover:text-slate-600 transition-colors">Customer Demo</Link>
+          <Link href="/dashboard" className="hover:text-slate-600 transition-colors">Admin Dashboard</Link>
         </div>
       </footer>
     </div>
