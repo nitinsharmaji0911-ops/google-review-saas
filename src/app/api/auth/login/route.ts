@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
-import { prisma } from "@/lib/db";
 import { createSessionPayload, SESSION_COOKIE_NAME, verifyPassword } from "@/lib/auth";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rl = await checkRateLimit(req, "auth_login", { limit: 5, windowSeconds: 60 });
+    if (!rl.success) {
+      return rateLimitExceededResponse(rl.limit, rl.resetAt);
+    }
+
+    const body = await req.json().catch(() => ({}));
     const { email, password, isDemo } = body;
 
-    // Fast 1-click demo button bypass
+    // Strict Production Check: Demo login bypass is permanently forbidden in production
     if (isDemo) {
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          { success: false, error: "Demo authentication is disabled in production." },
+          { status: 403 }
+        );
+      }
+
+      // Local development only fixture
       const payload = createSessionPayload({
         userId: "demo-user-id",
         email: "owner@thecoffeehouse.com",
@@ -20,7 +34,7 @@ export async function POST(req: NextRequest) {
       const res = NextResponse.json({ success: true, redirect: "/dashboard" });
       res.cookies.set(SESSION_COOKIE_NAME, payload, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: false,
         sameSite: "lax",
         path: "/",
         maxAge: 60 * 60 * 24 * 30,
@@ -28,13 +42,16 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
-    if (!email || !password) {
-      return NextResponse.json({ success: false, error: "Email and password required" }, { status: 400 });
+    if (!email || !password || typeof email !== "string" || typeof password !== "string") {
+      return NextResponse.json(
+        { success: false, error: "Valid email and password are required" },
+        { status: 400 }
+      );
     }
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Look up in Prisma first, then FirestoreDB
+    // Look up in Prisma database first
     let user: any = null;
     try {
       user = await prisma.user.findUnique({
@@ -42,35 +59,42 @@ export async function POST(req: NextRequest) {
         include: { business: true },
       });
     } catch {
-      // fallback
+      // Fallback
     }
 
     if (!user) {
       user = await FirestoreDB.getUserByEmail(normalizedEmail);
     }
 
-    if (!user) {
-      return NextResponse.json({ success: false, error: "Invalid email or password" }, { status: 401 });
+    if (!user || !user.password) {
+      return NextResponse.json(
+        { success: false, error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    // Check password (supports hashed password and plain legacy)
-    const isMatch = verifyPassword(password, user.password) || user.password === password;
+    // STRICT SECURITY: Verify password solely via secure timing-safe cryptographic scrypt hash
+    const isMatch = verifyPassword(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ success: false, error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    const businessSlug = user.business?.slug || user.businessSlug || "the-coffee-house";
+    const businessSlug = user.business?.slug || user.businessSlug || "";
 
     const payload = createSessionPayload({
       userId: user.id,
       email: user.email,
       businessId: user.business?.id,
-      businessSlug,
+      businessSlug: businessSlug || undefined,
     });
 
+    const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
     const res = NextResponse.json({
       success: true,
-      redirect: "/dashboard",
+      redirect: redirectPath,
     });
 
     res.cookies.set(SESSION_COOKIE_NAME, payload, {
@@ -83,6 +107,10 @@ export async function POST(req: NextRequest) {
 
     return res;
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    console.error("Login route error:", err);
+    return NextResponse.json(
+      { success: false, error: "An unexpected error occurred during sign in" },
+      { status: 500 }
+    );
   }
 }

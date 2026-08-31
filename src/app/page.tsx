@@ -286,18 +286,42 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Micro Tags */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 text-[11px] sm:text-xs text-slate-500 font-bold pt-0.5">
-              <span>Auto-Feedback</span>
-              <span>•</span>
-              <span>Smart Keywords</span>
-              <span>•</span>
-              <span>Live Analytics</span>
+            {/* Micro Tags & Social Proof Strip */}
+            <div className="pt-2 space-y-3">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-[11px] sm:text-xs text-slate-600 font-bold">
+                <span className="bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-200">✓ Auto-Feedback Filter</span>
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full border border-slate-200">✓ Smart Keywords</span>
+                <span className="bg-amber-50 text-amber-900 px-2.5 py-1 rounded-full border border-amber-200">✓ 1-Click Google Handoff</span>
+              </div>
+
+              {/* Avatar Social Proof Strip */}
+              <div className="flex items-center justify-center lg:justify-start gap-3 pt-1">
+                <div className="flex -space-x-2 overflow-hidden">
+                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-slate-900 text-white font-bold text-[10px] flex items-center justify-center">☕</div>
+                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center">🍽️</div>
+                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center">💇‍♀️</div>
+                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-amber-500 text-white font-bold text-[10px] flex items-center justify-center">🦷</div>
+                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-black text-white font-bold text-[10px] flex items-center justify-center">🚗</div>
+                </div>
+                <div className="text-left text-[11px] font-bold text-slate-700 leading-tight">
+                  <span className="text-black font-black">250+ Business Owners</span> active<br />
+                  <span className="text-[#15803D] font-extrabold">★ 4.9/5 satisfaction rate</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Interactive Smartphone Mockup */}
+          {/* RIGHT COLUMN: Interactive Smartphone Mockup + Standee Floating Card */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative pt-2 sm:py-4">
+            {/* Background Standee Real Photo Preview Card */}
+            <div className="hidden xl:block absolute -top-6 -right-10 w-44 rounded-2xl border-2 border-black bg-white p-1.5 shadow-[4px_4px_0px_#000000] rotate-6 z-20 hover:rotate-0 transition-transform duration-300">
+              <img
+                src="/images/standee-cafe-counter.jpg"
+                alt="Acrylic QR Table Standee"
+                className="w-full h-28 object-cover rounded-xl"
+              />
+              <p className="text-[9px] font-black text-black pt-1 px-1 text-center">4"x6" Acrylic Standee</p>
+            </div>
             
             <div 
               onMouseEnter={() => setIsPaused(true)}
@@ -499,34 +523,136 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-3">
-            <div className="w-10 h-10 bg-black text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
-              1
+          {/* Step 1 Card with Photo */}
+          <div className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-4 flex flex-col justify-between overflow-hidden">
+            <div className="space-y-3">
+              <div className="w-10 h-10 bg-black text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
+                1
+              </div>
+              <h3 className="text-base font-black text-black">Scan Table Standee</h3>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                Place sleek 4" x 6" acrylic standees on tables, reception counters, or billing desks. Customers simply scan with their phone camera.
+              </p>
             </div>
-            <h3 className="text-base font-black text-black">Scan Table Standee</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Place sleek 4" x 6" acrylic standees on tables, reception counters, or billing desks. Customers simply scan with their phone camera.
+            <div className="relative rounded-2xl border-2 border-black overflow-hidden shadow-[2px_2px_0px_#000000] mt-2 group">
+              <img
+                src="/images/standee-cafe-counter.jpg"
+                alt="Acrylic QR standee on cafe table"
+                className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute bottom-2 left-2 bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs">
+                In-Store Table Tent
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2 Card with Photo */}
+          <div className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-4 flex flex-col justify-between overflow-hidden">
+            <div className="space-y-3">
+              <div className="w-10 h-10 bg-[#15803D] text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
+                2
+              </div>
+              <h3 className="text-base font-black text-black">Tap What They Loved</h3>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                Customers tap simple pills (e.g. "Great Coffee", "Fast Wi-Fi"). AI instantly crafts a genuine, polite, keyword-rich 5-star review.
+              </p>
+            </div>
+            <div className="relative rounded-2xl border-2 border-black overflow-hidden shadow-[2px_2px_0px_#000000] mt-2 group">
+              <img
+                src="/images/retail-display-mockup.jpg"
+                alt="Reception counter QR display"
+                className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute bottom-2 left-2 bg-[#15803D] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                Billing Desk Display
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3 Card with Photo */}
+          <div className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-4 flex flex-col justify-between overflow-hidden">
+            <div className="space-y-3">
+              <div className="w-10 h-10 bg-black text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
+                3
+              </div>
+              <h3 className="text-base font-black text-black">1-Tap Google Post</h3>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                The review copies to clipboard and instantly redirects to your Google Business profile. The customer pastes and submits in 5 seconds!
+              </p>
+            </div>
+            <div className="relative rounded-2xl border-2 border-black overflow-hidden shadow-[2px_2px_0px_#000000] mt-2 group">
+              <img
+                src="/images/google-stars-boost.jpg"
+                alt="5-star Google review explosion"
+                className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute bottom-2 left-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-md">
+                +42 Reviews Boost
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        ========================================================================
+        VISUAL SHOWCASE / REAL-WORLD RESULTS GALLERY
+        ========================================================================
+      */}
+      <section className="py-14 sm:py-20 px-4 sm:px-8 max-w-6xl mx-auto space-y-10 sm:space-y-12">
+        <div className="bg-[#111827] text-white rounded-[36px] p-6 sm:p-12 border-2 border-black shadow-[6px_6px_0px_#000000] space-y-8 relative overflow-hidden">
+          {/* Background Ambient Glow */}
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#15803D]/20 rounded-full blur-[100px] pointer-events-none" />
+          
+          <div className="max-w-xl space-y-3 relative z-10">
+            <span className="text-[11px] font-black uppercase tracking-widest bg-[#15803D] text-white px-3 py-1 rounded-full inline-block">
+              Print & Place In 5 Minutes
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+              Sits Beautifully On Any Table, Reception Or Counter
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+              No expensive NFC hardware or monthly hardware rentals. Download print-ready vector designs from your dashboard and slide them into standard 4" x 6" acrylic frames.
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-3">
-            <div className="w-10 h-10 bg-[#15803D] text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
-              2
+          {/* 3 Showcase Visual Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xs">
+              <img
+                src="/images/standee-cafe-counter.jpg"
+                alt="Cafes and Coffee Roasters"
+                className="w-full h-40 object-cover rounded-xl border border-white/10"
+              />
+              <h4 className="text-sm font-bold text-white">Specialty Cafes & Bakeries</h4>
+              <p className="text-xs text-slate-400">
+                Customers scan while waiting for their cold brew or brunch. Average 15+ new Google reviews every week.
+              </p>
             </div>
-            <h3 className="text-base font-black text-black">Tap What They Loved</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Customers tap simple pills (e.g. "Great Coffee", "Fast Wi-Fi"). AI instantly crafts a genuine, polite, keyword-rich 5-star review.
-            </p>
-          </div>
 
-          <div className="bg-white p-6 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-3">
-            <div className="w-10 h-10 bg-black text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
-              3
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xs">
+              <img
+                src="/images/retail-display-mockup.jpg"
+                alt="Salons and Healthcare Clinics"
+                className="w-full h-40 object-cover rounded-xl border border-white/10"
+              />
+              <h4 className="text-sm font-bold text-white">Salons, Spas & Clinics</h4>
+              <p className="text-xs text-slate-400">
+                Position right beside your iPad billing terminal. Capture positive reviews right when customer satisfaction is highest.
+              </p>
             </div>
-            <h3 className="text-base font-black text-black">1-Tap Google Post</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              The review copies to clipboard and instantly redirects to your Google Business profile. The customer pastes and submits in 5 seconds!
-            </p>
+
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xs">
+              <img
+                src="/images/google-stars-boost.jpg"
+                alt="Google Map Pack Domination"
+                className="w-full h-40 object-cover rounded-xl border border-white/10"
+              />
+              <h4 className="text-sm font-bold text-white">Dominate Google Maps</h4>
+              <p className="text-xs text-slate-400">
+                Rich reviews containing your service keywords propel your profile into the top 3 recommendations on Google Maps.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -735,10 +861,12 @@ export default function LandingPage() {
       */}
       <footer className="w-full max-w-[1080px] mx-auto px-4 sm:px-8 py-6 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4 z-10 text-center sm:text-left">
         <p>© 2026 Welurik Review. Built for local businesses to collect authentic 5-star Google reviews.</p>
-        <div className="flex flex-wrap items-center justify-center gap-5 font-bold text-black">
-          <Link href="/login" className="hover:text-slate-600 transition-colors">Sign In</Link>
-          <Link href="/r/the-coffee-house" className="hover:text-slate-600 transition-colors">Customer Demo</Link>
-          <Link href="/dashboard" className="hover:text-slate-600 transition-colors">Admin Dashboard</Link>
+        <div className="flex flex-wrap items-center justify-center gap-4 font-semibold text-slate-700 text-xs">
+          <Link href="/privacy" className="hover:text-black transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-black transition-colors">Terms</Link>
+          <Link href="/refund" className="hover:text-black transition-colors">Refunds</Link>
+          <Link href="/login" className="hover:text-black transition-colors">Sign In</Link>
+          <Link href="/r/the-coffee-house" className="hover:text-black transition-colors">Customer Demo</Link>
         </div>
       </footer>
     </div>

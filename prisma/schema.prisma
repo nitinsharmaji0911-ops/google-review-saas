@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -8,38 +8,52 @@ generator client {
 }
 
 model User {
-  id        String     @id @default(uuid())
-  email     String     @unique
-  password  String
-  createdAt DateTime   @default(now())
-  business  Business?
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  createdAt   DateTime     @default(now())
+  business    Business?
+  resetTokens ResetToken[]
+}
+
+model ResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
 }
 
 model Business {
-  id              String            @id @default(uuid())
-  userId          String            @unique
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name            String
-  slug            String            @unique
-  category        String            @default("cafe")
-  location        String?
-  description     String?
-  logoUrl         String?
-  googleReviewUrl String
-  brandColor      String            @default("#4f46e5")
-  phone           String?
-  monthlyAiQuota  Int               @default(500)
-  aiCallsThisMonth Int              @default(0)
-  isPro           Boolean           @default(false)
-  planName        String            @default("free")
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  services        BusinessService[]
-  topics          BusinessTopic[]
-  reviewSessions  ReviewSession[]
-  feedbacks       Feedback[]
-  analyticsEvents AnalyticsEvent[]
-  orders          Order[]
+  id               String            @id @default(uuid())
+  userId           String            @unique
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  slug             String            @unique
+  category         String            @default("cafe")
+  location         String?
+  description      String?
+  logoUrl          String?
+  googleReviewUrl  String
+  brandColor       String            @default("#4f46e5")
+  phone            String?
+  monthlyAiQuota   Int               @default(500)
+  aiCallsThisMonth Int               @default(0)
+  isPro            Boolean           @default(false)
+  planName         String            @default("free")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  services         BusinessService[]
+  topics           BusinessTopic[]
+  reviewSessions   ReviewSession[]
+  feedbacks        Feedback[]
+  analyticsEvents  AnalyticsEvent[]
+  orders           Order[]
 }
 
 model BusinessService {
@@ -47,6 +61,8 @@ model BusinessService {
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   name       String
+
+  @@index([businessId])
 }
 
 model BusinessTopic {
@@ -55,6 +71,8 @@ model BusinessTopic {
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   name       String
   type       String   @default("positive") // positive or issue
+
+  @@index([businessId])
 }
 
 model ReviewSession {
@@ -70,19 +88,23 @@ model ReviewSession {
   tone             String   @default("natural")
   status           String   @default("generated") // generated, copied, opened_google
   createdAt        DateTime @default(now())
+
+  @@index([businessId])
 }
 
 model Feedback {
-  id         String   @id @default(uuid())
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customerName String?
+  id            String   @id @default(uuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName  String?
   customerPhone String?
   customerEmail String?
-  message    String
-  issueTopics String?  // JSON string
-  status     String   @default("unread") // unread, resolved
-  createdAt  DateTime @default(now())
+  message       String
+  issueTopics   String?  // JSON string
+  status        String   @default("unread") // unread, resolved
+  createdAt     DateTime @default(now())
+
+  @@index([businessId])
 }
 
 model AnalyticsEvent {
@@ -92,6 +114,8 @@ model AnalyticsEvent {
   eventType  String   // scan, select_topics, review_generated, review_copied, google_clicked, feedback_submitted
   metadata   String?  // JSON
   createdAt  DateTime @default(now())
+
+  @@index([businessId])
 }
 
 model Order {
@@ -109,4 +133,6 @@ model Order {
   receipt           String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+
+  @@index([businessId])
 }

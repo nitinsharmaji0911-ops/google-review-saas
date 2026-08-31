@@ -95,6 +95,30 @@ export const FirestoreDB = {
     return null;
   },
 
+  async getBusinessByUserId(userId: string) {
+    const { firestore } = getFirebaseAdmin();
+
+    if (firestore) {
+      try {
+        const snap = await firestore.collection("businesses").where("userId", "==", userId).limit(1).get();
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          return { id: doc.id, ...doc.data() } as any;
+        }
+      } catch (err) {
+        console.warn("Firestore getBusinessByUserId error:", err);
+      }
+    }
+
+    for (const biz of Array.from(inMemoryStore.businesses.values())) {
+      if (biz.userId === userId) {
+        return biz;
+      }
+    }
+
+    return null;
+  },
+
   async saveBusiness(business: any) {
     const { firestore } = getFirebaseAdmin();
     const slug = business.slug;

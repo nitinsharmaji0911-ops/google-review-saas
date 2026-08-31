@@ -284,16 +284,6 @@ export default function SignupPage() {
               <span>Instant Activation via UPI, QR, NetBanking & Cards</span>
             </div>
           </form>
-
-          {/* Quick Demo Access */}
-          <div className="pt-2 text-center border-t border-slate-100">
-            <Link
-              href="/dashboard"
-              className="text-xs font-semibold text-slate-700 hover:text-slate-950 hover:underline inline-flex items-center gap-1"
-            >
-              Or explore the live demo dashboard →
-            </Link>
-          </div>
         </div>
 
         <p className="text-xs text-slate-400">
@@ -305,8 +295,15 @@ export default function SignupPage() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-6xl w-full mx-auto px-8 py-6 text-center text-xs text-slate-400 z-10">
-        © 2026 Welurik Review. 100% Google policy compliant.
+      <footer className="max-w-6xl w-full mx-auto px-8 py-6 text-center text-xs text-slate-400 z-10 flex flex-wrap items-center justify-center gap-4">
+        <span>© 2026 Welurik Review. All rights reserved.</span>
+        <div className="flex items-center gap-3">
+          <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
+          <span>•</span>
+          <Link href="/refund" className="hover:text-slate-600">Refund Policy</Link>
+        </div>
       </footer>
     </div>
   );

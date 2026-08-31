@@ -41,7 +41,7 @@ export default function SettingsPage() {
     async function loadData() {
       try {
         setLoading(true);
-        const res = await fetch("/api/business/the-coffee-house");
+        const res = await fetch("/api/business/me");
         const data = await res.json();
         if (data.success && data.business) {
           const b = data.business;
@@ -113,7 +113,7 @@ export default function SettingsPage() {
         ...issueTopics.map((name) => ({ name, type: "issue" })),
       ];
 
-      const res = await fetch("/api/business/the-coffee-house", {
+      const res = await fetch("/api/business/me", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

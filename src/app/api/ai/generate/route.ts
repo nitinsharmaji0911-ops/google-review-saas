@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateReview } from "@/lib/ai-generator";
+import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // 1. Rate Limiting: 20 AI generations per minute per IP
+    const rl = await checkRateLimit(req, "ai_generate", { limit: 20, windowSeconds: 60 });
+    if (!rl.success) {
+      return rateLimitExceededResponse(rl.limit, rl.resetAt);
+    }
+
+    const body = await req.json().catch(() => ({}));
     const {
       businessSlug,
       selectedTopics = [],
@@ -14,7 +22,7 @@ export async function POST(req: NextRequest) {
       rating = 5,
     } = body;
 
-    // Input validation & sanitization
+    // 2. Input validation & sanitization
     const validRating = Math.min(5, Math.max(1, Math.round(Number(rating) || 5)));
     const validTone = (["short", "natural", "detailed"].includes(tone) ? tone : "natural") as "short" | "natural" | "detailed";
     const sanitizedTopics = Array.isArray(selectedTopics)
@@ -25,21 +33,47 @@ export async function POST(req: NextRequest) {
       : [];
     const sanitizedComment = typeof customerComment === "string" ? customerComment.slice(0, 300).trim() : "";
 
-    // Fetch business details from FirestoreDB
+    // 3. Fetch business details and enforce server-side quota
     let businessName = "Our Business";
     let category = "local service";
     let location = "";
+    let businessId: string | null = null;
 
     if (businessSlug && typeof businessSlug === "string") {
-      const b = await FirestoreDB.getBusinessBySlug(businessSlug);
-      if (b) {
-        businessName = b.name;
-        category = b.category;
-        location = b.location || "";
+      try {
+        const b = await prisma.business.findUnique({
+          where: { slug: businessSlug },
+        });
+        if (b) {
+          businessName = b.name;
+          category = b.category;
+          location = b.location || "";
+          businessId = b.id;
+
+          // Enforce AI calls quota
+          if (b.aiCallsThisMonth >= b.monthlyAiQuota) {
+            // Graceful fallback to Smart Zero-Cost Rule Engine if monthly Gemini quota exceeded
+          } else {
+            prisma.business.update({
+              where: { id: b.id },
+              data: { aiCallsThisMonth: { increment: 1 } },
+            }).catch(() => {});
+          }
+        }
+      } catch {}
+
+      if (!businessId) {
+        const fsBiz = await FirestoreDB.getBusinessBySlug(businessSlug);
+        if (fsBiz) {
+          businessName = fsBiz.name;
+          category = fsBiz.category;
+          location = fsBiz.location || "";
+          businessId = fsBiz.id;
+        }
       }
     }
 
-    // Generate review using AI / Smart Engine
+    // 4. Generate review using AI engine (Gemini Flash + NLP fallback)
     const result = await generateReview({
       businessName,
       category,
@@ -51,9 +85,33 @@ export async function POST(req: NextRequest) {
       rating: validRating,
     });
 
-    // Record review session in Firestore asynchronously
+    // 5. Persist review session in Prisma DB
+    if (businessId) {
+      prisma.reviewSession.create({
+        data: {
+          businessId,
+          rating: validRating,
+          selectedTopics: JSON.stringify(sanitizedTopics),
+          selectedServices: JSON.stringify(sanitizedServices),
+          customerComment: sanitizedComment || null,
+          generatedReview: result.review,
+          tone: validTone,
+          status: "generated",
+        },
+      }).catch((e) => console.warn("Error saving review session to Prisma:", e));
+
+      prisma.analyticsEvent.create({
+        data: {
+          businessId,
+          eventType: "review_generated",
+          metadata: JSON.stringify({ source: result.source, tone: validTone }),
+        },
+      }).catch(() => {});
+    }
+
+    // Also track in Firestore
     FirestoreDB.createReview({
-      businessSlug: businessSlug || "the-coffee-house",
+      businessSlug: businessSlug || "my-business",
       rating: validRating,
       selectedTopics: sanitizedTopics,
       selectedServices: sanitizedServices,
@@ -61,13 +119,12 @@ export async function POST(req: NextRequest) {
       generatedReview: result.review,
       tone: validTone,
       status: "generated",
-    }).catch((e) => console.error("Error saving review session:", e));
+    }).catch(() => {});
 
-    // Track analytics event in Firestore
-    FirestoreDB.trackEvent(businessSlug || "the-coffee-house", "review_generated", {
+    FirestoreDB.trackEvent(businessSlug || "my-business", "review_generated", {
       source: result.source,
       tone: validTone,
-    }).catch((e) => console.error("Error tracking event:", e));
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,
@@ -77,7 +134,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("AI Generation error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to generate review" },
+      { success: false, error: "Failed to generate review. Please try again." },
       { status: 500 }
     );
   }

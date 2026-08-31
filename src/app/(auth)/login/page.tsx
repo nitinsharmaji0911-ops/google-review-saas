@@ -142,18 +142,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* 1-Click Instant Demo Button */}
-          <div className="pt-2 border-t border-slate-100 space-y-2">
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              1-Click Demo Login (The Coffee House)
-            </button>
-          </div>
         </div>
 
         <p className="text-xs text-slate-400">
@@ -165,8 +153,15 @@ export default function LoginPage() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-6xl w-full mx-auto px-8 py-6 text-center text-xs text-slate-400 z-10">
-        © 2026 Welurik Review. 100% Google policy compliant.
+      <footer className="max-w-6xl w-full mx-auto px-8 py-6 text-center text-xs text-slate-400 z-10 flex flex-wrap items-center justify-center gap-4">
+        <span>© 2026 Welurik Review. All rights reserved.</span>
+        <div className="flex items-center gap-3">
+          <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
+          <span>•</span>
+          <Link href="/refund" className="hover:text-slate-600">Refund Policy</Link>
+        </div>
       </footer>
     </div>
   );

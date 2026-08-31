@@ -1,35 +1,211 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 
+// GET authenticated business's feedback inbox
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session || !session.userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    let business: any = null;
+    try {
+      business = await prisma.business.findUnique({
+        where: { userId: session.userId },
+        include: {
+          feedbacks: {
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+    } catch {}
+
+    if (!business) {
+      if (session.businessSlug) {
+        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+      }
+    }
+
+    if (!business) {
+      return NextResponse.json({ success: true, feedback: [] });
+    }
+
+    let feedbackList: any[] = [];
+    if (business.feedbacks && Array.isArray(business.feedbacks)) {
+      feedbackList = business.feedbacks;
+    } else {
+      // Fetch from Firestore
+      try {
+        const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
+        if (firestore) {
+          const snap = await firestore
+            .collection("feedback")
+            .where("businessSlug", "==", business.slug)
+            .orderBy("createdAt", "desc")
+            .limit(50)
+            .get();
+          if (!snap.empty) {
+            feedbackList = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          }
+        }
+      } catch {}
+    }
+
+    return NextResponse.json({
+      success: true,
+      feedback: feedbackList.map((f: any) => ({
+        id: f.id,
+        customerName: f.customerName || null,
+        customerPhone: f.customerPhone || null,
+        customerEmail: f.customerEmail || null,
+        message: f.message,
+        issueTopics: typeof f.issueTopics === "string" ? f.issueTopics : JSON.stringify(f.issueTopics || []),
+        status: f.status || "unread",
+        createdAt: f.createdAt ? new Date(f.createdAt).toISOString() : new Date().toISOString(),
+      })),
+    });
+  } catch (error: any) {
+    console.error("GET /api/feedback error:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+// PATCH toggle feedback status (resolved / unread) with strict ownership validation
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session || !session.userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const { id, status } = body;
+
+    if (!id || !status || !["unread", "resolved"].includes(status)) {
+      return NextResponse.json({ success: false, error: "Valid ID and status ('unread' | 'resolved') required" }, { status: 400 });
+    }
+
+    // Verify ownership in Prisma
+    try {
+      const business = await prisma.business.findUnique({
+        where: { userId: session.userId },
+      });
+
+      if (!business) {
+        return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
+      }
+
+      const feedbackItem = await prisma.feedback.findUnique({
+        where: { id },
+      });
+
+      if (feedbackItem && feedbackItem.businessId !== business.id) {
+        return NextResponse.json({ success: false, error: "Forbidden: You do not own this feedback record" }, { status: 403 });
+      }
+
+      if (feedbackItem) {
+        await prisma.feedback.update({
+          where: { id },
+          data: { status },
+        });
+      }
+    } catch (dbErr) {
+      console.warn("Prisma feedback update note:", dbErr);
+    }
+
+    // Update in Firestore
+    try {
+      const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
+      if (firestore) {
+        await firestore.collection("feedback").doc(id).update({ status });
+      }
+    } catch {}
+
+    return NextResponse.json({ success: true, status });
+  } catch (error: any) {
+    console.error("PATCH /api/feedback error:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+// POST public customer submission from /r/[slug]/feedback
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { businessSlug, customerName, customerPhone, customerEmail, message, issueTopics } = body;
 
     if (!businessSlug || !message || typeof message !== "string") {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
 
-    const business = await FirestoreDB.getBusinessBySlug(businessSlug);
+    let business: any = null;
+    try {
+      business = await prisma.business.findUnique({
+        where: { slug: businessSlug },
+      });
+    } catch {}
+
+    if (!business) {
+      business = await FirestoreDB.getBusinessBySlug(businessSlug);
+    }
+
     if (!business) {
       return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
     }
 
-    const feedback = await FirestoreDB.createFeedback({
+    const sanitizedMessage = message.slice(0, 1000).trim();
+    const sanitizedName = customerName ? String(customerName).slice(0, 100).trim() : null;
+    const sanitizedPhone = customerPhone ? String(customerPhone).slice(0, 30).trim() : null;
+    const sanitizedEmail = customerEmail ? String(customerEmail).slice(0, 100).trim() : null;
+    const sanitizedTopics = Array.isArray(issueTopics) ? issueTopics.slice(0, 10) : [];
+
+    let feedbackId = `fb_${Date.now()}`;
+
+    // 1. Save in Prisma DB
+    try {
+      const newFeedback = await prisma.feedback.create({
+        data: {
+          businessId: business.id,
+          customerName: sanitizedName,
+          customerPhone: sanitizedPhone,
+          customerEmail: sanitizedEmail,
+          message: sanitizedMessage,
+          issueTopics: JSON.stringify(sanitizedTopics),
+          status: "unread",
+        },
+      });
+      feedbackId = newFeedback.id;
+    } catch (dbErr) {
+      console.warn("Prisma feedback create note:", dbErr);
+    }
+
+    // 2. Save in Firestore
+    await FirestoreDB.createFeedback({
       businessSlug,
-      customerName: customerName ? String(customerName).slice(0, 100) : null,
-      customerPhone: customerPhone ? String(customerPhone).slice(0, 30) : null,
-      customerEmail: customerEmail ? String(customerEmail).slice(0, 100) : null,
-      message: message.slice(0, 1000).trim(),
-      issueTopics: Array.isArray(issueTopics) ? issueTopics.slice(0, 10) : [],
-    });
+      customerName: sanitizedName,
+      customerPhone: sanitizedPhone,
+      customerEmail: sanitizedEmail,
+      message: sanitizedMessage,
+      issueTopics: sanitizedTopics,
+    }).catch(() => {});
 
-    // Track analytics event in Firestore
-    await FirestoreDB.trackEvent(businessSlug, "feedback_submitted");
+    // Track analytics event
+    try {
+      await prisma.analyticsEvent.create({
+        data: {
+          businessId: business.id,
+          eventType: "feedback_submitted",
+        },
+      });
+    } catch {}
+    FirestoreDB.trackEvent(businessSlug, "feedback_submitted").catch(() => {});
 
-    return NextResponse.json({ success: true, feedbackId: feedback.id });
+    return NextResponse.json({ success: true, feedbackId });
   } catch (err: any) {
     console.error("Feedback submission error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to submit feedback" }, { status: 500 });
   }
 }

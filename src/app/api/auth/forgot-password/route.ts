@@ -1,46 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 import crypto from "crypto";
-
-const SECRET = process.env.JWT_SECRET || "reviewboost_super_secret_production_key_2026";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rl = await checkRateLimit(req, "auth_forgot_password", { limit: 3, windowSeconds: 60 });
+    if (!rl.success) {
+      return rateLimitExceededResponse(rl.limit, rl.resetAt);
+    }
+
+    const body = await req.json().catch(() => ({}));
     const { email } = body;
 
+    // Generic response message to prevent email enumeration
+    const genericResponse = {
+      success: true,
+      message: "If an account exists with this email, a password reset link has been sent.",
+    };
+
     if (!email || typeof email !== "string") {
-      return NextResponse.json({ success: false, error: "Valid email required" }, { status: 400 });
+      return NextResponse.json(genericResponse);
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const user = await FirestoreDB.getUserByEmail(normalizedEmail);
 
-    // Cryptographic reset token with 1-hour expiry
-    const expiry = Date.now() + 1000 * 60 * 60; // 1 hour
-    const userId = user?.id || "anonymous";
-    const tokenData = `${userId}:${normalizedEmail}:${expiry}`;
-    const tokenSignature = crypto.createHmac("sha256", SECRET).update(tokenData).digest("hex");
-    const resetToken = Buffer.from(`${tokenData}:${tokenSignature}`).toString("base64url");
+    // Look up user in Prisma DB or Firestore
+    let user: any = null;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+      });
+    } catch {
+      // Fallback
+    }
 
-    const origin = req.nextUrl.origin || "http://localhost:3000";
-    const resetLink = `${origin}/reset-password?token=${resetToken}`;
+    if (!user) {
+      user = await FirestoreDB.getUserByEmail(normalizedEmail);
+    }
 
-    // Send the real email through Nodemailer (Gmail / SMTP / Ethereal)
-    const emailResult = await sendPasswordResetEmail({
-      to: normalizedEmail,
-      resetLink,
-    });
+    if (user && user.id) {
+      // Generate cryptographically secure unguessable random token
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60); // 1 hour expiry
 
+      // Save token hash in database
+      try {
+        await prisma.resetToken.create({
+          data: {
+            userId: user.id,
+            tokenHash,
+            expiresAt,
+          },
+        });
+      } catch (tokenErr) {
+        console.warn("Reset token creation note:", tokenErr);
+      }
+
+      // Build secure reset URL
+      const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "review.welurik.com";
+      const proto = req.headers.get("x-forwarded-proto") || "https";
+      const origin = `${proto}://${host}`;
+      const resetLink = `${origin}/reset-password?token=${rawToken}&uid=${user.id}`;
+
+      // Dispatch email in background through configured SMTP
+      sendPasswordResetEmail({
+        to: normalizedEmail,
+        resetLink,
+      }).catch((emailErr) => {
+        console.error("Email dispatch failed:", emailErr);
+      });
+    }
+
+    // STRICT SECURITY: Never leak resetLink or emailPreviewUrl in API response!
+    return NextResponse.json(genericResponse);
+  } catch (err: any) {
+    console.error("Forgot password handler error:", err);
     return NextResponse.json({
       success: true,
-      message: "We've sent a password reset confirmation link to your email.",
-      emailPreviewUrl: emailResult.previewUrl,
-      resetLink,
+      message: "If an account exists with this email, a password reset link has been sent.",
     });
-  } catch (err: any) {
-    console.error("Forgot password error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

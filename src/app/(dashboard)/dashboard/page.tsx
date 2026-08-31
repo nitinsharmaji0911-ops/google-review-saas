@@ -13,9 +13,11 @@ import {
   ArrowUpRight,
   SlidersHorizontal,
   CheckCircle2,
-  Smile
+  Smile,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface DashboardData {
   business: {
@@ -28,6 +30,8 @@ interface DashboardData {
     brandColor?: string;
     aiCallsThisMonth: number;
     monthlyAiQuota: number;
+    isPro?: boolean;
+    planName?: string;
   };
   metrics: {
     totalScans: number;
@@ -51,274 +55,331 @@ interface DashboardData {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadDashboard() {
       try {
         setLoading(true);
-        const res = await fetch("/api/business/the-coffee-house");
+        const res = await fetch("/api/business/me");
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
+
         const bData = await res.json();
 
-        if (bData.success && bData.business) {
+        if (bData.success) {
+          if (!bData.business) {
+            router.push("/onboarding");
+            return;
+          }
+
           const biz = bData.business;
+          const reviews = bData.recentReviews || [];
+
+          // Compute topic frequencies from real review sessions
+          const topicCounts: { [key: string]: number } = {};
+          reviews.forEach((r: any) => {
+            (r.selectedTopics || []).forEach((t: string) => {
+              topicCounts[t] = (topicCounts[t] || 0) + 1;
+            });
+          });
+
+          const totalReviews = reviews.length || 1;
+          const topTopics = Object.entries(topicCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([name, count]) => ({
+              name,
+              count,
+              percentage: Math.min(100, Math.round((count / totalReviews) * 100)),
+            }));
 
           setData({
             business: biz,
-            metrics: {
-              totalScans: 342,
-              reviewsGenerated: 96,
-              googleClicks: 71,
-              conversionRate: "20.7%",
+            metrics: bData.metrics || {
+              totalScans: 0,
+              reviewsGenerated: reviews.length,
+              googleClicks: 0,
+              conversionRate: "0%",
             },
-            topTopics: [
-              { name: "Coffee Quality", count: 82, percentage: 85 },
-              { name: "Friendly Baristas", count: 67, percentage: 70 },
-              { name: "Cozy Ambience", count: 54, percentage: 56 },
-              { name: "Fresh Bakery Items", count: 41, percentage: 42 },
-              { name: "Fast Wi-Fi & Work Friendly", count: 38, percentage: 39 },
+            topTopics: topTopics.length > 0 ? topTopics : [
+              { name: "Service Quality", count: 0, percentage: 0 },
+              { name: "Staff Hospitality", count: 0, percentage: 0 },
+              { name: "Speed & Ease", count: 0, percentage: 0 },
             ],
-            recentReviews: [
-              {
-                id: "r1",
-                rating: 5,
-                selectedTopics: ["Coffee Quality", "Friendly Baristas", "Cozy Ambience"],
-                selectedServices: ["Specialty Coffee", "Artisan Bakery"],
-                generatedReview:
-                  "Had a fantastic experience at The Coffee House! The specialty coffee and artisan bakery items were top notch. The friendly baristas and cozy ambience really stood out. Highly recommend!",
-                status: "opened_google",
-                createdAt: "10 mins ago",
-              },
-              {
-                id: "r2",
-                rating: 5,
-                selectedTopics: ["Quick Service", "Cleanliness", "Value for Money"],
-                selectedServices: ["All-Day Breakfast", "Cold Brew"],
-                generatedReview:
-                  "Really impressed with The Coffee House. The all-day breakfast and cold brew was great, and the cleanliness and quick service made the visit smooth and enjoyable. 5 stars!",
-                status: "copied",
-                createdAt: "1 hour ago",
-              },
-              {
-                id: "r3",
-                rating: 5,
-                selectedTopics: ["Fast Wi-Fi & Work Friendly", "Coffee Quality"],
-                selectedServices: ["Specialty Coffee"],
-                generatedReview:
-                  "Visited The Coffee House recently and loved it. The coffee quality was exceptional and it's a very fast Wi-Fi and work-friendly environment. Looking forward to my next visit!",
-                status: "opened_google",
-                createdAt: "3 hours ago",
-              },
-            ],
-            unreadFeedbackCount: 1,
+            recentReviews: reviews,
+            unreadFeedbackCount: bData.unreadFeedbackCount || 0,
           });
         }
       } catch (err) {
-        console.error(err);
+        console.error("Dashboard data load error:", err);
       } finally {
         setLoading(false);
       }
     }
 
     loadDashboard();
-  }, []);
+  }, [router]);
 
-  if (loading || !data) {
+  if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="w-7 h-7 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+      <div className="p-8 flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+          <p className="text-xs font-semibold text-slate-500">Loading your live dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-  const customerLink = `${origin}/r/${data.business.slug}`;
+  if (!data) return null;
+
+  const { business, metrics, topTopics, recentReviews, unreadFeedbackCount } = data;
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
+  const publicReviewUrl = `${origin}/r/${business.slug}`;
 
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-8">
-      {/* Top Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+      {/* Top Banner */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white rounded-[28px] p-6 md:p-8 shadow-xl shadow-slate-900/10">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Overview</h1>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-100">
-              Live Funnel
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-emerald-300 border border-white/10">
+              Live Funnel Active
             </span>
-            <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shadow-xs">
-              <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-              Lifetime Pro Active
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs font-medium text-slate-300 capitalize">{business.category}</span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs font-semibold text-amber-300 flex items-center gap-1 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+              <Star className="w-3 h-3 fill-amber-300" /> Lifetime Pro Active
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Real-time scan velocity, AI generation metrics, and Google Maps review performance.
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight">{business.name}</h1>
+          <p className="text-xs text-slate-400">
+            {business.location ? `${business.location} • ` : ""}
+            AI-driven QR review conversion engine
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Link
-            href={customerLink}
-            className="text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
-          >
-            Test Funnel <ExternalLink className="w-3 h-3 text-slate-400" />
-          </Link>
+        <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href="/qr-studio"
-            className="text-xs font-bold bg-[#16A34A] hover:bg-[#15803D] text-white px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
           >
-            <Printer className="w-3.5 h-3.5" /> Print Standees
+            <Printer className="w-3.5 h-3.5" />
+            <span>Print Standees</span>
           </Link>
+          <a
+            href={publicReviewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700"
+          >
+            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+            <span>Open Customer Link</span>
+          </a>
         </div>
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1 */}
-        <div className="bg-white p-5 rounded-[24px] border border-slate-200/80 shadow-xs space-y-2 hover:border-slate-300 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total QR Scans</span>
-            <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center">
-              <QrCode className="w-3.5 h-3.5 text-slate-600" />
-            </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Scans */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold text-slate-600">Total QR Scans</span>
+            <QrCode className="w-4 h-4 text-slate-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{data.metrics.totalScans}</h3>
-            <span className="text-xs font-semibold text-emerald-600 flex items-center">
-              <TrendingUp className="w-3 h-3 mr-0.5" /> +18%
-            </span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">{metrics.totalScans}</span>
           </div>
-          <p className="text-[11px] text-slate-400">Total smartphone camera scans</p>
+          <p className="text-[11px] text-slate-400">In-store customer camera scans</p>
         </div>
 
-        {/* Metric 2 */}
-        <div className="bg-white p-5 rounded-[24px] border border-slate-200/80 shadow-xs space-y-2 hover:border-slate-300 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Reviews Formulated</span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            </div>
+        {/* AI Reviews Generated */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold text-slate-600">Reviews Generated</span>
+            <Sparkles className="w-4 h-4 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{data.metrics.reviewsGenerated}</h3>
-            <span className="text-xs font-semibold text-slate-500">28.0% tap rate</span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">{metrics.reviewsGenerated}</span>
           </div>
-          <p className="text-[11px] text-slate-400">AI reviews formulated by visitors</p>
+          <p className="text-[11px] text-slate-400">AI drafted reviews in 30 sec</p>
         </div>
 
-        {/* Metric 3 */}
-        <div className="bg-white p-5 rounded-[24px] border border-slate-200/80 shadow-xs space-y-2 hover:border-slate-300 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Posted to Google</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-              <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
-            </div>
+        {/* Real Google Clicks */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold text-slate-600">Google Handoffs</span>
+            <TrendingUp className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{data.metrics.googleClicks}</h3>
-            <span className="text-xs font-semibold text-emerald-600">74% copy rate</span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">{metrics.googleClicks}</span>
           </div>
-          <p className="text-[11px] text-slate-400">Copied & opened Google box</p>
+          <p className="text-[11px] text-slate-400">Redirected to Google Maps</p>
         </div>
 
-        {/* Metric 4 */}
-        <div className="bg-white p-5 rounded-[24px] border border-slate-200/80 shadow-xs space-y-2 hover:border-slate-300 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Conversion %</span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            </div>
+        {/* Conversion Rate */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold text-slate-600">Scan to Google Rate</span>
+            <ArrowUpRight className="w-4 h-4 text-indigo-500" />
           </div>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{data.metrics.conversionRate}</h3>
-            <span className="text-xs font-semibold text-emerald-600">High</span>
+            <span className="text-2xl md:text-3xl font-black text-slate-900">{metrics.conversionRate}</span>
           </div>
-          <p className="text-[11px] text-slate-400">Scan to Google handoff rate</p>
+          <p className="text-[11px] text-slate-400">Industry benchmark: 3–5%</p>
         </div>
       </div>
 
-      {/* 2-Column Analytics & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Top Customer Praises (5 cols) */}
-        <div className="lg:col-span-5 bg-white p-6 rounded-[28px] border border-slate-200/80 shadow-xs space-y-4">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">Top Customer Praises</h3>
-            <p className="text-[11px] text-slate-400">Most frequent aspects mentioned by customers</p>
-          </div>
-
-          <div className="space-y-3.5">
-            {data.topTopics.map((topic, i) => (
-              <div key={topic.name} className="space-y-1">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-800 flex items-center gap-1.5">
-                    <span className="w-3 text-slate-400 font-mono text-[10px]">#{i + 1}</span>
-                    {topic.name}
-                  </span>
-                  <span className="text-slate-500 font-normal text-[11px]">{topic.count} mentions</span>
-                </div>
-                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-slate-900 rounded-full transition-all duration-500"
-                    style={{ width: `${topic.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-2 border-t border-slate-100">
-            <Link
-              href="/settings"
-              className="text-xs font-semibold text-slate-900 hover:text-slate-700 flex items-center justify-between"
-            >
-              <span>Edit keywords & services</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Recent Reviews Activity (7 cols) */}
-        <div className="lg:col-span-7 bg-white p-6 rounded-[28px] border border-slate-200/80 shadow-xs space-y-4">
+      {/* Main 2-Column Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Recent Reviews Generated (2 Cols) */}
+        <div className="lg:col-span-2 bg-white rounded-[24px] border border-slate-200/80 p-6 space-y-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Recent Generated Reviews</h3>
-              <p className="text-[11px] text-slate-400">Live reviews formulated by scanning customers</p>
+            <div className="space-y-0.5">
+              <h2 className="text-base font-bold text-slate-900">Recent Customer Reviews</h2>
+              <p className="text-xs text-slate-400">Recent reviews generated by your happy customers</p>
             </div>
-            <span className="text-[11px] text-slate-400 flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> Today
-            </span>
+            <a
+              href={business.googleReviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+            >
+              <span>View on Google</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
 
-          <div className="space-y-3">
-            {data.recentReviews.map((rev) => (
-              <div key={rev.id} className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/60 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className="w-3 h-3 fill-amber-400 text-amber-400" />
+          {recentReviews.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 space-y-2 border border-dashed border-slate-200 rounded-2xl">
+              <Sparkles className="w-6 h-6 text-slate-300 mx-auto" />
+              <p className="text-xs font-semibold text-slate-600">No reviews generated yet</p>
+              <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+                Print your standees in the QR Studio and place them near your checkout counter!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              {recentReviews.map((rev) => (
+                <div
+                  key={rev.id}
+                  className="p-4 bg-slate-50/70 border border-slate-200/60 rounded-2xl space-y-2.5 transition-all hover:bg-slate-50"
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex text-amber-400">
+                        {[...Array(rev.rating)].map((_, i) => (
+                          <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                        ))}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 ml-1">Verified 5-Star</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> {rev.createdAt}
+                      </span>
+                      <span
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                          rev.status === "opened_google"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-indigo-100 text-indigo-800"
+                        }`}
+                      >
+                        {rev.status === "opened_google" ? "Posted to Google" : "Copied"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-700 leading-relaxed font-normal">"{rev.generatedReview}"</p>
+
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {rev.selectedTopics.map((topic) => (
+                      <span
+                        key={topic}
+                        className="text-[10px] bg-white border border-slate-200 text-slate-600 font-medium px-2 py-0.5 rounded-md"
+                      >
+                        {topic}
+                      </span>
+                    ))}
+                    {rev.selectedServices.map((svc) => (
+                      <span
+                        key={svc}
+                        className="text-[10px] bg-indigo-50 border border-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-md"
+                      >
+                        {svc}
+                      </span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-                      {rev.status === "opened_google" ? "Posted to Google" : "Copied"}
-                    </span>
-                    <span className="text-[10px] text-slate-400">{rev.createdAt}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Praised Topics & AI Credits (1 Col) */}
+        <div className="space-y-6">
+          {/* Most Praised Topics */}
+          <div className="bg-white rounded-[24px] border border-slate-200/80 p-6 space-y-4 shadow-xs">
+            <div className="space-y-0.5">
+              <h3 className="text-sm font-bold text-slate-900">Most Praised Aspects</h3>
+              <p className="text-[11px] text-slate-400">Keywords customers select most often</p>
+            </div>
+
+            <div className="space-y-3">
+              {topTopics.map((topic) => (
+                <div key={topic.name} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs font-semibold">
+                    <span className="text-slate-700 text-[11px]">{topic.name}</span>
+                    <span className="text-slate-400 text-[10px]">{topic.percentage}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-slate-900 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(topic.percentage, 5)}%` }}
+                    />
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <p className="text-xs text-slate-700 leading-relaxed italic font-normal">"{rev.generatedReview}"</p>
-
-                <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  {rev.selectedTopics.map((t) => (
-                    <span key={t} className="text-[10px] font-medium bg-white text-slate-600 px-2 py-0.5 rounded border border-slate-200/80">
-                      {t}
-                    </span>
-                  ))}
-                  {rev.selectedServices.map((s) => (
-                    <span key={s} className="text-[10px] font-medium bg-slate-200/60 text-slate-800 px-2 py-0.5 rounded">
-                      {s}
-                    </span>
-                  ))}
+            <div className="pt-2">
+              <Link
+                href="/settings"
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center justify-between p-2.5 rounded-xl bg-indigo-50/50 hover:bg-indigo-50 transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>Edit Custom Keywords</span>
                 </div>
-              </div>
-            ))}
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Feedback Inbox Preview Card */}
+          <div className="bg-white rounded-[24px] border border-slate-200/80 p-6 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-900">Private Grievance Inbox</span>
+              {unreadFeedbackCount > 0 && (
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                  {unreadFeedbackCount} unread
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Customers rating 1–3 stars are redirected to management instead of public Google Reviews.
+            </p>
+            <Link
+              href="/feedback"
+              className="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all block text-center"
+            >
+              View Private Feedback ({unreadFeedbackCount})
+            </Link>
           </div>
         </div>
       </div>

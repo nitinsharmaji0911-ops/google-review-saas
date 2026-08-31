@@ -5,7 +5,14 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/dashboard/", "/settings/", "/feedback/"],
+      disallow: [
+        "/api/",
+        "/dashboard/",
+        "/settings/",
+        "/feedback/",
+        "/qr-studio/",
+        "/onboarding/",
+      ],
     },
     sitemap: "https://review.welurik.com/sitemap.xml",
   };

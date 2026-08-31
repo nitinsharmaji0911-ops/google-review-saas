@@ -27,7 +27,7 @@ export default function QRStudioPage() {
     async function loadData() {
       try {
         setLoading(true);
-        const res = await fetch("/api/business/the-coffee-house");
+        const res = await fetch("/api/business/me");
         const data = await res.json();
         if (data.success && data.business) {
           setBusiness(data.business);
@@ -72,7 +72,7 @@ export default function QRStudioPage() {
 
   const handleCopyLink = () => {
     const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const reviewUrl = `${origin}/r/${business?.slug || "the-coffee-house"}`;
+    const reviewUrl = `${origin}/r/${business?.slug || ""}`;
     navigator.clipboard.writeText(reviewUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
