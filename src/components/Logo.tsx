@@ -4,6 +4,7 @@ interface LogoProps {
   inverted?: boolean;
   style?: React.CSSProperties;
   className?: string;
+  /** Explicit pixel height if fixed across all screens */
   height?: number;
   width?: number;
 }
@@ -15,8 +16,8 @@ export default function Logo({
   height,
   width,
 }: LogoProps) {
-  // Pure transparent logo with green square + matte black W + black elurik + green Review
-  const src = inverted ? "/welurik-review-dark.png" : "/welurik-review-light.png";
+  // Original WR Monogram Logo (Custom razor-tail ligature)
+  const src = inverted ? "/wr-logo-white.png" : "/wr-logo-black.png";
 
   const effectiveStyle: React.CSSProperties = {
     display: "block",
@@ -26,7 +27,8 @@ export default function Logo({
     ...style,
   };
 
-  const defaultSizeClasses = !height && !width ? "h-8 sm:h-11 w-auto" : "";
+  // Default responsive sizing: clean, prominent and sharp
+  const defaultSizeClasses = !height && !width ? "h-10 sm:h-[58px] w-auto" : "";
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
