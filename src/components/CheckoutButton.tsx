@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Zap, ShieldCheck } from "lucide-react";
+import { Loader2, Zap, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 
 declare global {
   interface Window {
@@ -25,10 +25,15 @@ export function CheckoutButton({
 }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showKeyNotice, setShowKeyNotice] = useState(false);
   const router = useRouter();
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
+      if (typeof window === "undefined") {
+        resolve(false);
+        return;
+      }
       if (window.Razorpay) {
         resolve(true);
         return;
@@ -46,13 +51,6 @@ export function CheckoutButton({
       setLoading(true);
       setErrorMessage("");
 
-      const isScriptLoaded = await loadRazorpayScript();
-      if (!isScriptLoaded) {
-        setErrorMessage("Failed to load secure payment gateway. Please check your internet connection.");
-        setLoading(false);
-        return;
-      }
-
       // Step 1: Create Order on backend
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
@@ -65,7 +63,36 @@ export function CheckoutButton({
         throw new Error(orderData.error || "Could not initialize checkout order");
       }
 
-      // Step 2: Configure Razorpay Checkout Modal
+      // If Razorpay API keys are not added yet (demo / mock mode)
+      if (orderData.isMock || !orderData.keyId || orderData.keyId === "rzp_test_placeholder") {
+        // Direct simulation for instant preview
+        setLoading(true);
+        setTimeout(async () => {
+          const verifyRes = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: orderData.orderId,
+              razorpay_payment_id: `pay_demo_${Date.now().toString().slice(-6)}`,
+              razorpay_signature: `mock_sig_${Date.now()}`,
+              planType,
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          router.push(`/checkout/success?order_id=${verifyData.orderId || orderData.orderId}&payment_id=pay_demo_success`);
+        }, 800);
+        return;
+      }
+
+      // Step 2: Load Razorpay Checkout SDK
+      const isScriptLoaded = await loadRazorpayScript();
+      if (!isScriptLoaded) {
+        setErrorMessage("Failed to load secure payment gateway. Please check your internet connection.");
+        setLoading(false);
+        return;
+      }
+
+      // Step 3: Configure Razorpay Checkout Modal
       const options = {
         key: orderData.keyId,
         amount: orderData.amount,
@@ -73,11 +100,10 @@ export function CheckoutButton({
         name: "Welurik Review",
         description: orderData.planLabel || "Lifetime License Access",
         image: "/favicon.png",
-        order_id: orderData.orderId.startsWith("order_test_") ? undefined : orderData.orderId,
+        order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
             setLoading(true);
-            // Step 3: Verify Payment on Backend
             const verifyRes = await fetch("/api/payment/verify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -118,16 +144,12 @@ export function CheckoutButton({
         },
       };
 
-      // In test mode without Razorpay API keys, simulate instant checkout for demo
-      if (orderData.keyId === "rzp_test_placeholder" || orderData.orderId.startsWith("order_test_")) {
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-        // Fallback for placeholder key modal dismissal
-        setTimeout(() => setLoading(false), 500);
-      } else {
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      }
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response: any) {
+        setErrorMessage(response.error?.description || "Payment failed or cancelled");
+        setLoading(false);
+      });
+      rzp.open();
     } catch (err: any) {
       console.error("Checkout error:", err);
       setErrorMessage(err.message || "Failed to start checkout");
@@ -136,7 +158,7 @@ export function CheckoutButton({
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="w-full flex flex-col items-center">
       <button
         onClick={handleCheckout}
         disabled={loading}

@@ -5,7 +5,13 @@ import { getRazorpayInstance } from "@/lib/razorpay";
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
+    let session = null;
+    try {
+      session = await getSession();
+    } catch {
+      // Guest checkout session
+    }
+
     const body = await req.json().catch(() => ({}));
     const { planType = "lifetime", email } = body;
 
@@ -21,13 +27,14 @@ export async function POST(req: Request) {
     const key_id =
       process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
       process.env.RAZORPAY_KEY_ID ||
-      "rzp_test_placeholder";
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder";
+      "";
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || "";
 
-    let razorpayOrderId = `order_test_${Date.now()}`;
+    let razorpayOrderId = `order_${Date.now()}`;
+    let isMock = true;
 
     // If real/test keys are provided in environment, create live Razorpay order
-    if (key_id !== "rzp_test_placeholder" && key_secret !== "rzp_secret_placeholder") {
+    if (key_id && key_secret && !key_id.includes("placeholder")) {
       try {
         const razorpay = getRazorpayInstance();
         const order = await razorpay.orders.create({
@@ -41,6 +48,7 @@ export async function POST(req: Request) {
           },
         });
         razorpayOrderId = order.id;
+        isMock = false;
       } catch (pgError: any) {
         console.error("Razorpay order creation error:", pgError);
         return NextResponse.json(
@@ -52,45 +60,52 @@ export async function POST(req: Request) {
       }
     }
 
-    // Save order record to Prisma
-    let businessId = session?.businessId;
-    if (!businessId && session?.userId) {
-      const biz = await prisma.business.findUnique({
-        where: { userId: session.userId },
-      });
-      if (biz) businessId = biz.id;
-    }
+    // Save order record to Prisma (with fallback if database is read-only in serverless)
+    let orderRecordId = `ord_${Date.now()}`;
+    try {
+      let businessId = session?.businessId;
+      if (!businessId && session?.userId) {
+        const biz = await prisma.business.findUnique({
+          where: { userId: session.userId },
+        });
+        if (biz) businessId = biz.id;
+      }
 
-    const orderRecord = await prisma.order.create({
-      data: {
-        businessId: businessId || null,
-        userEmail: session?.email || email || null,
-        razorpayOrderId,
-        amount: amountInPaise,
-        currency: "INR",
-        status: "created",
-        planType,
-        receipt: `rcpt_${Date.now().toString().slice(-8)}`,
-      },
-    });
+      const orderRecord = await prisma.order.create({
+        data: {
+          businessId: businessId || null,
+          userEmail: session?.email || email || null,
+          razorpayOrderId,
+          amount: amountInPaise,
+          currency: "INR",
+          status: "created",
+          planType,
+          receipt: `rcpt_${Date.now().toString().slice(-8)}`,
+        },
+      });
+      orderRecordId = orderRecord.id;
+    } catch (dbErr) {
+      console.warn("Database order record creation fallback:", dbErr);
+    }
 
     return NextResponse.json({
       success: true,
       orderId: razorpayOrderId,
       amount: amountInPaise,
       currency: "INR",
-      keyId: key_id,
+      keyId: key_id || "rzp_test_placeholder",
+      isMock,
       planLabel,
       planType,
       prefill: {
         email: session?.email || email || "",
       },
-      orderRecordId: orderRecord.id,
+      orderRecordId,
     });
   } catch (error: any) {
     console.error("Create order API error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error during order initialization" },
+      { error: error.message || "Internal Server Error during order initialization" },
       { status: 500 }
     );
   }
