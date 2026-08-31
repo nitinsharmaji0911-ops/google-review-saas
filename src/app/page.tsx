@@ -852,18 +852,12 @@ export default function LandingPage() {
           <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto font-medium leading-relaxed relative z-10">
             Outsmart your competitors with Welurik Review and grow your business with our 30-second review assistant.
           </p>
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
+          <div className="pt-2 flex items-center justify-center relative z-10">
             <Link
               href="/signup"
-              className="w-full sm:w-auto px-7 py-3.5 bg-[#15803D] hover:bg-[#166534] text-white font-black rounded-full text-xs border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
+              className="w-full sm:w-auto px-8 py-4 bg-[#15803D] hover:bg-[#166534] text-white font-black rounded-full text-sm sm:text-base border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center inline-flex items-center justify-center gap-2"
             >
-              Get Started for ₹1,999 (Lifetime) →
-            </Link>
-            <Link
-              href="/r/the-coffee-house"
-              className="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-slate-50 text-black border-2 border-black font-bold rounded-full text-xs shadow-[3px_3px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
-            >
-              View Customer Demo
+              Get Started for ₹1,999 (Lifetime) <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
