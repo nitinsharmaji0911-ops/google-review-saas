@@ -4,9 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Star,
-  ChevronLeft,
-  ChevronRight,
-  Send,
   Sparkles,
   CheckCircle2,
   Printer,
@@ -21,7 +18,10 @@ import {
   Copy,
   ExternalLink,
   MapPin,
-  Check
+  Check,
+  Play,
+  Zap,
+  Smartphone
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
 
@@ -34,7 +34,7 @@ export default function LandingPage() {
   const slides = [
     {
       stepNumber: "1",
-      stepTitle: "Scan & Rate",
+      stepTitle: "scan & rate",
       header: "Step 1: Scan Table Standee",
       content: {
         greeting: "Hi Sarah!",
@@ -46,7 +46,7 @@ export default function LandingPage() {
     },
     {
       stepNumber: "2",
-      stepTitle: "Pick Tags",
+      stepTitle: "pick tags",
       header: "Step 2: Tap What You Loved",
       content: {
         title: "Select your highlights:",
@@ -62,7 +62,7 @@ export default function LandingPage() {
     },
     {
       stepNumber: "3",
-      stepTitle: "AI Magic",
+      stepTitle: "ai magic",
       header: "Step 3: 30-Second AI Generation",
       content: {
         review: "Had a wonderful morning at The Coffee House! The Specialty Latte was rich and delicious, and the warm croissants were fresh out of the oven. Super fast Wi-Fi and friendly staff make this my favorite spot in town!",
@@ -72,7 +72,7 @@ export default function LandingPage() {
     },
     {
       stepNumber: "4",
-      stepTitle: "Google 5★",
+      stepTitle: "google 5★",
       header: "Step 4: Live on Google Maps",
       content: {
         reviewerName: "Sarah Jenkins",
@@ -121,246 +121,250 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFDFE] text-slate-900 font-sans selection:bg-slate-900 selection:text-white relative overflow-x-hidden">
+    <div className="neo-canvas-bg min-h-screen text-[#0C0E14] font-sans selection:bg-[#15803D] selection:text-white relative overflow-x-hidden">
+      
       {/* 
         ========================================================================
-        AMBIENT NEON GLOW BACKGROUND
+        FLOATING STADIUM PILL NAVBAR (Xocial Neo-Brutalist Theme)
         ========================================================================
       */}
-      <div className="absolute top-[5%] right-[-10%] sm:right-[2%] w-[380px] sm:w-[800px] h-[380px] sm:h-[800px] bg-gradient-to-tr from-violet-400/25 via-indigo-300/30 to-purple-400/20 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute top-[8%] left-[-10%] sm:left-[6%] w-[300px] sm:w-[520px] h-[300px] sm:h-[520px] bg-gradient-to-br from-indigo-200/35 via-purple-200/25 to-pink-100/20 rounded-full blur-[90px] sm:blur-[130px] pointer-events-none -z-10" />
-      <div className="absolute top-[45%] left-[10%] sm:left-[20%] w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-indigo-100/30 rounded-full blur-[120px] sm:blur-[160px] pointer-events-none -z-10" />
-
-      {/* 
-        ========================================================================
-        TOP NAVIGATION BAR (Mobile Responsive)
-        ========================================================================
-      */}
-      <header className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 py-5 sm:py-7 flex items-center justify-between z-30 relative">
-        <Link href="/" className="group hover:opacity-80 transition-opacity flex items-center">
-          <WelurikLogo className="h-10 sm:h-[68px]" />
-        </Link>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-[14px] font-medium text-slate-600">
-          <a href="#how-it-works" className="hover:text-slate-950 transition-colors">How It Works</a>
-          <a href="#features" className="hover:text-slate-950 transition-colors">Features</a>
-          <a href="#pricing" className="hover:text-slate-950 transition-colors">Pricing</a>
-          <a href="#faq" className="hover:text-slate-950 transition-colors">FAQ</a>
-          <Link href="/dashboard" className="hover:text-slate-950 transition-colors">Demo Dashboard</Link>
-        </nav>
-
-        {/* Action / Mobile Toggle */}
-        <div className="flex items-center gap-2.5">
-          <Link
-            href="/login"
-            className="text-[12px] sm:text-[13px] font-semibold text-slate-900 bg-white/90 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:bg-slate-50 hover:border-slate-300 transition-all"
-          >
-            Sign In
+      <div className="w-full max-w-[1080px] mx-auto px-4 pt-4 sm:pt-6 z-40 relative">
+        <header className="w-full bg-white border-2 border-black rounded-full px-5 sm:px-7 py-2.5 sm:py-3 shadow-[4px_4px_0px_#000000] flex items-center justify-between">
+          
+          {/* Brand Logo */}
+          <Link href="/" className="group hover:opacity-85 transition-opacity flex items-center gap-2">
+            <WelurikLogo className="h-9 sm:h-[44px]" />
           </Link>
 
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-700 hover:text-slate-950 hover:bg-slate-100 rounded-full transition-colors"
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
+          {/* Clean Lowercase Desktop Nav Links */}
+          <nav className="hidden md:flex items-center gap-7 text-[13.5px] font-semibold text-slate-700">
+            <a href="#how-it-works" className="hover:text-black transition-colors lowercase">how it works</a>
+            <a href="#features" className="hover:text-black transition-colors lowercase">features</a>
+            <a href="#pricing" className="hover:text-black transition-colors lowercase">pricing</a>
+            <a href="#faq" className="hover:text-black transition-colors lowercase">faq</a>
+            <Link href="/dashboard" className="hover:text-black transition-colors lowercase">demo</Link>
+          </nav>
+
+          {/* Action / Auth Buttons */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden sm:inline-block text-[13px] font-bold text-black hover:text-slate-600 transition-colors lowercase"
+            >
+              log in
+            </Link>
+
+            <Link
+              href="/signup"
+              className="text-[12.5px] sm:text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all lowercase"
+            >
+              sign up
+            </Link>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 text-black hover:bg-slate-100 rounded-full transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </header>
 
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-5 shadow-2xl space-y-3 z-40 animate-in fade-in slide-in-from-top-2">
+          <div className="md:hidden absolute top-full left-4 right-4 mt-2 bg-white border-2 border-black rounded-3xl p-5 shadow-[4px_4px_0px_#000000] space-y-3 z-50 animate-in fade-in slide-in-from-top-2">
             <a
               href="#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-800 hover:text-slate-950"
+              className="block py-1.5 text-sm font-bold text-black lowercase"
             >
-              How It Works
+              how it works
             </a>
             <a
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-800 hover:text-slate-950"
+              className="block py-1.5 text-sm font-bold text-black lowercase"
             >
-              Features
+              features
             </a>
             <a
               href="#pricing"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-800 hover:text-slate-950"
+              className="block py-1.5 text-sm font-bold text-black lowercase"
             >
-              Pricing
+              pricing
             </a>
             <a
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-800 hover:text-slate-950"
+              className="block py-1.5 text-sm font-bold text-black lowercase"
             >
-              FAQ
+              faq
             </a>
-            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+            <div className="pt-2 border-t-2 border-black/10 flex flex-col gap-2">
               <Link
-                href="/dashboard"
+                href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-xs font-bold text-slate-900 bg-slate-100 rounded-xl"
+                className="w-full py-2.5 text-center text-xs font-bold text-black bg-slate-100 border border-black rounded-full"
               >
-                Demo Dashboard
+                log in
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-xs font-bold text-white bg-slate-950 rounded-xl shadow-sm"
+                className="w-full py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border-2 border-black rounded-full shadow-[2px_2px_0px_#000000]"
               >
-                Get Lifetime Access (₹1,999)
+                get lifetime access (₹1,999)
               </Link>
             </div>
           </div>
         )}
-      </header>
+      </div>
 
       {/* 
         ========================================================================
-        HERO SECTION (Optimized for Mobile & Desktop with Interactive Slideshow)
+        HERO SECTION (Neo-Brutalist Layout Matching Reference Image)
         ========================================================================
       */}
-      <section className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 pt-4 sm:pt-6 pb-16 sm:pb-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
-          
-          {/* LEFT COLUMN: Typography, Badge & CTA */}
-          <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left pr-0 lg:pr-6">
-            
-            {/* Exact Match Frosted Glass Rating Pill Badge with Purple Ambient Glow */}
-            <div className="relative inline-block mx-auto lg:mx-0">
-              {/* Vibrant Purple Glow behind Star Avg */}
-              <div className="absolute -inset-1.5 bg-gradient-to-r from-purple-500/50 via-violet-400/50 to-indigo-400/40 rounded-full blur-md pointer-events-none" />
-              <div 
-                className="relative inline-flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/70 transition-all duration-300 hover:scale-[1.02] select-none"
-                style={{
-                  background: "rgba(255, 255, 255, 0.45)",
-                  backdropFilter: "blur(18px)",
-                  WebkitBackdropFilter: "blur(18px)",
-                  boxShadow: "0 8px 24px -2px rgba(147, 51, 234, 0.25), 0 2px 6px rgba(0, 0, 0, 0.02), inset 0 1px 1px rgba(255, 255, 255, 0.8)",
-                }}
-              >
-                <span className="text-[11.5px] sm:text-[12.5px] font-semibold text-slate-800 tracking-tight">4.9 Star Average</span>
-                <div className="flex text-[#FBBF24] gap-[2px] sm:gap-[3px] items-center">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-[12px] sm:w-[14px] h-[12px] sm:h-[14px] fill-[#FBBF24] text-[#FBBF24]" />
-                  ))}
-                </div>
-              </div>
-            </div>
+      <section className="w-full max-w-[1140px] mx-auto px-4 sm:px-8 pt-8 sm:pt-14 pb-16 sm:pb-24 relative z-10">
+        
+        {/* Floating Top Mini Badge */}
+        <div className="flex justify-center lg:justify-start mb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[3px_3px_0px_#000000] text-[12px] font-bold text-black">
+            <span>ai replied in 2s</span>
+            <span className="text-[#16A34A]">⚡</span>
+          </div>
+        </div>
 
-            {/* Main Headline */}
-            <h1 className="text-[34px] xs:text-[42px] sm:text-5xl lg:text-[64px] font-black text-slate-950 tracking-[-0.035em] leading-[1.08] sm:leading-[1.05]">
-              Turn Happy Customers <br className="hidden xs:inline" />
-              into 5-Star Reviews
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          
+          {/* LEFT COLUMN: Hero Typography, CTAs & Platform Pills */}
+          <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-center lg:text-left pr-0 lg:pr-4">
+            
+            {/* Main Punchy Headline with Forest Green Highlight */}
+            <h1 className="text-[36px] xs:text-[46px] sm:text-5xl lg:text-[62px] font-black text-black tracking-[-0.04em] leading-[1.08] sm:leading-[1.04]">
+              AI that captures, <br className="hidden xs:inline" />
+              <span className="text-[#15803D] underline decoration-4 decoration-[#15803D]/30">messages,</span> & converts.
             </h1>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-base lg:text-[18px] text-slate-600 font-normal leading-[1.6] max-w-[530px] mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base lg:text-[17px] text-slate-700 font-medium leading-[1.6] max-w-[510px] mx-auto lg:mx-0">
               Easily collect, manage, and showcase customer feedback to boost your Google rating and grow your business with 30-second AI review generation.
             </p>
 
-            {/* Primary Action Button */}
-            <div className="space-y-5 sm:space-y-6 pt-1 sm:pt-2">
+            {/* Neo-Brutalist Pill CTA Button Lockup */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-1">
+              {/* Primary Green CTA Pill */}
               <Link
                 href="/signup"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 sm:px-9 py-3.5 sm:py-4 bg-slate-950 hover:bg-slate-900 text-white rounded-full text-[13.5px] sm:text-[14px] font-bold shadow-[0_18px_35px_rgba(15,23,42,0.28)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-[13.5px] sm:text-[14px] font-black border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
               >
-                Get Lifetime Access (₹1,999)
+                start 1 month free →
               </Link>
 
-              {/* Micro Tags Line */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3.5 text-[12px] sm:text-[13px] text-slate-500 font-medium pt-1">
-                <span>Auto-Feedback</span>
-                <span className="text-slate-300">•</span>
-                <span>Smart Prompts</span>
-                <span className="text-slate-300">•</span>
-                <span>Analytics</span>
-              </div>
+              {/* Secondary White CTA Pill */}
+              <a
+                href="#how-it-works"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-black rounded-full text-[13.5px] sm:text-[14px] font-bold border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+              >
+                <Play className="w-3.5 h-3.5 fill-black text-black" /> see it in action
+              </a>
+            </div>
+
+            {/* Micro Plan Text */}
+            <p className="text-[11.5px] sm:text-[12.5px] font-semibold text-slate-500">
+              free forever plan • no credit card • connect in 5 minutes
+            </p>
+
+            {/* Platform Badges with Black Borders */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-2.5 pt-2">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
+                <span className="text-[#25D366]">💬</span> whatsapp
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
+                <span className="text-[#E1306C]">📸</span> instagram
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
+                <span className="text-[#4285F4]">📍</span> google maps
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-[11.5px] font-bold text-black">
+                <span className="text-[#15803D]">🖨️</span> qr standee
+              </span>
             </div>
           </div>
 
           {/* 
             ========================================================================
-            RIGHT COLUMN: INTERACTIVE SLIDESHOW PHONE FRAME (4-STEP WALKTHROUGH)
+            RIGHT COLUMN: NEO-BRUTALIST PHONE MOCKUP (4-STEP SLIDESHOW)
             ========================================================================
           */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative py-4 sm:py-6 overflow-visible">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative py-4 sm:py-6">
             
-            {/* RICH PURPLE/VIOLET AMBIENT GLOW DIRECTLY BEHIND PHONE */}
-            <div className="absolute w-[280px] sm:w-[440px] h-[400px] sm:h-[560px] bg-gradient-to-tr from-purple-600/40 via-violet-500/45 to-indigo-500/35 rounded-[50px] sm:rounded-[60px] blur-[60px] sm:blur-[80px] pointer-events-none -z-10 animate-pulse duration-1000" />
-            <div className="absolute w-[240px] sm:w-[360px] h-[320px] sm:h-[480px] bg-purple-400/30 rounded-full blur-[80px] sm:blur-[100px] pointer-events-none -z-10" />
-
-            {/* PHONE DEVICE WITH BOLD BLACK OUTLINE & HARD DROP SHADOW */}
+            {/* Phone Device with Neo-Brutalist 3.5px Black Border & Offset Shadow */}
             <div 
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
-              className="w-full max-w-[290px] xs:max-w-[305px] sm:max-w-[320px] bg-white rounded-[44px] sm:rounded-[48px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none transition-transform duration-300 hover:translate-x-[-2px] hover:translate-y-[-2px]"
-              style={{
-                boxShadow: "8px 10px 0px #000000",
-              }}
+              className="w-full max-w-[295px] xs:max-w-[310px] sm:max-w-[325px] bg-white rounded-[44px] sm:rounded-[48px] border-[3.5px] border-black relative z-10 select-none shadow-[8px_8px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_#000000] transition-all"
             >
               {/* Dynamic Island Notch */}
-              <div className="pt-3 pb-1 text-center">
-                <div className="w-[76px] sm:w-[84px] h-[16px] sm:h-[18px] bg-black rounded-full mx-auto" />
+              <div className="pt-3.5 pb-1 text-center">
+                <div className="w-[82px] sm:w-[88px] h-[17px] sm:h-[19px] bg-black rounded-full mx-auto" />
               </div>
 
-              {/* Inside Screen Graphic with Dynamic Slideshow */}
+              {/* Inside Screen Container */}
               <div className="p-3.5 sm:p-4 min-h-[460px] sm:min-h-[480px] flex flex-col justify-between text-left">
                 
-                {/* Screen Header Bar */}
-                <div className="flex items-center justify-between pb-2.5 pt-0.5 border-b border-slate-100">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-slate-950 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold">
+                {/* Screen Top Header */}
+                <div className="flex items-center justify-between pb-2.5 pt-0.5 border-b-2 border-black/10">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-black text-white flex items-center justify-center text-[9px] sm:text-[10px] font-black">
                       W
                     </div>
-                    <span className="text-[10.5px] sm:text-[11px] font-bold text-slate-900 tracking-tight truncate max-w-[160px]">
+                    <span className="text-[11px] font-black text-black tracking-tight truncate max-w-[155px]">
                       {slides[currentSlide].header}
                     </span>
                   </div>
-                  <span className="text-[9px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full">
+                  <span className="text-[9.5px] font-black px-2 py-0.5 bg-[#dcfce7] text-[#15803D] border border-black rounded-full">
                     {currentSlide + 1}/4
                   </span>
                 </div>
 
-                {/* DYNAMIC SLIDE CONTENT */}
+                {/* DYNAMIC SLIDES */}
                 <div className="my-auto py-1">
                   {/* SLIDE 1: SCAN & RATE */}
                   {currentSlide === 0 && (
-                    <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
                       <div className="text-center">
-                        <span className="text-[9px] font-medium text-slate-400">Step 1 • Table Standee Scan</span>
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Step 1 • Table Standee Scan</span>
                       </div>
-                      <div className="bg-[#F4F5F9] p-3.5 rounded-2xl rounded-tl-sm space-y-2 border border-slate-200/60">
+                      <div className="bg-[#FAF9F5] p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1.5">
                         <div className="flex items-start gap-2">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-rose-400 flex items-center justify-center text-white text-[9px] font-bold shrink-0 mt-0.5">
+                          <div className="w-6 h-6 rounded-full bg-[#15803D] text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">
                             S
                           </div>
-                          <div className="space-y-0.5">
-                            <p className="text-[11px] font-bold text-slate-900">Hi Sarah!</p>
+                          <div>
+                            <p className="text-[11px] font-black text-black">Hi Sarah!</p>
                             <p className="text-[10px] text-slate-600">How was your coffee & visit today?</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.04)] space-y-3 text-center">
-                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Rate Your Visit</span>
-                        <div className="flex justify-center gap-1.5 text-amber-400">
+                      <div className="bg-white p-3.5 rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] space-y-2.5 text-center">
+                        <span className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wider block">Rate Your Visit</span>
+                        <div className="flex justify-center gap-1 text-amber-400">
                           {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className="w-6 h-6 fill-amber-400 text-amber-400 transition-transform hover:scale-110" />
+                            <Star key={s} className="w-5 h-5 fill-amber-400 text-amber-400" />
                           ))}
                         </div>
-                        <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block">
+                        <span className="text-[10.5px] font-bold text-[#15803D] bg-[#dcfce7] border border-black px-2.5 py-0.5 rounded-full inline-block">
                           5 Stars • Excellent
                         </span>
                         <button 
                           onClick={() => setCurrentSlide(1)}
-                          className="w-full py-2.5 bg-slate-950 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm"
+                          className="w-full py-2 bg-black hover:bg-neutral-800 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-sm"
                         >
                           Next: Pick Highlights <ArrowRight className="w-3 h-3" />
                         </button>
@@ -370,12 +374,12 @@ export default function LandingPage() {
 
                   {/* SLIDE 2: PICK TAGS */}
                   {currentSlide === 1 && (
-                    <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
                       <div className="text-center">
-                        <span className="text-[9px] font-medium text-slate-400">Step 2 • Tap Highlights</span>
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Step 2 • Tap Highlights</span>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-[11px] font-bold text-slate-900">What did you enjoy most?</p>
+                        <p className="text-[11px] font-black text-black">What did you enjoy most?</p>
                         <p className="text-[9.5px] text-slate-500">Tap pills to weave keywords into your review:</p>
                       </div>
 
@@ -389,20 +393,20 @@ export default function LandingPage() {
                         ].map((t, idx) => (
                           <span
                             key={idx}
-                            className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-xl border flex items-center gap-1 ${
+                            className={`text-[9.5px] font-bold px-2.5 py-1.5 rounded-xl border-2 border-black flex items-center gap-1 ${
                               t.sel
-                                ? "bg-slate-950 text-white border-slate-950"
-                                : "bg-slate-50 text-slate-600 border-slate-200"
+                                ? "bg-[#dcfce7] text-[#15803D] shadow-[1px_1px_0px_#000000]"
+                                : "bg-white text-slate-700"
                             }`}
                           >
-                            {t.name} {t.sel && <Check className="w-2.5 h-2.5 text-emerald-400" />}
+                            {t.name} {t.sel && <Check className="w-2.5 h-2.5 text-[#15803D]" />}
                           </span>
                         ))}
                       </div>
 
                       <button 
                         onClick={() => setCurrentSlide(2)}
-                        className="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-600/20"
+                        className="w-full py-2.5 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-[11px] font-black flex items-center justify-center gap-1.5 shadow-[2px_2px_0px_#000000]"
                       >
                         <Sparkles className="w-3.5 h-3.5" /> Generate Review with AI
                       </button>
@@ -411,27 +415,27 @@ export default function LandingPage() {
 
                   {/* SLIDE 3: AI MAGIC */}
                   {currentSlide === 2 && (
-                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
                       <div className="text-center">
-                        <span className="text-[9px] font-medium text-slate-400">Step 3 • AI Assistant Magic</span>
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Step 3 • AI Assistant Magic</span>
                       </div>
-                      <div className="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5 space-y-2">
+                      <div className="bg-[#FAF9F5] border-2 border-black rounded-2xl p-3 space-y-2 shadow-[2px_2px_0px_#000000]">
                         <div className="flex items-center justify-between">
-                          <span className="text-[9.5px] font-bold text-indigo-900 flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-indigo-600" /> AI Generated Review:
+                          <span className="text-[9.5px] font-black text-black flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#15803D]" /> AI Generated Review:
                           </span>
-                          <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                          <span className="text-[9px] font-black text-[#15803D] bg-[#dcfce7] border border-black px-2 py-0.5 rounded-full flex items-center gap-0.5">
                             <CheckCircle2 className="w-2.5 h-2.5" /> Ready
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-800 leading-relaxed italic bg-white/80 p-2.5 rounded-xl border border-indigo-100/80">
+                        <p className="text-[10px] text-slate-800 leading-relaxed italic bg-white p-2.5 rounded-xl border border-black/20">
                           "Had a wonderful morning at The Coffee House! The Specialty Latte was rich and delicious, and the warm croissants were fresh out of the oven. Super fast Wi-Fi and friendly staff make this my favorite spot!"
                         </p>
                       </div>
 
                       <button 
                         onClick={() => setCurrentSlide(3)}
-                        className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                        className="w-full py-2.5 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-[11px] font-black flex items-center justify-center gap-1.5 shadow-[2px_2px_0px_#000000]"
                       >
                         <Copy className="w-3.5 h-3.5" /> Copy & Open Google Maps
                       </button>
@@ -440,18 +444,18 @@ export default function LandingPage() {
 
                   {/* SLIDE 4: GOOGLE MAPS 5★ */}
                   {currentSlide === 3 && (
-                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
                       <div className="text-center">
-                        <span className="text-[9px] font-medium text-slate-400">Step 4 • Posted on Google Maps</span>
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Step 4 • Posted on Google Maps</span>
                       </div>
-                      <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-xs space-y-2">
+                      <div className="bg-white border-2 border-black rounded-2xl p-3 shadow-[2px_2px_0px_#000000] space-y-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[9px] font-bold">
+                          <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-[9px] font-black">
                             S
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-[10.5px] font-bold text-slate-900">Sarah Jenkins</p>
-                            <p className="text-[8.5px] text-slate-400">Local Guide • 42 reviews</p>
+                            <p className="text-[10.5px] font-black text-black">Sarah Jenkins</p>
+                            <p className="text-[8.5px] text-slate-500 font-medium">Local Guide • 42 reviews</p>
                           </div>
                           <div className="flex text-amber-400">
                             {[1, 2, 3, 4, 5].map((s) => (
@@ -459,13 +463,13 @@ export default function LandingPage() {
                             ))}
                           </div>
                         </div>
-                        <p className="text-[9.5px] text-slate-700 leading-relaxed">
+                        <p className="text-[9.5px] text-slate-800 leading-relaxed">
                           The Coffee House is our favorite spot in town! Incredible Specialty Latte, warm fresh croissants, and awesome staff. 10/10 recommend!
                         </p>
                       </div>
 
-                      <div className="p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-center">
-                        <span className="text-[10px] font-bold text-amber-900 flex items-center justify-center gap-1">
+                      <div className="p-2 bg-[#dcfce7] border-2 border-black rounded-xl text-center shadow-[1px_1px_0px_#000000]">
+                        <span className="text-[9.5px] font-black text-[#15803D] flex items-center justify-center gap-1">
                           🏆 Ranked #1 in Google Maps Local Pack
                         </span>
                       </div>
@@ -473,17 +477,17 @@ export default function LandingPage() {
                   )}
                 </div>
 
-                {/* Bottom Step Pills Bar for Direct Manual Control */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
+                {/* Bottom Step Pills Bar */}
+                <div className="pt-2 border-t-2 border-black/10 flex items-center justify-between gap-1">
                   {slides.map((s, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setCurrentSlide(idx)}
-                      className={`flex-1 py-1.5 px-1 rounded-lg text-[9px] font-bold transition-all text-center ${
+                      className={`flex-1 py-1.5 px-1 rounded-lg text-[9px] font-black transition-all text-center border ${
                         currentSlide === idx
-                          ? "bg-slate-950 text-white shadow-xs scale-105"
-                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                          ? "bg-black text-white border-black shadow-[1px_1px_0px_#000000]"
+                          : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
                       }`}
                     >
                       {s.stepTitle}
@@ -493,12 +497,12 @@ export default function LandingPage() {
 
               </div>
 
-              {/* Floating Bottom Badge with Black Border & Hard Shadow */}
+              {/* Floating Bottom Pill Badge */}
               <div 
-                className="absolute -bottom-3 -right-2 sm:-bottom-4 sm:-right-6 bg-white border-2 border-black rounded-full px-3 sm:px-4 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2 z-20 shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000]"
+                className="absolute -bottom-3 -right-2 sm:-bottom-4 sm:-right-4 bg-white border-2 border-black rounded-full px-3.5 py-1 flex items-center gap-1.5 z-20 shadow-[3px_3px_0px_#000000]"
               >
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span className="text-[9.5px] sm:text-[11px] font-bold text-slate-900 whitespace-nowrap">
+                <div className="w-2 h-2 rounded-full bg-[#15803D] animate-pulse shrink-0" />
+                <span className="text-[10px] font-black text-black whitespace-nowrap">
                   Reviews sent: 1,240+
                 </span>
               </div>
@@ -514,12 +518,12 @@ export default function LandingPage() {
         TRUSTED BY LOCAL BUSINESSES
         ========================================================================
       */}
-      <section className="py-10 sm:py-12 border-y border-slate-100 bg-white/60 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 text-center space-y-4">
-          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">
+      <section className="py-8 sm:py-10 border-y-2 border-black bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 text-center space-y-3">
+          <p className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-slate-500">
             Trusted by 250+ Cafés, Salons, Clinics, Restaurants & Auto Studios
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-12 text-slate-400 text-xs sm:text-sm font-semibold">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-10 text-black text-xs sm:text-sm font-bold">
             <span className="flex items-center gap-1.5">☕ Specialty Cafés</span>
             <span className="flex items-center gap-1.5">💇‍♀️ Luxury Salons</span>
             <span className="flex items-center gap-1.5">🍽️ Fine Dining</span>
@@ -536,47 +540,47 @@ export default function LandingPage() {
       */}
       <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-8 max-w-6xl mx-auto space-y-12 sm:space-y-16">
         <div className="text-center space-y-3 max-w-xl mx-auto">
-          <span className="text-xs font-bold text-violet-600 uppercase tracking-widest bg-violet-50 px-3 py-1 rounded-full border border-violet-100">
-            Zero Friction
+          <span className="text-xs font-black text-[#15803D] uppercase tracking-widest bg-[#dcfce7] px-3.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] inline-block">
+            zero friction
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
             How It Works in 3 Simple Steps
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
             Eliminate customer writer's block and make leaving 5-star reviews effortless.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* Step 1 */}
-          <div className="bg-white/80 backdrop-blur-md p-6 sm:p-8 rounded-[28px] sm:rounded-[32px] border border-slate-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-3.5 relative group hover:border-slate-300 transition-all">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-slate-950 text-white rounded-2xl flex items-center justify-center font-black text-sm sm:text-base shadow-sm">
+          <div className="bg-white p-6 sm:p-8 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-3.5">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-black text-white border-2 border-black rounded-2xl flex items-center justify-center font-black text-sm sm:text-base shadow-[2px_2px_0px_#000000]">
               1
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-950">Scan Table Standee</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-base sm:text-lg font-black text-black">Scan Table Standee</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Place sleek 4" x 6" acrylic standees on tables, reception counters, or billing desks. Customers simply scan with their phone camera.
             </p>
           </div>
 
           {/* Step 2 */}
-          <div className="bg-white/80 backdrop-blur-md p-6 sm:p-8 rounded-[28px] sm:rounded-[32px] border border-slate-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-3.5 relative group hover:border-slate-300 transition-all">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-slate-950 text-white rounded-2xl flex items-center justify-center font-black text-sm sm:text-base shadow-sm">
+          <div className="bg-white p-6 sm:p-8 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-3.5">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-[#15803D] text-white border-2 border-black rounded-2xl flex items-center justify-center font-black text-sm sm:text-base shadow-[2px_2px_0px_#000000]">
               2
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-950">Tap What They Loved</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-base sm:text-lg font-black text-black">Tap What They Loved</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Customers tap simple pills (e.g. "Great Coffee", "Fast Wi-Fi"). AI instantly crafts a genuine, polite, keyword-rich 5-star review.
             </p>
           </div>
 
           {/* Step 3 */}
-          <div className="bg-white/80 backdrop-blur-md p-6 sm:p-8 rounded-[28px] sm:rounded-[32px] border border-slate-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.03)] space-y-3.5 relative group hover:border-slate-300 transition-all">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-slate-950 text-white rounded-2xl flex items-center justify-center font-black text-sm sm:text-base shadow-sm">
+          <div className="bg-white p-6 sm:p-8 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-3.5">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-black text-white border-2 border-black rounded-2xl flex items-center justify-center font-black text-sm sm:text-base shadow-[2px_2px_0px_#000000]">
               3
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-950">1-Tap Google Post</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-base sm:text-lg font-black text-black">1-Tap Google Post</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               The review copies to clipboard and instantly redirects to your Google Business profile. The customer pastes and submits in 5 seconds!
             </p>
           </div>
@@ -588,79 +592,79 @@ export default function LandingPage() {
         BENTO GRID FEATURES
         ========================================================================
       */}
-      <section id="features" className="py-16 sm:py-20 px-4 sm:px-8 max-w-6xl mx-auto space-y-12 sm:space-y-16 border-t border-slate-100">
+      <section id="features" className="py-16 sm:py-20 px-4 sm:px-8 max-w-6xl mx-auto space-y-12 sm:space-y-16 border-t-2 border-black/10">
         <div className="text-center space-y-3 max-w-xl mx-auto">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            Powerful Architecture
+          <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
+            powerful architecture
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
             Everything You Need To Dominate Google Maps
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
           {/* Bento 1 */}
-          <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-[26px] sm:rounded-[30px] border border-slate-200/80 shadow-xs space-y-3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-900">
+          <div className="bg-white p-6 sm:p-7 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-0.5 transition-all space-y-3">
+            <div className="w-10 h-10 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-black shadow-[2px_2px_0px_#000000]">
               <Printer className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">Standee & Table Tent Studio</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-sm sm:text-base font-black text-black">Standee & Table Tent Studio</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Print ready 4" x 6" acrylic standee templates, table tent foldables, and register badges with crisp vector QR codes.
             </p>
           </div>
 
           {/* Bento 2 */}
-          <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-[26px] sm:rounded-[30px] border border-slate-200/80 shadow-xs space-y-3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 border border-amber-100">
+          <div className="bg-white p-6 sm:p-7 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-0.5 transition-all space-y-3">
+            <div className="w-10 h-10 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D] shadow-[2px_2px_0px_#000000]">
               <Sparkles className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">Polite Sentiment Modulation</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-sm sm:text-base font-black text-black">Polite Sentiment Modulation</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Every review maintains a courteous, dignified tone. Negative 1-star ratings produce polite, constructive feedback.
             </p>
           </div>
 
           {/* Bento 3 */}
-          <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-[26px] sm:rounded-[30px] border border-slate-200/80 shadow-xs space-y-3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-100">
+          <div className="bg-white p-6 sm:p-7 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-0.5 transition-all space-y-3">
+            <div className="w-10 h-10 bg-amber-50 border-2 border-black rounded-xl flex items-center justify-center text-amber-600 shadow-[2px_2px_0px_#000000]">
               <TrendingUp className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">Target Keyword SEO Booster</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-sm sm:text-base font-black text-black">Target Keyword SEO Booster</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Naturally weaved service keywords signal Google's ranking engine to place your business in the Top 3 Local Map Pack.
             </p>
           </div>
 
           {/* Bento 4 */}
-          <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-[26px] sm:rounded-[30px] border border-slate-200/80 shadow-xs space-y-3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-100">
+          <div className="bg-white p-6 sm:p-7 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-0.5 transition-all space-y-3">
+            <div className="w-10 h-10 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D] shadow-[2px_2px_0px_#000000]">
               <BarChart3 className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">Live Conversion Analytics</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-sm sm:text-base font-black text-black">Live Conversion Analytics</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Track camera scan counts, review formulation rates, and Google handoffs in real-time from your owner dashboard.
             </p>
           </div>
 
           {/* Bento 5 */}
-          <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-[26px] sm:rounded-[30px] border border-slate-200/80 shadow-xs space-y-3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 border border-rose-100">
+          <div className="bg-white p-6 sm:p-7 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-0.5 transition-all space-y-3">
+            <div className="w-10 h-10 bg-rose-50 border-2 border-black rounded-xl flex items-center justify-center text-rose-600 shadow-[2px_2px_0px_#000000]">
               <MessageSquare className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">Private Feedback Inbox</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-sm sm:text-base font-black text-black">Private Feedback Inbox</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Capture customer grievances and operational issues privately before they turn into public complaints.
             </p>
           </div>
 
           {/* Bento 6 */}
-          <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-[26px] sm:rounded-[30px] border border-slate-200/80 shadow-xs space-y-3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-900">
-              <ShieldCheck className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-600" />
+          <div className="bg-white p-6 sm:p-7 rounded-[26px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-0.5 transition-all space-y-3">
+            <div className="w-10 h-10 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-black shadow-[2px_2px_0px_#000000]">
+              <ShieldCheck className="w-4 sm:w-5 h-4 sm:h-5 text-[#15803D]" />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">100% Policy Compliant</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="text-sm sm:text-base font-black text-black">100% Policy Compliant</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
               Zero review gating. Full compliance with Google Local Services and FTC guidelines ensures your profile stays safe.
             </p>
           </div>
@@ -669,35 +673,35 @@ export default function LandingPage() {
 
       {/* 
         ========================================================================
-        PRICING SECTION (Mobile Responsive)
+        PRICING SECTION (Neo-Brutalist Card)
         ========================================================================
       */}
       <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-8 max-w-xl mx-auto text-center space-y-6 sm:space-y-8">
         <div className="space-y-2">
-          <span className="text-xs font-bold text-violet-600 uppercase tracking-widest bg-violet-50 px-3 py-1 rounded-full border border-violet-100">
-            One-Time Lifetime Deal
+          <span className="text-xs font-black text-[#15803D] uppercase tracking-widest bg-[#dcfce7] px-3.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] inline-block">
+            one-time lifetime deal
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
             ₹1,999 Lifetime License
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs font-medium text-slate-600">
             Zero monthly subscriptions. Instant activation for your business.
           </p>
         </div>
 
-        <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-[28px] sm:rounded-[36px] p-6 sm:p-8 space-y-6 sm:space-y-7 text-left shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
-          <div className="flex items-baseline justify-between border-b border-slate-100 pb-4 sm:pb-5">
+        <div className="bg-white border-[2.5px] border-black rounded-[32px] p-6 sm:p-8 space-y-6 sm:space-y-7 text-left shadow-[6px_6px_0px_#000000]">
+          <div className="flex items-baseline justify-between border-b-2 border-black/10 pb-4 sm:pb-5">
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">Full Business License</h3>
-              <p className="text-[11px] sm:text-xs text-slate-400">Everything needed to grow reviews</p>
+              <h3 className="text-base sm:text-lg font-black text-black">Full Business License</h3>
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium">Everything needed to grow reviews</p>
             </div>
             <div className="text-right">
-              <span className="text-2xl sm:text-3xl font-black text-slate-950">₹1,999</span>
-              <span className="block text-[9.5px] sm:text-[10px] text-slate-400">One-time payment</span>
+              <span className="text-2xl sm:text-3xl font-black text-black">₹1,999</span>
+              <span className="block text-[9.5px] sm:text-[10px] text-slate-500 font-semibold">One-time payment</span>
             </div>
           </div>
 
-          <ul className="space-y-2.5 sm:space-y-3 text-xs text-slate-700">
+          <ul className="space-y-2.5 sm:space-y-3 text-xs text-slate-800">
             {[
               "Unlimited QR Camera Scans & Google Handoffs",
               "Ready-to-Print 4\" x 6\" Acrylic Standee & Table Tent Studio",
@@ -708,19 +712,19 @@ export default function LandingPage() {
               "Lifetime Software Access & All Future Updates",
             ].map((f) => (
               <li key={f} className="flex items-start sm:items-center gap-2 sm:gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 sm:mt-0" />
-                <span className="font-medium text-slate-800">{f}</span>
+                <CheckCircle2 className="w-4 h-4 text-[#15803D] shrink-0 mt-0.5 sm:mt-0" />
+                <span className="font-bold text-black">{f}</span>
               </li>
             ))}
           </ul>
 
           <Link
             href="/signup"
-            className="w-full py-3.5 sm:py-4 bg-slate-950 hover:bg-slate-900 text-white rounded-full font-bold text-xs flex items-center justify-center gap-2 shadow-[0_12px_24px_rgba(15,23,42,0.2)] hover:scale-[1.01] active:scale-[0.98] transition-all text-center"
+            className="w-full py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-xs flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
           >
             Claim Lifetime Access Now <ArrowRight className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
           </Link>
-          <p className="text-center text-[10px] text-slate-400">Instant setup in under 2 minutes</p>
+          <p className="text-center text-[10.5px] text-slate-500 font-semibold">Instant setup in under 2 minutes</p>
         </div>
       </section>
 
@@ -729,36 +733,36 @@ export default function LandingPage() {
         FAQ ACCORDION
         ========================================================================
       */}
-      <section id="faq" className="py-16 sm:py-20 px-4 sm:px-8 max-w-3xl mx-auto space-y-8 sm:space-y-12 border-t border-slate-100">
+      <section id="faq" className="py-16 sm:py-20 px-4 sm:px-8 max-w-3xl mx-auto space-y-8 sm:space-y-12 border-t-2 border-black/10">
         <div className="text-center space-y-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            Got Questions?
+          <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
+            got questions?
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
             Frequently Asked Questions
           </h2>
         </div>
 
-        <div className="space-y-3 sm:space-y-3.5">
+        <div className="space-y-3.5">
           {faqs.map((faq, i) => (
             <div
               key={i}
-              className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/80 overflow-hidden transition-all shadow-xs"
+              className="bg-white rounded-2xl border-2 border-black overflow-hidden transition-all shadow-[3px_3px_0px_#000000]"
             >
               <button
                 type="button"
                 onClick={() => toggleFaq(i)}
-                className="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs sm:text-sm font-bold text-slate-900 hover:text-slate-700"
+                className="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs sm:text-sm font-black text-black hover:text-slate-700"
               >
                 <span>{faq.q}</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 shrink-0 ml-2 transition-transform duration-200 ${
-                    openFaq === i ? "rotate-180 text-slate-900" : ""
+                  className={`w-4 h-4 text-black shrink-0 ml-2 transition-transform duration-200 ${
+                    openFaq === i ? "rotate-180" : ""
                   }`}
                 />
               </button>
               {openFaq === i && (
-                <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-slate-600 leading-relaxed font-normal animate-in fade-in">
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-slate-700 leading-relaxed font-medium border-t-2 border-black/10 pt-3 animate-in fade-in">
                   {faq.a}
                 </div>
               )}
@@ -769,31 +773,28 @@ export default function LandingPage() {
 
       {/* 
         ========================================================================
-        FINAL CTA BANNER (Light Glassmorphic Apple Aesthetic)
+        FINAL CTA BANNER
         ========================================================================
       */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-4xl mx-auto text-center">
-        <div className="bg-white/90 backdrop-blur-2xl border border-slate-200/90 rounded-[28px] sm:rounded-[40px] p-8 sm:p-14 space-y-5 sm:space-y-6 shadow-[0_25px_60px_rgba(147,51,234,0.09),0_4px_16px_rgba(0,0,0,0.03)] relative overflow-hidden">
-          {/* Subtle Ambient Violet/Purple Lighting Halos */}
-          <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-violet-300/35 via-indigo-200/40 to-purple-300/30 rounded-full blur-[80px] pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-purple-200/30 rounded-full blur-[80px] pointer-events-none" />
-
-          <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-slate-950 tracking-tight leading-[1.15] relative z-10">
+        <div className="bg-white border-[3px] border-black rounded-[36px] p-8 sm:p-14 space-y-5 sm:space-y-6 shadow-[8px_8px_0px_#000000] relative overflow-hidden">
+          
+          <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-black tracking-tight leading-[1.15] relative z-10">
             Start Collecting 5-Star Reviews Today
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto font-normal leading-relaxed relative z-10">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto font-medium leading-relaxed relative z-10">
             Join hundreds of local businesses that transformed their Google Maps ranking with our 30-second review assistant.
           </p>
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5 relative z-10">
             <Link
               href="/signup"
-              className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-slate-950 hover:bg-slate-900 text-white font-bold rounded-full text-xs shadow-[0_12px_28px_rgba(15,23,42,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all text-center"
+              className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white font-black rounded-full text-xs border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
             >
-              Get Started for ₹1,999 (Lifetime)
+              Get Started for ₹1,999 (Lifetime) →
             </Link>
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto px-6 py-3.5 sm:py-4 bg-white/90 hover:bg-slate-50 text-slate-800 border border-slate-200/90 font-semibold rounded-full text-xs shadow-xs hover:border-slate-300 transition-all text-center"
+              className="w-full sm:w-auto px-6 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-black border-2 border-black font-bold rounded-full text-xs shadow-[4px_4px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
             >
               View Live Demo
             </Link>
@@ -806,12 +807,12 @@ export default function LandingPage() {
         MINIMAL FOOTER
         ========================================================================
       */}
-      <footer className="w-full max-w-[1240px] mx-auto px-4 sm:px-8 py-6 sm:py-8 border-t border-slate-100/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4 z-10 text-center sm:text-left">
+      <footer className="w-full max-w-[1080px] mx-auto px-4 sm:px-8 py-6 sm:py-8 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4 z-10 text-center sm:text-left">
         <p>© 2026 Welurik Review. Built for local businesses to collect authentic 5-star Google reviews.</p>
-        <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-6 font-medium text-slate-500">
-          <Link href="/login" className="hover:text-slate-900 transition-colors">Sign In</Link>
-          <Link href="/dashboard" className="hover:text-slate-900 transition-colors">Dashboard</Link>
-          <Link href="/r/the-coffee-house" target="_blank" className="hover:text-slate-900 transition-colors">Live Funnel</Link>
+        <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-6 font-bold text-black">
+          <Link href="/login" className="hover:text-slate-600 transition-colors lowercase">sign in</Link>
+          <Link href="/dashboard" className="hover:text-slate-600 transition-colors lowercase">dashboard</Link>
+          <Link href="/r/the-coffee-house" target="_blank" className="hover:text-slate-600 transition-colors lowercase">live funnel</Link>
         </div>
       </footer>
     </div>
