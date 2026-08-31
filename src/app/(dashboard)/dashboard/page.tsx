@@ -143,6 +143,10 @@ export default function DashboardPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-100">
               Live Funnel
             </span>
+            <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shadow-xs">
+              <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+              Lifetime Pro Active
+            </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
             Real-time scan velocity, AI generation metrics, and Google Maps review performance.
@@ -158,7 +162,7 @@ export default function DashboardPage() {
           </Link>
           <Link
             href="/qr-studio"
-            className="text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
+            className="text-xs font-bold bg-[#16A34A] hover:bg-[#15803D] text-white px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-xs transition-all"
           >
             <Printer className="w-3.5 h-3.5" /> Print Standees
           </Link>

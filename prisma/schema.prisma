@@ -30,6 +30,8 @@ model Business {
   phone           String?
   monthlyAiQuota  Int               @default(500)
   aiCallsThisMonth Int              @default(0)
+  isPro           Boolean           @default(false)
+  planName        String            @default("free")
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   services        BusinessService[]
@@ -37,6 +39,7 @@ model Business {
   reviewSessions  ReviewSession[]
   feedbacks       Feedback[]
   analyticsEvents AnalyticsEvent[]
+  orders          Order[]
 }
 
 model BusinessService {
@@ -89,4 +92,21 @@ model AnalyticsEvent {
   eventType  String   // scan, select_topics, review_generated, review_copied, google_clicked, feedback_submitted
   metadata   String?  // JSON
   createdAt  DateTime @default(now())
+}
+
+model Order {
+  id                String    @id @default(uuid())
+  businessId        String?
+  business          Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  userEmail         String?
+  razorpayOrderId   String    @unique
+  razorpayPaymentId String?   @unique
+  razorpaySignature String?
+  amount            Int       // in paise (e.g. 199900 for ₹1,999)
+  currency          String    @default("INR")
+  status            String    @default("created") // created, paid, failed
+  planType          String    @default("lifetime") // lifetime, monthly
+  receipt           String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }

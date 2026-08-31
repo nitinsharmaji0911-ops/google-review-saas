@@ -20,6 +20,7 @@ import {
   Play
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
+import { CheckoutButton } from "@/components/CheckoutButton";
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -644,13 +645,12 @@ export default function LandingPage() {
             ))}
           </ul>
 
-          <Link
-            href="/signup"
-            className="w-full py-3.5 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-xs flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center"
-          >
-            Claim Lifetime Access Now <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-          <p className="text-center text-[10.5px] text-slate-500 font-semibold">Instant setup in under 2 minutes</p>
+          <CheckoutButton
+            planType="lifetime"
+            buttonText="Claim Lifetime Access for ₹1,999"
+            className="w-full py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-sm flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center cursor-pointer"
+          />
+          <p className="text-center text-[10.5px] text-slate-500 font-semibold">Instant activation via UPI, QR & Cards</p>
         </div>
       </section>
 
