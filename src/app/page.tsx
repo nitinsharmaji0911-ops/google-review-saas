@@ -713,64 +713,148 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-2.5">
-            <div className="w-9 h-9 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-black">
-              <Printer className="w-4 h-4" />
+          {/* Feature 1 */}
+          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="w-9 h-9 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-black">
+                <Printer className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-black">Standee & Table Tent Studio</h3>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Ready-to-print 4" x 6" acrylic standee templates</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Foldable table tents & counter register badges</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Instant high-resolution vector QR code export</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-black">Standee & Table Tent Studio</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Print ready 4" x 6" acrylic standee templates, table tent foldables, and register badges with crisp vector QR codes.
-            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-2.5">
-            <div className="w-9 h-9 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
-              <Sparkles className="w-4 h-4" />
+          {/* Feature 2: Simplified & Understandable */}
+          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="w-9 h-9 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-black">Smart 5-Star & Feedback Filter</h3>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span><strong>5-Star reviews</strong> go straight to Google Maps</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span><strong>1–3 Star issues</strong> are sent privately to your inbox</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Stops negative reviews from damaging your rating</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-black">Polite Sentiment Modulation</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Every review maintains a courteous tone. Low ratings produce constructive, polite feedback for operational improvement.
-            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-2.5">
-            <div className="w-9 h-9 bg-amber-50 border-2 border-black rounded-xl flex items-center justify-center text-amber-600">
-              <TrendingUp className="w-4 h-4" />
+          {/* Feature 3 */}
+          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="w-9 h-9 bg-amber-50 border-2 border-black rounded-xl flex items-center justify-center text-amber-600">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-black">Target Keyword SEO Booster</h3>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Naturally weaves your services into review text</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Helps rank in Google's Top 3 Local Map Pack</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Brings more nearby customers from Google searches</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-black">Target Keyword SEO Booster</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Naturally weaved service keywords signal Google's ranking engine to place your business in the Top 3 Local Map Pack.
-            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-2.5">
-            <div className="w-9 h-9 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
-              <BarChart3 className="w-4 h-4" />
+          {/* Feature 4 */}
+          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="w-9 h-9 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-black">Live Conversion Analytics</h3>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Track camera scans & QR conversion in real time</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>See which topics & services customers praise most</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Monitor Google Maps handoffs with clear KPIs</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-black">Live Conversion Analytics</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Track camera scan counts, review formulation rates, and Google handoffs in real-time from your owner dashboard.
-            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-2.5">
-            <div className="w-9 h-9 bg-rose-50 border-2 border-black rounded-xl flex items-center justify-center text-rose-600">
-              <MessageSquare className="w-4 h-4" />
+          {/* Feature 5 */}
+          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="w-9 h-9 bg-rose-50 border-2 border-black rounded-xl flex items-center justify-center text-rose-600">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-black">Private Grievance Inbox</h3>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Catch complaints before customers post online</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Collect customer name, phone & private feedback</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Resolve issues directly & turn angry guests happy</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-black">Private Feedback Inbox</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Capture customer grievances privately before they turn into public complaints.
-            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-2.5">
-            <div className="w-9 h-9 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
-              <ShieldCheck className="w-4 h-4" />
+          {/* Feature 6 */}
+          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="w-9 h-9 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-black">100% Policy Compliant</h3>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Zero fake reviews or prohibited review gating</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Compliant with Google Maps & FTC policies</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#15803D] font-bold">✓</span>
+                  <span>Safeguards your Google Business Profile forever</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-black">100% Policy Compliant</h3>
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              Zero review gating. Full compliance with Google Local Services and FTC guidelines ensures your profile stays safe.
-            </p>
           </div>
         </div>
       </section>
@@ -875,7 +959,7 @@ export default function LandingPage() {
             Start Collecting 5-Star Reviews Today
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto font-medium leading-relaxed relative z-10">
-            Join hundreds of local businesses that transformed their Google Maps ranking with our 30-second review assistant.
+            Outsmart your competitors with Welurik Review and grow your business with our 30-second review assistant.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
             <Link
