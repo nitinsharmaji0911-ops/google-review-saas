@@ -167,3 +167,5 @@ export async function generateCustomerReview(params: GenerateReviewParams): Prom
     source: "smart_nlp",
   };
 }
+
+export const generateReview = generateCustomerReview;
