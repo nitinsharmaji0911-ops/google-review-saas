@@ -1029,7 +1029,7 @@ export default function LandingPage() {
         MINIMAL FOOTER
         ========================================================================
       */}
-      <footer className="w-full max-w-[1080px] mx-auto px-4 sm:px-8 py-6 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4 z-10 text-center sm:text-left">
+      <footer className="w-full max-w-[1080px] mx-auto px-4 sm:px-8 py-6 pb-24 md:pb-6 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4 z-10 text-center sm:text-left">
         <p>© 2026 Welurik Review. Built for local businesses to collect authentic 5-star Google reviews.</p>
         <div className="flex flex-wrap items-center justify-center gap-4 font-semibold text-slate-700 text-xs">
           <Link href="/privacy" className="hover:text-black transition-colors">Privacy Policy</Link>
@@ -1039,6 +1039,31 @@ export default function LandingPage() {
           <Link href="/r/the-coffee-house" className="hover:text-black transition-colors">Customer Demo</Link>
         </div>
       </footer>
+
+      {/* 
+        ========================================================================
+        MOBILE STICKY BOTTOM ACTION BAR (High-Converting Mobile UX)
+        ========================================================================
+      */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-lg border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-black text-black">₹1,999</span>
+            <span className="text-[10px] font-bold text-slate-500">Lifetime</span>
+          </div>
+          <span className="text-[10px] font-bold text-[#15803D] flex items-center gap-0.5 truncate">
+            ★ 4.9 Verified on Google
+          </span>
+        </div>
+        <motion.div whileTap={{ scale: 0.94 }}>
+          <Link
+            href="/signup"
+            className="px-5 py-2.5 bg-[#15803D] hover:bg-[#166534] text-white text-xs font-black rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 shrink-0"
+          >
+            Get Access <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </motion.div>
+      </div>
     </div>
   );
 }

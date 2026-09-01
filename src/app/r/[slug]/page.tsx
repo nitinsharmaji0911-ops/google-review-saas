@@ -259,7 +259,7 @@ export default function CustomerReviewPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-center mb-6 space-y-1"
+          className="text-center mb-5 space-y-1"
         >
           <span className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
             Review & Feedback
@@ -270,6 +270,12 @@ export default function CustomerReviewPage() {
           {business.location && (
             <p className="text-xs text-slate-400 font-normal">{business.location}</p>
           )}
+
+          {/* Mobile Step Progress Indicator */}
+          <div className="flex items-center justify-center gap-1.5 pt-2">
+            <div className={`h-1 rounded-full transition-all duration-300 ${step === "select" ? "w-6 bg-slate-900" : "w-2 bg-slate-300"}`} />
+            <div className={`h-1 rounded-full transition-all duration-300 ${step === "review" ? "w-6 bg-slate-900" : "w-2 bg-slate-300"}`} />
+          </div>
         </motion.div>
 
         {/* STEP 1: EXPERIENCE SELECTION */}
@@ -281,28 +287,38 @@ export default function CustomerReviewPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
-              className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-200/70 space-y-6"
+              className="bg-white rounded-[28px] p-5 sm:p-6 shadow-sm border border-slate-200/70 space-y-5"
             >
-              {/* Star Rating */}
+              {/* Star Rating with Confetti on 5 Stars */}
               <div className="text-center">
                 <label className="block text-xs font-semibold text-slate-600 mb-2">
                   Rate Your Visit
                 </label>
-                <div className="flex justify-center gap-1.5">
+                <div className="flex justify-center gap-1 sm:gap-1.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <motion.button
                       key={star}
                       type="button"
                       whileHover={{ scale: 1.25 }}
-                      whileTap={{ scale: 0.85 }}
+                      whileTap={{ scale: 0.8 }}
                       onClick={() => {
                         setRating(star);
                         setToneCache({});
+                        if (star === 5) {
+                          try {
+                            confetti({
+                              particleCount: 35,
+                              spread: 55,
+                              origin: { y: 0.35 },
+                              colors: ["#16A34A", "#22C55E", "#F59E0B"],
+                            });
+                          } catch {}
+                        }
                       }}
-                      className="p-1 focus:outline-none transition-transform"
+                      className="p-1.5 sm:p-1 focus:outline-none transition-transform cursor-pointer"
                     >
                       <Star
-                        className={`w-7 h-7 transition-colors ${
+                        className={`w-8 h-8 sm:w-7 sm:h-7 transition-colors ${
                           star <= rating
                             ? "fill-amber-400 text-amber-400"
                             : "text-slate-200 fill-slate-100"
@@ -311,14 +327,37 @@ export default function CustomerReviewPage() {
                     </motion.button>
                   ))}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1 font-medium">
-                  {rating === 5 && "5 Stars • Excellent"}
-                  {rating === 4 && "4 Stars • Very Good"}
-                  {rating === 3 && "3 Stars • Good"}
-                  {rating === 2 && "2 Stars • Fair"}
-                  {rating === 1 && "1 Star"}
+                <p className="text-[11px] text-slate-500 mt-1 font-semibold">
+                  {rating === 5 && "⭐ 5 Stars • Excellent Experience"}
+                  {rating === 4 && "⭐ 4 Stars • Very Good"}
+                  {rating === 3 && "⭐ 3 Stars • Good"}
+                  {rating === 2 && "⭐ 2 Stars • Fair"}
+                  {rating === 1 && "⭐ 1 Star • Needs Improvement"}
                 </p>
               </div>
+
+              {/* Private Grievance Option if rating <= 3 */}
+              {rating <= 3 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-3 bg-amber-50/90 border border-amber-200 rounded-2xl text-left space-y-1"
+                >
+                  <div className="flex items-center gap-1.5 text-amber-800 font-bold text-xs">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Have a private concern?</span>
+                  </div>
+                  <p className="text-[11px] text-amber-700 leading-snug">
+                    Send feedback directly to the manager to get your issue resolved quickly.
+                  </p>
+                  <Link
+                    href={`/r/${slug}/feedback`}
+                    className="inline-block text-[11px] font-bold text-amber-900 underline hover:text-black pt-0.5"
+                  >
+                    Send Private Message to Owner ➔
+                  </Link>
+                </motion.div>
+              )}
 
               {/* Quick Tags / Topics */}
               {allTopics.length > 0 && (

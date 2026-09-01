@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Printer,
@@ -395,28 +396,31 @@ export default function DashboardLayout({
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
-                  isActive ? "text-slate-950 font-bold" : "text-slate-400 hover:text-slate-600"
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${isActive ? "text-slate-950 stroke-[2.5]" : "text-slate-400"}`} />
-                <span className="text-[10px] mt-0.5">{item.label}</span>
-              </Link>
+              <motion.div key={item.href} whileTap={{ scale: 0.86 }}>
+                <Link
+                  href={item.href}
+                  className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+                    isActive ? "text-slate-950 font-bold" : "text-slate-400 hover:text-slate-600"
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 ${isActive ? "text-slate-950 stroke-[2.5]" : "text-slate-400"}`} />
+                  <span className="text-[10px] mt-0.5">{item.label}</span>
+                </Link>
+              </motion.div>
             );
           })}
           {business?.slug && (
-            <a
-              href={publicReviewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-900"
-            >
-              <QrCode className="w-5 h-5 text-emerald-600" />
-              <span className="text-[10px] mt-0.5 text-emerald-600 font-semibold">Funnel</span>
-            </a>
+            <motion.div whileTap={{ scale: 0.86 }}>
+              <a
+                href={publicReviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-900"
+              >
+                <QrCode className="w-5 h-5 text-emerald-600" />
+                <span className="text-[10px] mt-0.5 text-emerald-600 font-semibold">Funnel</span>
+              </a>
+            </motion.div>
           )}
         </nav>
       </div>
