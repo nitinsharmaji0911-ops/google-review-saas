@@ -17,7 +17,6 @@ export async function POST(req: Request) {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      planType = "lifetime",
     } = body;
 
     if (!razorpay_order_id || !razorpay_payment_id) {
@@ -76,10 +75,10 @@ export async function POST(req: Request) {
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,
             razorpaySignature: razorpay_signature,
-            amount: planType === "monthly" ? 49900 : 199900,
+            amount: 199900,
             currency: "INR",
             status: "paid",
-            planType,
+            planType: "lifetime",
             businessId: businessId || null,
             userEmail: session?.email || null,
           },
@@ -87,14 +86,14 @@ export async function POST(req: Request) {
         orderId = newOrder.id;
       }
 
-      // Activate Pro status on business if user is logged in
+      // Activate Lifetime Pro status on business if user is logged in
       if (businessId) {
         await prisma.business.update({
           where: { id: businessId },
           data: {
             isPro: true,
-            planName: planType,
-            monthlyAiQuota: 10000,
+            planName: "lifetime",
+            monthlyAiQuota: 999999,
           },
         });
       }
@@ -104,7 +103,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Payment successfully verified! Your Pro Lifetime License is now active.",
+      message: "Payment successfully verified! Your ₹1,999 Lifetime License is now active.",
       orderId,
       paymentId: razorpay_payment_id,
       isPro: true,

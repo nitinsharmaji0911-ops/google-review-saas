@@ -13,16 +13,12 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { planType = "lifetime", email } = body;
+    const { email } = body;
 
-    // Pricing definition in Paise (1 INR = 100 Paise)
-    let amountInPaise = 199900; // ₹1,999 Lifetime
-    let planLabel = "₹1,999 Lifetime License";
-
-    if (planType === "monthly") {
-      amountInPaise = 49900; // ₹499/mo
-      planLabel = "Monthly Pro Plan";
-    }
+    // Single Official Pricing: ₹1,999 Lifetime License (199900 Paise)
+    const amountInPaise = 199900;
+    const planLabel = "₹1,999 Lifetime License";
+    const planType = "lifetime";
 
     const key_id =
       process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
@@ -60,7 +56,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // Save order record to Prisma (with fallback if database is read-only in serverless)
+    // Save order record to Prisma
     let orderRecordId = `ord_${Date.now()}`;
     try {
       let businessId = session?.businessId;
