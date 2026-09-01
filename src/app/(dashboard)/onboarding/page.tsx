@@ -34,6 +34,72 @@ export default function OnboardingPage() {
 
   const selectedCategoryConfig = getCategoryById(category);
 
+  // Auto-restore existing business data if user already started
+  useEffect(() => {
+    fetch("/api/business/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d && d.success && d.business) {
+          const b = d.business;
+          if (b.isPro) {
+            router.push("/dashboard");
+            return;
+          }
+          if (b.name) setName(b.name);
+          if (b.category) setCategory(b.category);
+          if (b.location) setLocation(b.location);
+          if (b.googleReviewUrl) {
+            setGoogleReviewUrl(b.googleReviewUrl);
+            setStep(3); // Already completed steps 1 & 2
+          } else if (b.name) {
+            setStep(2); // Already completed step 1
+          }
+        }
+      })
+      .catch(() => {});
+  }, [router]);
+
+  const handleStep1Continue = () => {
+    if (!name.trim()) return;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    fetch("/api/business/" + slug, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        category,
+        location,
+        services: selectedCategoryConfig.defaultServices,
+        topics: [
+          ...selectedCategoryConfig.positiveTopics.map((n) => ({ name: n, type: "positive" })),
+          ...selectedCategoryConfig.issueTopics.map((n) => ({ name: n, type: "issue" })),
+        ],
+      }),
+    }).catch(() => {});
+    setStep(2);
+  };
+
+  const handleStep2Continue = () => {
+    if (!googleReviewUrl.trim()) return;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    fetch("/api/business/" + slug, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        category,
+        location,
+        googleReviewUrl,
+        services: selectedCategoryConfig.defaultServices,
+        topics: [
+          ...selectedCategoryConfig.positiveTopics.map((n) => ({ name: n, type: "positive" })),
+          ...selectedCategoryConfig.issueTopics.map((n) => ({ name: n, type: "issue" })),
+        ],
+      }),
+    }).catch(() => {});
+    setStep(3);
+  };
+
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
     setPromoLoading(true);
@@ -301,8 +367,8 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 disabled={!name.trim()}
-                onClick={() => setStep(2)}
-                className="w-full py-3.5 bg-slate-950 hover:bg-slate-900 disabled:bg-slate-200 text-white rounded-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-slate-900/10 transition-all"
+                onClick={handleStep1Continue}
+                className="w-full py-3.5 bg-slate-950 hover:bg-slate-900 disabled:bg-slate-200 text-white rounded-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-slate-900/10 transition-all cursor-pointer"
               >
                 Continue to Review Link <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -392,7 +458,7 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   disabled={!googleReviewUrl.trim()}
-                  onClick={() => setStep(3)}
+                  onClick={handleStep2Continue}
                   className="flex-1 py-3.5 bg-slate-950 hover:bg-slate-900 disabled:bg-slate-200 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all cursor-pointer"
                 >
                   Proceed to Payment <ArrowRight className="w-3.5 h-3.5" />

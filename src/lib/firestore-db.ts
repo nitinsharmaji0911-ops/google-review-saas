@@ -68,22 +68,21 @@ export const FirestoreDB = {
   async getBusinessByUserId(userId: string) {
     if (!userId) return null;
 
-    // 1. Try Firestore REST
+    // 1. Direct O(1) document lookup by userId in user_businesses collection
+    const userBiz = await FirestoreREST.getDocument("user_businesses", userId);
+    if (userBiz?.businessSlug) {
+      const biz = await this.getBusinessBySlug(userBiz.businessSlug);
+      if (biz) return biz;
+    }
+
+    // 2. Direct lookup if business document is keyed by userId
+    const directDoc = await FirestoreREST.getDocument("businesses", userId);
+    if (directDoc) return directDoc;
+
+    // 3. Fallback query
     const docs = await FirestoreREST.queryDocuments("businesses", "userId", userId);
     if (docs && docs.length > 0) {
       return docs[0];
-    }
-
-    // 2. Try Firestore Admin
-    const { firestore } = getFirebaseAdmin();
-    if (firestore) {
-      try {
-        const snap = await firestore.collection("businesses").where("userId", "==", userId).limit(1).get();
-        if (!snap.empty) {
-          const doc = snap.docs[0];
-          return { id: doc.id, ...doc.data() } as any;
-        }
-      } catch {}
     }
 
     for (const b of Array.from(inMemoryStore.businesses.values())) {
@@ -105,17 +104,6 @@ export const FirestoreDB = {
       return docs[0];
     }
 
-    // 2. Try Firestore Admin
-    const { firestore } = getFirebaseAdmin();
-    if (firestore) {
-      try {
-        const docSnap = await firestore.collection("businesses").doc(slug).get();
-        if (docSnap.exists) {
-          return { id: docSnap.id, ...docSnap.data() } as any;
-        }
-      } catch {}
-    }
-
     return inMemoryStore.businesses.get(slug) || null;
   },
 
@@ -125,18 +113,21 @@ export const FirestoreDB = {
     const businessDoc = {
       ...data,
       id: docId,
+      slug: slug || docId,
       updatedAt: new Date().toISOString(),
     };
 
-    // 1. Save via Firestore REST
+    // 1. Save directly under businesses/{slug}
     await FirestoreREST.setDocument("businesses", docId, businessDoc);
 
-    // 2. Save via Firestore Admin
-    const { firestore } = getFirebaseAdmin();
-    if (firestore) {
-      try {
-        await firestore.collection("businesses").doc(docId).set(businessDoc, { merge: true });
-      } catch {}
+    // 2. ALSO save under user_businesses/{userId} for instant O(1) lookups
+    if (data.userId) {
+      await FirestoreREST.setDocument("user_businesses", data.userId, {
+        userId: data.userId,
+        businessSlug: slug || docId,
+        businessId: docId,
+        name: data.name,
+      });
     }
 
     inMemoryStore.businesses.set(slug, businessDoc);

@@ -58,6 +58,9 @@ export async function POST(req: NextRequest) {
 
     // 5. Look up existing business
     let business = user?.business;
+    if (!business && user?.businessSlug) {
+      business = await FirestoreDB.getBusinessBySlug(user.businessSlug);
+    }
     if (!business && userId) {
       business = await FirestoreDB.getBusinessByUserId(userId);
     }
@@ -66,8 +69,23 @@ export async function POST(req: NextRequest) {
       business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
     }
 
-    const businessSlug = business?.slug || user?.businessSlug || (normalizedEmail === "nitin.sharmaji2405@gmail.com" ? "the-coffee-house" : "");
+    // Check if a business exists under the email prefix slug
+    if (!business) {
+      const emailSlug = normalizedEmail.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      business = await FirestoreDB.getBusinessBySlug(emailSlug);
+    }
+
+    const businessSlug = business?.slug || user?.businessSlug || "";
     const businessId = business?.id || user?.businessId || undefined;
+
+    // Permanently link business on user profile
+    if (business && (!user?.businessSlug || user.businessSlug !== businessSlug)) {
+      await FirestoreREST.setDocument("users", user.id, {
+        ...user,
+        businessSlug,
+        businessId,
+      });
+    }
 
     const payload = createSessionPayload({
       userId: userId || user.id,
