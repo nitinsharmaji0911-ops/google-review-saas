@@ -84,7 +84,7 @@ export default function DashboardLayout({
         }
       })
       .catch(() => {});
-  }, [pathname, router]);
+  }, [router]);
 
   const handleLogout = async () => {
     try {

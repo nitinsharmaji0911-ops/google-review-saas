@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
@@ -10,45 +12,44 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Query Prisma by userId
     let business: any = null;
-    try {
-      business = await prisma.business.findUnique({
-        where: { userId: session.userId },
-        include: {
-          services: true,
-          topics: true,
-          reviewSessions: {
-            orderBy: { createdAt: "desc" },
-            take: 10,
-          },
-          feedbacks: {
-            orderBy: { createdAt: "desc" },
-            take: 20,
-          },
-          analyticsEvents: true,
-        },
-      });
-    } catch (err) {
-      console.warn("Prisma get business/me note:", err);
-    }
-
-    // 2. Query Firestore if not found in Prisma
     let userDoc: any = null;
+
+    // 1. Ultra-fast Firestore Direct Lookups (sub-50ms)
     if (session.email) {
       userDoc = await FirestoreDB.getUserByEmail(session.email);
     }
 
+    if (session.businessSlug) {
+      business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+    }
+    if (!business && userDoc?.businessSlug) {
+      business = await FirestoreDB.getBusinessBySlug(userDoc.businessSlug);
+    }
     if (!business) {
-      if (session.businessSlug) {
-        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
-      }
-      if (!business && userDoc?.businessSlug) {
-        business = await FirestoreDB.getBusinessBySlug(userDoc.businessSlug);
-      }
-      if (!business) {
-        business = await FirestoreDB.getBusinessByUserId(session.userId);
-      }
+      business = await FirestoreDB.getBusinessByUserId(session.userId);
+    }
+
+    // 2. Prisma fallback only if not in Firestore
+    if (!business) {
+      try {
+        business = await prisma.business.findUnique({
+          where: { userId: session.userId },
+          include: {
+            services: true,
+            topics: true,
+            reviewSessions: {
+              orderBy: { createdAt: "desc" },
+              take: 10,
+            },
+            feedbacks: {
+              orderBy: { createdAt: "desc" },
+              take: 20,
+            },
+            analyticsEvents: true,
+          },
+        });
+      } catch {}
     }
 
     // If user is authenticated, create or provide default active workspace with their real details

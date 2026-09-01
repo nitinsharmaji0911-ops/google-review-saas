@@ -53,14 +53,28 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<DashboardData | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = sessionStorage.getItem("welurik_dashboard_cache");
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return !sessionStorage.getItem("welurik_dashboard_cache");
+    }
+    return true;
+  });
   const router = useRouter();
 
   useEffect(() => {
+    let isMounted = true;
+
     async function loadDashboard() {
       try {
-        setLoading(true);
         const res = await fetch("/api/business/me");
         if (res.status === 401) {
           router.push("/login");
@@ -69,9 +83,8 @@ export default function DashboardPage() {
 
         const bData = await res.json();
 
-        if (bData.success) {
+        if (bData.success && isMounted) {
           if (!bData.business) {
-            router.push("/onboarding");
             return;
           }
 
@@ -96,7 +109,7 @@ export default function DashboardPage() {
               percentage: Math.min(100, Math.round((count / totalReviews) * 100)),
             }));
 
-          setData({
+          const dashboardPayload: DashboardData = {
             business: biz,
             metrics: bData.metrics || {
               totalScans: 0,
@@ -111,16 +124,25 @@ export default function DashboardPage() {
             ],
             recentReviews: reviews,
             unreadFeedbackCount: bData.unreadFeedbackCount || 0,
-          });
+          };
+
+          setData(dashboardPayload);
+          try {
+            sessionStorage.setItem("welurik_dashboard_cache", JSON.stringify(dashboardPayload));
+          } catch {}
         }
       } catch (err) {
         console.error("Dashboard data load error:", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
     loadDashboard();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
   if (loading) {
