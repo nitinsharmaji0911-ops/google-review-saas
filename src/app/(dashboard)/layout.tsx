@@ -347,7 +347,7 @@ export default function DashboardLayout({
                         type="text"
                         value={paywallPromo}
                         onChange={(e) => setPaywallPromo(e.target.value.toUpperCase())}
-                        placeholder="e.g. VIP7, FRIENDS7"
+                        placeholder="Enter promo code"
                         className="flex-1 text-xs uppercase px-3 py-2.5 bg-white border border-slate-300 rounded-xl font-mono font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-900"
                       />
                       <button
