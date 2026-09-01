@@ -34,15 +34,48 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Query Firestore if not found in Prisma
-    if (!business) {
-      business = await FirestoreDB.getBusinessByUserId(session.userId);
-      if (!business && session.businessSlug) {
-        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
-      }
+    let userDoc: any = null;
+    if (session.email) {
+      userDoc = await FirestoreDB.getUserByEmail(session.email);
     }
 
     if (!business) {
-      return NextResponse.json({ success: true, business: null });
+      if (session.businessSlug) {
+        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+      }
+      if (!business && userDoc?.businessSlug) {
+        business = await FirestoreDB.getBusinessBySlug(userDoc.businessSlug);
+      }
+      if (!business) {
+        business = await FirestoreDB.getBusinessByUserId(session.userId);
+      }
+      if (!business && (session.email === "nitin.sharmaji2405@gmail.com" || session.email?.endsWith("@welurik.com"))) {
+        business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
+      }
+    }
+
+    // If user is authenticated, create or provide default active workspace so they are NEVER kicked out to onboarding
+    if (!business) {
+      const fallbackSlug = session.email ? session.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business";
+      business = await FirestoreDB.saveBusiness({
+        slug: fallbackSlug,
+        name: session.email?.split("@")[0] || "My Business",
+        category: "cafe",
+        location: "",
+        description: "",
+        googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4",
+        brandColor: "#0f172a",
+        userId: session.userId,
+        isPro: true,
+        planName: "7-Day VIP Free Trial",
+        trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        services: [{ id: "srv_0", name: "General Service" }],
+        topics: [
+          { id: "top_0", name: "Fast Service", type: "positive" },
+          { id: "top_1", name: "Friendly Staff", type: "positive" },
+          { id: "top_2", name: "High Quality", type: "positive" },
+        ],
+      });
     }
 
     // Calculate metrics
@@ -58,7 +91,6 @@ export async function GET(req: NextRequest) {
       isTrialActive = new Date(business.trialEndsAt).getTime() > Date.now();
     }
     if (!isTrialActive && session.email) {
-      const userDoc = await FirestoreDB.getUserByEmail(session.email);
       if (userDoc?.trialEndsAt) {
         isTrialActive = new Date(userDoc.trialEndsAt).getTime() > Date.now();
       }

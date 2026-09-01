@@ -78,16 +78,9 @@ export default function DashboardLayout({
         return r.json();
       })
       .then((d) => {
-        if (d && d.success) {
-          if (d.business) {
-            setBusiness(d.business);
-            setUnreadCount(d.unreadFeedbackCount || 0);
-          } else {
-            // User is authenticated but hasn't completed onboarding
-            if (pathname !== "/onboarding") {
-              router.push("/onboarding");
-            }
-          }
+        if (d && d.success && d.business) {
+          setBusiness(d.business);
+          setUnreadCount(d.unreadFeedbackCount || 0);
         }
       })
       .catch(() => {});
