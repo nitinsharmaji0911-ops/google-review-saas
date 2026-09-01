@@ -39,50 +39,24 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 3. Look up existing user in Prisma DB or Firestore
-    let user: any = null;
-    try {
-      user = await prisma.user.findUnique({
-        where: { email: normalizedEmail },
-        include: { business: true },
-      });
-    } catch {}
-
-    if (!user) {
-      user = await FirestoreDB.getUserByEmail(normalizedEmail);
-    }
-
+    // 3. Look up existing user in Firestore
+    let user = await FirestoreDB.getUserByEmail(normalizedEmail);
     let userId = user?.id;
 
-    // 4. If new user, create account automatically
+    // 4. If new user, create account automatically in Firestore
     if (!user) {
       const randomPassword = crypto.randomBytes(24).toString("hex");
       const hashedPassword = hashPassword(randomPassword);
 
-      try {
-        const newUser = await prisma.user.create({
-          data: {
-            email: normalizedEmail,
-            password: hashedPassword,
-          },
-        });
-        userId = newUser.id;
-        user = newUser;
-      } catch (dbErr) {
-        console.warn("Prisma user creation error:", dbErr);
-      }
-
-      if (!userId) {
-        const fsUser = await FirestoreDB.createUser({
-          email: normalizedEmail,
-          password: hashedPassword,
-        });
-        userId = fsUser.id;
-        user = fsUser;
-      }
+      const fsUser = await FirestoreDB.createUser({
+        email: normalizedEmail,
+        password: hashedPassword,
+      });
+      userId = fsUser.id;
+      user = fsUser;
     }
 
-    // 5. Look up existing business in Prisma or Firestore
+    // 5. Look up existing business
     let business = user?.business;
     if (!business && userId) {
       business = await FirestoreDB.getBusinessByUserId(userId);
