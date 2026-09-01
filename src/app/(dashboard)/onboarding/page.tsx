@@ -254,31 +254,78 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <div>
                 <h2 className="text-base font-bold text-slate-900">Google Business Review Link</h2>
-                <p className="text-xs text-slate-400 mt-0.5">Where customers will post their 5-star reviews.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Where customers will post their 5-star reviews.</p>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Google Review URL
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={googleReviewUrl}
-                  onChange={(e) => setGoogleReviewUrl(e.target.value)}
-                  placeholder="https://g.page/r/your-id/review"
-                  className="w-full text-xs px-3.5 py-3 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 font-mono text-slate-900"
-                />
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Found in your Google Business Profile under &quot;Ask for reviews&quot;.
-                </p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Google Review URL
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    value={googleReviewUrl}
+                    onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                    placeholder="https://g.page/r/your-id/review or https://maps.app.goo.gl/..."
+                    className="w-full text-xs px-3.5 py-3 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 font-mono text-slate-900"
+                  />
+                </div>
+
+                {/* Step-by-Step Visual Procedure Box */}
+                <div className="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-4 space-y-2.5 text-xs text-slate-700 shadow-xs">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    How to get your review link in 3 steps:
+                  </p>
+
+                  <div className="space-y-2 text-[11.5px] leading-snug">
+                    <div className="flex items-start gap-2">
+                      <span className="w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5">
+                        1
+                      </span>
+                      <span>
+                        Search your business name on <strong>Google Maps</strong> or Google Search.
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <span className="w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5">
+                        2
+                      </span>
+                      <span>
+                        Click the blue <strong>&quot;Ask for reviews&quot;</strong> button on your profile card.
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <span className="w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5">
+                        3
+                      </span>
+                      <span>
+                        Click <strong>&quot;Copy link&quot;</strong> and paste the link in the box above!
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-1 border-t border-slate-200/60">
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(name || "Google Business Profile")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 hover:underline cursor-pointer"
+                    >
+                      <span>🔍 Search &ldquo;{name || "my business"}&rdquo; on Google to copy link ↗</span>
+                    </a>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-semibold"
+                  className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
                   Back
                 </button>
@@ -286,7 +333,7 @@ export default function OnboardingPage() {
                   type="button"
                   disabled={!googleReviewUrl.trim()}
                   onClick={() => setStep(3)}
-                  className="flex-1 py-3.5 bg-slate-950 hover:bg-slate-900 disabled:bg-slate-200 text-white rounded-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 py-3.5 bg-slate-950 hover:bg-slate-900 disabled:bg-slate-200 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all cursor-pointer"
                 >
                   Proceed to Payment <ArrowRight className="w-3.5 h-3.5" />
                 </button>
