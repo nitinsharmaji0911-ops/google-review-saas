@@ -58,9 +58,7 @@ export async function POST(req: NextRequest) {
         where: { email: normalizedEmail },
         include: { business: true },
       });
-    } catch {
-      // Fallback
-    }
+    } catch {}
 
     if (!user) {
       user = await FirestoreDB.getUserByEmail(normalizedEmail);
@@ -82,12 +80,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const businessSlug = user.business?.slug || user.businessSlug || "";
+    let business = user.business;
+    if (!business && user.id) {
+      business = await FirestoreDB.getBusinessByUserId(user.id);
+    }
+
+    const businessSlug = business?.slug || user.businessSlug || "";
+    const businessId = business?.id || user.businessId || undefined;
 
     const payload = createSessionPayload({
       userId: user.id,
       email: user.email,
-      businessId: user.business?.id,
+      businessId,
       businessSlug: businessSlug || undefined,
     });
 

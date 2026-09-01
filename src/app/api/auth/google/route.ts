@@ -101,9 +101,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Determine business profile and redirect destination
-    const businessSlug = user?.business?.slug || user?.businessSlug || "";
-    const businessId = user?.business?.id || user?.businessId || undefined;
+    // 5. Look up existing business in Prisma or Firestore
+    let business = user?.business;
+    if (!business && userId) {
+      business = await FirestoreDB.getBusinessByUserId(userId);
+    }
+
+    const businessSlug = business?.slug || user?.businessSlug || "";
+    const businessId = business?.id || user?.businessId || undefined;
 
     const payload = createSessionPayload({
       userId: userId || user.id,
