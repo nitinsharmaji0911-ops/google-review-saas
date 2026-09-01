@@ -100,7 +100,7 @@ export default function GoogleAuthButton({
           const data = await res.json();
           if (data.success) {
             onSuccess?.();
-            router.push(data.redirect || "/dashboard");
+            window.location.href = data.redirect || "/dashboard";
             return;
           } else {
             throw new Error(data.error || "Server could not establish session.");

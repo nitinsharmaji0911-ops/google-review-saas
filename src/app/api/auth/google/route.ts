@@ -13,27 +13,8 @@ export async function POST(req: NextRequest) {
     let verifiedName = name || "";
     let verifiedPicture = picture || "";
 
-    // 1. If an accessToken is provided, verify via Google UserInfo endpoint
-    if (accessToken && typeof accessToken === "string") {
-      try {
-        const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        if (userInfoRes.ok) {
-          const info = await userInfoRes.json();
-          if (info && info.email) {
-            email = info.email;
-            verifiedName = info.name || verifiedName;
-            verifiedPicture = info.picture || verifiedPicture;
-          }
-        }
-      } catch (tokenErr) {
-        console.warn("Google userinfo verification error:", tokenErr);
-      }
-    }
-
-    // 2. If an idToken is provided, verify with Google TokenInfo endpoint
-    if (idToken && typeof idToken === "string") {
+    // Fast resolution: if client already supplied authenticated user email, use it immediately
+    if (!email && idToken && typeof idToken === "string") {
       try {
         const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
         if (googleRes.ok) {
