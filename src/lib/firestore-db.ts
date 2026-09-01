@@ -176,6 +176,10 @@ export const FirestoreDB = {
   },
 
   // --- REVIEWS ---
+  async createReview(data: any) {
+    return this.createReviewSession(data);
+  },
+
   async createReviewSession(data: any) {
     const id = `rev_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const reviewDoc = {
