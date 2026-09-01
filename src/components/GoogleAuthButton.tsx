@@ -50,6 +50,11 @@ export default function GoogleAuthButton({
           const data = await res.json();
           if (data.success) {
             onSuccess?.();
+            if (typeof window !== "undefined") {
+              try {
+                sessionStorage.removeItem("welurik_dashboard_cache");
+              } catch {}
+            }
             router.push(data.redirect || "/dashboard");
           } else {
             onError?.(data.error || "Failed to establish session from Google sign-in.");
@@ -100,6 +105,11 @@ export default function GoogleAuthButton({
           const data = await res.json();
           if (data.success) {
             onSuccess?.();
+            if (typeof window !== "undefined") {
+              try {
+                sessionStorage.removeItem("welurik_dashboard_cache");
+              } catch {}
+            }
             window.location.href = data.redirect || "/dashboard";
             return;
           } else {

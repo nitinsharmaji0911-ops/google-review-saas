@@ -29,6 +29,11 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success) {
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.removeItem("welurik_dashboard_cache");
+          } catch {}
+        }
         router.push(data.redirect || "/dashboard");
       } else {
         setError(data.error || "Invalid email or password");

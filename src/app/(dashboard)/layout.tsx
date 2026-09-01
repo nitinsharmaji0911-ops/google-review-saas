@@ -90,6 +90,11 @@ export default function DashboardLayout({
   const handleLogout = async () => {
     try {
       setLoggingOut(true);
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("welurik_dashboard_cache");
+        } catch {}
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       router.push("/login");
       router.refresh();

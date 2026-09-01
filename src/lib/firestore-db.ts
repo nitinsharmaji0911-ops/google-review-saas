@@ -111,7 +111,15 @@ export const FirestoreDB = {
   async saveBusiness(data: any) {
     const slug = data.slug;
     const docId = slug || `biz_${Date.now()}`;
+    let existing: any = null;
+    try {
+      if (slug) {
+        existing = await this.getBusinessBySlug(slug);
+      }
+    } catch {}
+
     const businessDoc = {
+      ...(existing || {}),
       ...data,
       id: docId,
       slug: slug || docId,

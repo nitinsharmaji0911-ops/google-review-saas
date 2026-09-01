@@ -14,6 +14,12 @@ function SuccessContent() {
   const paymentId = searchParams.get("payment_id") || `pay_${Date.now().toString().slice(-6)}`;
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("welurik_dashboard_cache");
+      } catch {}
+    }
+
     // Fire celebratory confetti bursts
     const duration = 3 * 1000;
     const end = Date.now() + duration;

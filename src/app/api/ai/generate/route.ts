@@ -70,10 +70,15 @@ export async function POST(req: NextRequest) {
       if (!businessId) {
         const fsBiz = await FirestoreDB.getBusinessBySlug(businessSlug);
         if (fsBiz) {
-          businessName = fsBiz.name;
-          category = fsBiz.category;
+          businessName = fsBiz.name || businessName;
+          category = fsBiz.category || category;
           location = fsBiz.location || "";
-          businessId = fsBiz.id;
+          businessId = fsBiz.id || fsBiz.slug;
+        } else if (businessSlug === "the-coffee-house") {
+          businessName = "The Coffee House";
+          category = "cafe";
+          location = "Indiranagar, Bangalore";
+          businessId = "the-coffee-house";
         }
       }
     }

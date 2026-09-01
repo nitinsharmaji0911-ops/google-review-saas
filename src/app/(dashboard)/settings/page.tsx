@@ -147,6 +147,11 @@ export default function SettingsPage() {
       const data = await res.json();
       if (data.success) {
         setSaveSuccess(true);
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.removeItem("welurik_dashboard_cache");
+          } catch {}
+        }
         setTimeout(() => setSaveSuccess(false), 3000);
       } else {
         alert(data.error || "Failed to save settings");

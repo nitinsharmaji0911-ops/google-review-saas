@@ -35,7 +35,7 @@ export default function QRStudioPage() {
           else if (data.business.category === "restaurant") setHeadline("How was your meal today?");
           else if (data.business.category === "cafe") setHeadline("Enjoyed your coffee & food?");
 
-          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+          const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
           const reviewUrl = `${origin}/r/${data.business.slug}`;
 
           const url = await QRCode.toDataURL(reviewUrl, {
@@ -71,7 +71,7 @@ export default function QRStudioPage() {
   };
 
   const handleCopyLink = () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
     const reviewUrl = `${origin}/r/${business?.slug || ""}`;
     navigator.clipboard.writeText(reviewUrl);
     setCopiedLink(true);
