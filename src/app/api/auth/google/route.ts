@@ -107,7 +107,11 @@ export async function POST(req: NextRequest) {
       business = await FirestoreDB.getBusinessByUserId(userId);
     }
 
-    const businessSlug = business?.slug || user?.businessSlug || "";
+    if (!business && (normalizedEmail === "nitin.sharmaji2405@gmail.com" || normalizedEmail === "owner@thecoffeehouse.com")) {
+      business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
+    }
+
+    const businessSlug = business?.slug || user?.businessSlug || (normalizedEmail === "nitin.sharmaji2405@gmail.com" ? "the-coffee-house" : "");
     const businessId = business?.id || user?.businessId || undefined;
 
     const payload = createSessionPayload({
