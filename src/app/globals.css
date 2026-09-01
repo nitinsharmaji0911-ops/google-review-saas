@@ -14,17 +14,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Base warm canvas */
+/* Base mint-emerald canvas */
 .neo-canvas-bg {
-  background-color: #FAF9F5;
+  background-color: #ECFDF5;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(187, 247, 208, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 85% 65%, rgba(167, 243, 208, 0.35) 0%, transparent 45%);
 }
 
-/* Active architectural blueprint grid */
+/* Active architectural blueprint grid with subtle emerald lines */
 .neo-grid-overlay {
   background-size: 36px 36px;
   background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.055) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+    linear-gradient(to right, rgba(21, 128, 61, 0.065) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(21, 128, 61, 0.065) 1px, transparent 1px);
   mask-image: radial-gradient(ellipse 95% 90% at 50% 30%, #000 65%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 30%, #000 65%, transparent 100%);
 }
