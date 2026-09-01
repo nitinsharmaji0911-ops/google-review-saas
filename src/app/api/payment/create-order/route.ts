@@ -17,25 +17,13 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const { email } = body;
 
-    // Single Official Pricing: ₹1,999 Lifetime License (199900 Paise)
+    // Official Pricing: ₹1,999 Lifetime License (199900 Paise)
     const amountInPaise = 199900;
     const planLabel = "₹1,999 Lifetime License";
     const planType = "lifetime";
 
-    const FALLBACK_KEY_ID = typeof Buffer !== "undefined"
-      ? Buffer.from("cnpwX2xpdmVfU0kwSVBHZzdZbzYySHo=", "base64").toString("utf-8")
-      : "";
-    const FALLBACK_SECRET = typeof Buffer !== "undefined"
-      ? Buffer.from("bnBPbmtQcDlNV3JpdXZObTFlRFRtZFJq", "base64").toString("utf-8")
-      : "";
-
-    const key_id =
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      process.env.RAZORPAY_KEY_ID ||
-      FALLBACK_KEY_ID;
-    const key_secret =
-      process.env.RAZORPAY_KEY_SECRET ||
-      FALLBACK_SECRET;
+    const key_id = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || "";
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || "";
 
     let razorpayOrderId = `order_${Date.now()}`;
     let isMock = true;

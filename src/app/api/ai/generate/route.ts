@@ -3,9 +3,16 @@ import { generateReview } from "@/lib/ai-generator";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
+import { getSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Auth check — only logged-in users can generate reviews
+    const session = await getSession();
+    if (!session || !session.userId) {
+      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+
     // 1. Rate Limiting: 20 AI generations per minute per IP
     const rl = await checkRateLimit(req, "ai_generate", { limit: 20, windowSeconds: 60 });
     if (!rl.success) {

@@ -7,27 +7,39 @@ import crypto from "crypto";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { idToken, accessToken, email: clientEmail, name, picture } = body;
+    const { idToken, name, picture } = body;
 
-    let email = clientEmail;
+    let email = "";
     let verifiedName = name || "";
     let verifiedPicture = picture || "";
 
-    // Fast resolution: if client already supplied authenticated user email, use it immediately
-    if (!email && idToken && typeof idToken === "string") {
-      try {
-        const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-        if (googleRes.ok) {
-          const tokenInfo = await googleRes.json();
-          if (tokenInfo && tokenInfo.email) {
-            email = tokenInfo.email;
-            verifiedName = tokenInfo.name || verifiedName;
-            verifiedPicture = tokenInfo.picture || verifiedPicture;
-          }
-        }
-      } catch (tokenErr) {
-        console.warn("Google tokeninfo verification network error:", tokenErr);
+    // SECURITY: Always require idToken — never trust raw email from request body
+    if (!idToken || typeof idToken !== "string") {
+      return NextResponse.json(
+        { success: false, error: "A valid Google ID token is required." },
+        { status: 401 }
+      );
+    }
+
+    try {
+      const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+      if (!googleRes.ok) {
+        return NextResponse.json({ success: false, error: "Google token verification failed." }, { status: 401 });
       }
+      const tokenInfo = await googleRes.json();
+      if (!tokenInfo?.email) {
+        return NextResponse.json({ success: false, error: "Could not retrieve email from Google token." }, { status: 401 });
+      }
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      if (clientId && tokenInfo.aud && tokenInfo.aud !== clientId) {
+        return NextResponse.json({ success: false, error: "Token audience mismatch." }, { status: 401 });
+      }
+      email = tokenInfo.email;
+      verifiedName = tokenInfo.name || verifiedName;
+      verifiedPicture = tokenInfo.picture || verifiedPicture;
+    } catch (tokenErr) {
+      console.error("Google tokeninfo error:", tokenErr);
+      return NextResponse.json({ success: false, error: "Google token verification failed." }, { status: 401 });
     }
 
     if (!email || typeof email !== "string" || !email.includes("@")) {

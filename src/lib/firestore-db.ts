@@ -188,7 +188,7 @@ export const FirestoreDB = {
 
   async updateFeedbackStatus(id: string, status: string) {
     if (!id || !status) return false;
-    await FirestoreREST.setDocument("feedback", id, { status });
+    // Use Admin SDK update (PATCH) — never setDocument which replaces the entire document
     const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {

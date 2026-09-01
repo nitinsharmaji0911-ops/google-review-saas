@@ -21,6 +21,10 @@ const VALID_PROMO_CODES = [
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
+    if (!session || !session.userId) {
+      return NextResponse.json({ success: false, error: "Authentication required." }, { status: 401 });
+    }
+
     const body = await req.json().catch(() => ({}));
     const { code, businessSlug: clientSlug, businessId: clientId, googleReviewUrl: clientGoogleUrl } = body;
 
