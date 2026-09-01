@@ -49,12 +49,9 @@ export async function GET(req: NextRequest) {
       if (!business) {
         business = await FirestoreDB.getBusinessByUserId(session.userId);
       }
-      if (!business && (session.email === "nitin.sharmaji2405@gmail.com" || session.email?.endsWith("@welurik.com"))) {
-        business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
-      }
     }
 
-    // If user is authenticated, create or provide default active workspace so they are NEVER kicked out to onboarding
+    // If user is authenticated, create or provide default active workspace with their real details
     if (!business) {
       const fallbackSlug = session.email ? session.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business";
       business = await FirestoreDB.saveBusiness({
@@ -63,7 +60,7 @@ export async function GET(req: NextRequest) {
         category: "cafe",
         location: "",
         description: "",
-        googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4",
+        googleReviewUrl: userDoc?.googleReviewUrl || "",
         brandColor: "#0f172a",
         userId: session.userId,
         isPro: true,

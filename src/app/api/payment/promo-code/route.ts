@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
     const body = await req.json().catch(() => ({}));
-    const { code, businessSlug: clientSlug, businessId: clientId } = body;
+    const { code, businessSlug: clientSlug, businessId: clientId, googleReviewUrl: clientGoogleUrl } = body;
 
     if (!code || typeof code !== "string") {
       return NextResponse.json(
@@ -79,9 +79,12 @@ export async function POST(req: NextRequest) {
 
     const targetSlug = business?.slug || businessSlug || (business?.name ? business.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business");
 
+    const finalReviewUrl = clientGoogleUrl || business?.googleReviewUrl || "";
+
     if (business) {
       await FirestoreREST.setDocument("businesses", business.slug || business.id, {
         ...business,
+        ...(clientGoogleUrl ? { googleReviewUrl: clientGoogleUrl } : {}),
         ...activationData,
       });
     } else {
@@ -92,7 +95,7 @@ export async function POST(req: NextRequest) {
         name: session?.email?.split("@")[0] || "My Business",
         userId: userId || "user",
         category: "cafe",
-        googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4",
+        googleReviewUrl: finalReviewUrl,
         ...activationData,
       });
     }
