@@ -52,6 +52,8 @@ export async function GET(req: NextRequest) {
     const googleClicks = analytics.filter((a: any) => a.eventType === "google_clicked").length;
     const conversionRate = totalScans > 0 ? `${Math.round((googleClicks / totalScans) * 100)}%` : "0%";
 
+    const unreadFeedbackCount = (business.feedbacks || []).filter((f: any) => f.status === "unread").length;
+
     const isProAccount =
       business.isPro === true ||
       session.email === "nitin.sharmaji2405@gmail.com" ||
