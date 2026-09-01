@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
-import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Check, Lock, Zap } from "lucide-react";
 import Link from "next/link";
+import WelurikLogo from "@/components/Logo";
 
 declare global {
   interface Window {
@@ -278,11 +278,7 @@ export default function OnboardingPage() {
 
       {/* Top Bar */}
       <header className="max-w-6xl w-full mx-auto px-4 flex items-center justify-between z-10">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="font-black text-2xl text-slate-950 tracking-tight">W</span>
-          <span className="text-slate-300 font-light text-xl -mt-0.5">|</span>
-          <span className="font-bold text-lg text-slate-950 tracking-tight">Welurik Review</span>
-        </Link>
+        <WelurikLogo className="h-8 sm:h-9" />
         <span className="text-xs font-semibold text-slate-400">Step {step} of 3</span>
       </header>
 
