@@ -7,15 +7,13 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    let session = null;
-    try {
-      session = await getSession();
-    } catch {
-      // Guest checkout session
+    const session = await getSession();
+    if (!session || !session.userId) {
+      return NextResponse.json(
+        { error: "Please sign in or create an account before proceeding to payment." },
+        { status: 401 }
+      );
     }
-
-    const body = await req.json().catch(() => ({}));
-    const { email } = body;
 
     // Official Pricing: ₹1,999 Lifetime License (199900 Paise)
     const amountInPaise = 199900;
@@ -50,8 +48,8 @@ export async function POST(req: Request) {
           receipt: `rcpt_${Date.now().toString().slice(-8)}`,
           notes: {
             planType,
-            userId: session?.userId || "guest",
-            userEmail: session?.email || email || "guest@welurik.com",
+            userId: session.userId,
+            userEmail: session.email,
           },
         });
         razorpayOrderId = order.id;
@@ -81,7 +79,7 @@ export async function POST(req: Request) {
       const orderRecord = await prisma.order.create({
         data: {
           businessId: businessId || null,
-          userEmail: session?.email || email || null,
+          userEmail: session.email || null,
           razorpayOrderId,
           amount: amountInPaise,
           currency: "INR",
@@ -105,7 +103,7 @@ export async function POST(req: Request) {
       planLabel,
       planType,
       prefill: {
-        email: session?.email || email || "",
+        email: session.email,
       },
       orderRecordId,
     });

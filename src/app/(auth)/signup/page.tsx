@@ -42,7 +42,7 @@ export default function SignupPage() {
     });
   };
 
-  const handleSignupAndPay = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreedToTerms) {
       setError("Please accept the Terms of Service to continue.");
@@ -54,7 +54,6 @@ export default function SignupPage() {
     setLoadingStep("Creating your business account...");
 
     try {
-      // Step 1: Create Account
       const signupRes = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,98 +65,8 @@ export default function SignupPage() {
         throw new Error(signupData.error || "Failed to create account");
       }
 
-      // Step 2: Initialize Razorpay Order
-      setLoadingStep("Connecting secure payment gateway...");
-      const orderRes = await fetch("/api/payment/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planType: "lifetime", email }),
-      });
-
-      const orderData = await orderRes.json();
-      if (!orderRes.ok || !orderData.success) {
-        throw new Error(orderData.error || "Could not initialize checkout order");
-      }
-
-      // If Razorpay API keys are in test / mock mode
-      if (orderData.isMock || !orderData.keyId || orderData.keyId === "rzp_test_placeholder") {
-        setLoadingStep("Activating your lifetime license...");
-        setTimeout(async () => {
-          await fetch("/api/payment/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: orderData.orderId,
-              razorpay_payment_id: `pay_demo_${Date.now().toString().slice(-6)}`,
-              razorpay_signature: `mock_sig_${Date.now()}`,
-              planType: "lifetime",
-            }),
-          });
-          router.push(`/checkout/success?order_id=${orderData.orderId}&payment_id=pay_demo_success`);
-        }, 900);
-        return;
-      }
-
-      // Step 3: Load SDK and open Razorpay Gateway
-      const isScriptLoaded = await loadRazorpayScript();
-      if (!isScriptLoaded) {
-        throw new Error("Failed to load secure Razorpay gateway. Please check your internet connection.");
-      }
-
-      const options = {
-        key: orderData.keyId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Welurik Review",
-        description: "₹1,999 Lifetime License",
-        image: "/favicon.png",
-        order_id: orderData.orderId,
-        prefill: {
-          email: email,
-          name: name || undefined,
-        },
-        theme: {
-          color: "#15803D",
-        },
-        handler: async function (response: any) {
-          try {
-            setLoading(true);
-            setLoadingStep("Verifying transaction & activating license...");
-            const verifyRes = await fetch("/api/payment/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id || orderData.orderId,
-                razorpay_payment_id: response.razorpay_payment_id || `pay_${Date.now()}`,
-                razorpay_signature: response.razorpay_signature || `mock_sig_${Date.now()}`,
-                planType: "lifetime",
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (verifyRes.ok && verifyData.success) {
-              router.push(`/checkout/success?order_id=${verifyData.orderId || orderData.orderId}&payment_id=${response.razorpay_payment_id}`);
-            } else {
-              router.push("/onboarding");
-            }
-          } catch {
-            router.push("/onboarding");
-          }
-        },
-        modal: {
-          ondismiss: function () {
-            setLoading(false);
-            router.push("/onboarding");
-          },
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response: any) {
-        setError(response.error?.description || "Payment was not completed. You can complete it in your dashboard.");
-        setLoading(false);
-      });
-      rzp.open();
+      router.push("/onboarding");
+      router.refresh();
     } catch (err: any) {
       setError(err.message || "Something went wrong during registration");
       setLoading(false);
@@ -246,7 +155,7 @@ export default function SignupPage() {
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSignupAndPay} className="space-y-4">
+          <form onSubmit={handleSignup} className="space-y-4">
             <div>
               <label className="block text-xs font-black text-black mb-1.5">
                 Business / Owner Name
@@ -340,14 +249,14 @@ export default function SignupPage() {
               ) : (
                 <>
                   <Zap className="w-4 h-4 fill-white text-white" />
-                  <span>Proceed to Payment (₹1,999 Lifetime) →</span>
+                  <span>Create Account & Continue →</span>
                 </>
               )}
             </button>
 
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 font-bold pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-[#15803D]" />
-              <span>Instant Activation via UPI, QR, Cards & NetBanking</span>
+              <span>Step 1 of 3: Setup your business funnel</span>
             </div>
           </form>
         </div>

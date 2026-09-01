@@ -58,6 +58,11 @@ export function CheckoutButton({
         body: JSON.stringify({ planType }),
       });
 
+      if (res.status === 401) {
+        router.push("/signup");
+        return;
+      }
+
       const orderData = await res.json();
       if (!res.ok || !orderData.success) {
         throw new Error(orderData.error || "Could not initialize checkout order");

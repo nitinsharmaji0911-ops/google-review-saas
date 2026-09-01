@@ -752,11 +752,12 @@ export default function LandingPage() {
             ))}
           </ul>
 
-          <CheckoutButton
-            planType="lifetime"
-            buttonText="Claim Lifetime Access for ₹1,999"
+          <Link
+            href="/signup"
             className="w-full py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-sm flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center cursor-pointer"
-          />
+          >
+            Claim Lifetime Access for ₹1,999 <ArrowRight className="w-4 h-4" />
+          </Link>
           <p className="text-center text-[10.5px] text-slate-500 font-semibold">Instant activation via UPI, QR & Cards</p>
         </div>
       </section>
