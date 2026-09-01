@@ -328,25 +328,25 @@ export default function OnboardingPage() {
                     <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
-                    <span className="font-medium">Unlimited AI Google Review Generations</span>
+                    <span className="font-semibold text-slate-900">Rank #1 on Google Maps & beat local competitors</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
-                    <span className="font-medium">Print-Ready Acrylic QR Standee Studio</span>
+                    <span className="font-semibold text-slate-900">10x More 5-star reviews (AI writes them in 5 secs)</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
-                    <span className="font-medium">Private Feedback & Issue Resolution Inbox</span>
+                    <span className="font-semibold text-slate-900">Turn everyday footfall into repeat paying customers</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
-                    <span className="font-medium">Zero Monthly Fees • Free Future Updates</span>
+                    <span className="font-semibold text-slate-900">Zero monthly fees • Pays for itself with 1 customer</span>
                   </div>
                 </div>
 

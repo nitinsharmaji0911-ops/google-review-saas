@@ -262,15 +262,19 @@ export default function DashboardLayout({
                 <div className="border-t border-slate-200/60 pt-2.5 space-y-2 text-xs text-slate-700">
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-medium">Unlimited AI Google Review Generations</span>
+                    <span className="font-semibold text-slate-900">Rank #1 on Google Maps & beat local competitors</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-medium">Printable Acrylic QR Standees</span>
+                    <span className="font-semibold text-slate-900">10x More 5-star reviews (AI writes them in 5 secs)</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-medium">Zero monthly recurring fees</span>
+                    <span className="font-semibold text-slate-900">Turn everyday footfall into repeat paying customers</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-slate-900">Zero monthly fees • Pays for itself with 1 customer</span>
                   </div>
                 </div>
 
