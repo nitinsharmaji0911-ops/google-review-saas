@@ -16,41 +16,51 @@ export interface GeneratedReviewResult {
   source: "gemini" | "smart_nlp";
 }
 
-// Diverse Reviewer Styles & Personas to guarantee unique reviews every time
-const REVIEW_PERSONAS = [
+// Authentic Human Angles & Scenarios (Sounds like real smartphone reviews)
+const HUMAN_REVIEW_ANGLES = [
   {
-    style: "Enthusiastic Discoverer",
-    guidance: "Write from the perspective of a delighted customer discovering a gem. Focus on immediate positive impressions.",
-    openers: ["First time visiting and genuinely impressed!", "Came here on a recommendation and it did not disappoint!", "What a wonderful spot!"]
+    vibe: "Casual Drop-in",
+    guidance: "Casual customer who stopped by. Friendly, relaxed tone.",
+    examples: [
+      "Stopped by today and really loved the coffee! Super friendly staff and the pastries were fresh. Definitely coming back.",
+      "Dropped in for a quick bite. Great service and the food came out fast. 10/10 experience."
+    ]
   },
   {
-    style: "Appreciative Regular / Seasoned Customer",
-    guidance: "Write with familiar confidence. Highlight consistency, reliable quality, and great service.",
-    openers: ["Always a pleasure coming here!", "Easily one of my favorite spots in town.", "Consistently great every single time."]
+    vibe: "Local Favorite",
+    guidance: "Local customer recommending to others in the neighborhood.",
+    examples: [
+      "Honestly one of the best spots around here. Always good quality and the vibe is super chill.",
+      "My go-to place in the area. Consistent quality and great staff every single time."
+    ]
   },
   {
-    style: "Detail & Quality Focused",
-    guidance: "Focus directly on the quality of specific items, professionalism, precision, and value.",
-    openers: ["The attention to detail here really stands out.", "Top-tier quality and wonderful attention to customer satisfaction.", "Everything was handled with utmost care and excellence."]
+    vibe: "Work & Ambience",
+    guidance: "Focused on atmosphere, comfortable seating, friendly baristas/staff, good music/wifi.",
+    examples: [
+      "Such a great place to sit and get some work done. Fast wifi, good music, and the drinks are spot on.",
+      "Really cozy atmosphere. Staff doesn't rush you and everything we ordered was delicious."
+    ]
   },
   {
-    style: "Vibe & Hospitality Lover",
-    guidance: "Highlight the welcoming atmosphere, friendly staff, prompt service, and smooth experience.",
-    openers: ["Super warm and welcoming staff from the moment you step in.", "Great ambience, friendly energy, and prompt service.", "Loved the vibe here!"]
+    vibe: "Item & Taste Focused",
+    guidance: "Direct appreciation for the taste, cleanliness, and freshness.",
+    examples: [
+      "Tried their signature coffee and bakery items this morning. Both were incredible! Super fresh.",
+      "Everything tasted amazing and the place was spotless. Really happy with the service."
+    ]
   },
   {
-    style: "Local Guide Recommendation",
-    guidance: "Write as a local guide sharing a direct tip to others looking for the best in the area.",
-    openers: ["If you're in the neighborhood, this is definitely worth a stop.", "Hands down one of the best choices for anyone looking for quality.", "Highly recommend checking this place out!"]
-  },
-  {
-    style: "Clean & Punchy",
-    guidance: "Keep it natural, direct, and conversational without fluff.",
-    openers: ["Quick, professional, and excellent quality overall.", "Really solid experience from start to finish.", "Cannot say enough good things about the experience."]
+    vibe: "Short & Sweet",
+    guidance: "Punchy, natural, 1-2 sentence real human review.",
+    examples: [
+      "Great coffee, friendly team, and quick service. Can't ask for much more!",
+      "Super sweet staff and top quality food. Highly recommend checking them out!"
+    ]
   }
 ];
 
-// 1. Google Gemini AI Generation with High Diversity
+// 1. Google Gemini AI Generation with Realistic Human Voice
 async function generateWithGemini(
   apiKey: string,
   params: GenerateReviewParams
@@ -59,84 +69,85 @@ async function generateWithGemini(
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
     generationConfig: {
-      temperature: 0.95, // High variety
+      temperature: 0.95,
       topP: 0.95,
     }
   });
 
   const rating = params.rating || 5;
-  const persona = REVIEW_PERSONAS[Math.floor(Math.random() * REVIEW_PERSONAS.length)];
-  const suggestedOpener = persona.openers[Math.floor(Math.random() * persona.openers.length)];
+  const randomAngle = HUMAN_REVIEW_ANGLES[Math.floor(Math.random() * HUMAN_REVIEW_ANGLES.length)];
 
-  const toneInstructions = {
-    short: "STRICT LENGTH: 1 to 2 short sentences. Max 18-25 words. Crisp and punchy.",
-    natural: "STRICT LENGTH: 2 to 3 balanced sentences. Around 35-50 words. Natural and authentic.",
-    detailed: "STRICT LENGTH: 4 to 5 descriptive sentences. Around 65-90 words. Thoughtful, specific, and detailed."
+  const toneLength = {
+    short: "1-2 quick conversational sentences (around 15-25 words total).",
+    natural: "2-3 natural sentences (around 30-45 words). Relaxed everyday phrasing.",
+    detailed: "3-4 sentences with natural storytelling (around 50-70 words). Sounds like a genuine, detailed Google Local Guide review."
   }[params.tone || "natural"];
 
-  const prompt = `You are a real, authentic human customer writing a Google review for "${params.businessName}" (${params.category}${params.location ? `, located in ${params.location}` : ""}).
+  const prompt = `You are a real human customer writing a quick, authentic Google Maps review on your smartphone for "${params.businessName}" (${params.category}${params.location ? `, in ${params.location}` : ""}).
 
-Rating: ${rating} out of 5 Stars
-Writing Persona: ${persona.style} (${persona.guidance})
-Selected Highlights/Keywords: ${params.selectedTopics.length > 0 ? params.selectedTopics.join(", ") : "Quality, Service, Ambience"}
-Selected Specific Items: ${params.selectedServices.length > 0 ? params.selectedServices.join(", ") : "None"}
+Star Rating: ${rating}/5
+Review Angle: ${randomAngle.vibe}
+Customer Selected Highlights: ${params.selectedTopics.length > 0 ? params.selectedTopics.join(", ") : "Good quality and friendly service"}
+Specific Items Ordered/Used: ${params.selectedServices.length > 0 ? params.selectedServices.join(", ") : "None"}
 Customer Note: ${params.customerComment ? `"${params.customerComment}"` : "None"}
+Target Length: ${toneLength}
 
-CRITICAL RULES FOR DIVERSITY & HUMAN REALISM:
-1. NEVER start with generic AI clichés like "I recently visited", "I had an amazing experience at", or "Great place".
-2. You can use an opening style similar to: "${suggestedOpener}" or a fresh, authentic conversational opening.
-3. Seamlessly weave in the selected highlights naturally so it sounds like real customer praise, not a list.
-4. ${toneInstructions}
-5. Write in natural FIRST PERSON ("I", "We").
-6. End with an organic closing thought (e.g., "Will definitely be back!", "Highly recommended!", "10/10!", "Worth every penny!").
-7. Output ONLY the raw review text without quotes or explanations.`;
+CRITICAL RULES FOR 100% AUTHENTIC HUMAN REVIEWS:
+1. TALK LIKE A REAL PERSON typing a review on Google Maps:
+   - Use natural contractions ("it's", "didn't", "was really", "super", "loved the", "definitely").
+   - Keep the tone warm, grounded, and conversational.
+2. ABSOLUTELY BANNED AI PHRASES (NEVER USE THESE):
+   - Do NOT use: "truly shines", "delightful", "deeply appreciate", "superb", "exceeded every expectation", "sets them apart", "executed to perfection", "I recently visited", "an absolute favorite", "wonderfully work-friendly environment", "nestled in", "epitome of", "testament to".
+3. Write in natural first person ("I", "We").
+4. Mention the selected highlights organically (e.g. "coffee was great", "pastries were fresh", "fast wifi", "staff was super helpful").
+5. End naturally (e.g. "Definitely coming back!", "10/10!", "Highly recommend!", "Will be back for sure!").
+6. Output ONLY the plain review text. No quotes. No intro headers.`;
 
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
   return text.replace(/^["']|["']$/g, "").trim();
 }
 
-// 2. Diverse Smart NLP Combinator (20+ Varied Template Combos)
+// 2. Ultra-Humanized Smart NLP Fallback Templates
 export function generateSmartTemplateReview(params: GenerateReviewParams): string {
   const { businessName, selectedTopics, selectedServices, customerComment, tone = "natural" } = params;
 
-  const topicsList = selectedTopics.length > 0 ? selectedTopics : ["overall quality", "great service"];
+  const topicsList = selectedTopics.length > 0 ? selectedTopics : ["great quality", "friendly staff"];
   const servicesList = selectedServices.length > 0 ? selectedServices : [];
-  const primaryTopic = topicsList[0];
-  const secondaryTopic = topicsList[1] || topicsList[0];
-  const serviceMention = servicesList.length > 0 ? ` (${servicesList.join(", ")})` : "";
+  const primaryTopic = topicsList[0].toLowerCase();
+  const secondaryTopic = (topicsList[1] || topicsList[0]).toLowerCase();
+  const serviceMention = servicesList.length > 0 ? ` (especially the ${servicesList.join(" and ").toLowerCase()})` : "";
   const commentAddon = customerComment ? ` ${customerComment.trim()}.` : "";
 
-  // Short templates (8 distinct variations)
+  // Short Human Templates
   const shortTemplates = [
-    `Super impressed with ${businessName}! The ${primaryTopic.toLowerCase()} was top-notch.${commentAddon} Highly recommend!`,
-    `Really great experience here. Loved the ${primaryTopic.toLowerCase()}${serviceMention}.${commentAddon} 10/10!`,
-    `Fantastic service and wonderful ${primaryTopic.toLowerCase()} at ${businessName}.${commentAddon} Will be back for sure.`,
-    `Such a great spot! The ${primaryTopic.toLowerCase()} and ${secondaryTopic.toLowerCase()} exceeded my expectations.${commentAddon}`,
-    `Quick, friendly, and top quality. The ${primaryTopic.toLowerCase()} was standout.${commentAddon}`,
-    `Always a treat visiting ${businessName}. The ${primaryTopic.toLowerCase()} never disappoints!`,
-    `Top-notch ${primaryTopic.toLowerCase()} and warm hospitality.${commentAddon} Definitely worth stopping by!`,
-    `Loved everything about my visit, especially the ${primaryTopic.toLowerCase()}${serviceMention}.${commentAddon}`
+    `Loved the ${primaryTopic} here! Super friendly staff and quick service.${commentAddon} 10/10.`,
+    `Really great spot! The ${primaryTopic}${serviceMention} was so good.${commentAddon} Will definitely be back.`,
+    `Quick, friendly, and great quality. The ${primaryTopic} was spot on today!`,
+    `Such a good experience at ${businessName}. Loved the ${primaryTopic} and chill vibe.${commentAddon}`,
+    `Great little place! The ${primaryTopic} was delicious and the team is really sweet.${commentAddon}`,
+    `Honestly so impressed with the ${primaryTopic} here.${serviceMention} Highly recommend!`,
+    `Top quality ${primaryTopic} and fast service. Can't ask for much more!`,
+    `Stopped by today and the ${primaryTopic} was amazing.${commentAddon} Definitely coming back.`
   ];
 
-  // Natural templates (8 distinct variations)
+  // Natural Human Templates
   const naturalTemplates = [
-    `Had a wonderful time at ${businessName}. The ${primaryTopic.toLowerCase()} was absolutely outstanding and the team made the whole experience effortless.${serviceMention}${commentAddon} Highly recommend to anyone in the area!`,
-    `First time trying ${businessName} and I am genuinely impressed. The attention to ${primaryTopic.toLowerCase()} and ${secondaryTopic.toLowerCase()} really sets them apart.${commentAddon} Will definitely be returning soon!`,
-    `Cannot say enough good things about ${businessName}. Everything from the ${primaryTopic.toLowerCase()} to the welcoming atmosphere was spot on.${serviceMention}${commentAddon} A solid 5-star experience!`,
-    `Consistently stellar quality every time I visit. The ${primaryTopic.toLowerCase()} was exceptional today.${commentAddon} The staff is always courteous and attentive.`,
-    `What a great find! The ${primaryTopic.toLowerCase()} and ${secondaryTopic.toLowerCase()} were both fantastic.${serviceMention}${commentAddon} Easily one of the best places in town for this.`,
-    `Really appreciated the prompt service and great attention to detail at ${businessName}. The ${primaryTopic.toLowerCase()} made all the difference.${commentAddon} Keep up the great work!`,
-    `Came in today and left completely satisfied. The ${primaryTopic.toLowerCase()} was top tier, and the staff was super helpful.${commentAddon} Will certainly recommend to friends and family.`,
-    `A standout experience at ${businessName}! From the ${primaryTopic.toLowerCase()} to the overall ambience, everything was top notch.${serviceMention}${commentAddon} 10/10 recommendation!`
+    `Stopped by ${businessName} today and really loved it! The ${primaryTopic} was so good and the staff was super welcoming.${serviceMention}${commentAddon} Definitely making this my regular spot.`,
+    `Honestly one of the best places around here. The ${primaryTopic} and ${secondaryTopic} were both spot on.${serviceMention}${commentAddon} Great vibe and quick service, 10/10!`,
+    `Had a really nice time at ${businessName}. Everything was fresh and the team was super attentive.${commentAddon} You can tell they care about their ${primaryTopic}. Highly recommend!`,
+    `Such a cozy spot! The ${primaryTopic} was fantastic and they have a great atmosphere.${serviceMention}${commentAddon} Will definitely be bringing friends here next time.`,
+    `Really happy I checked out ${businessName}! The ${primaryTopic} exceeded expectations and the service was super fast.${commentAddon} Will be back for sure!`,
+    `Dropped in this morning and loved everything about it. Great ${primaryTopic}, clean space, and very polite staff.${serviceMention}${commentAddon} Worth every penny.`,
+    `Always a good experience coming here. The ${primaryTopic} is consistently great and the staff is always smiling.${commentAddon} Keep up the great work!`,
+    `Came here on a friend's recommendation and it didn't disappoint! The ${primaryTopic} was incredible.${serviceMention}${commentAddon} Definitely recommend checking them out.`
   ];
 
-  // Detailed templates (6 distinct variations)
+  // Detailed Human Templates
   const detailedTemplates = [
-    `I recently had the opportunity to visit ${businessName}, and it exceeded every expectation. The focus on ${primaryTopic.toLowerCase()} was evident from start to finish, and the ${secondaryTopic.toLowerCase()} made the entire visit memorable.${serviceMention}${commentAddon} The staff was attentive, professional, and welcoming. If you're looking for genuine quality and dependable service, this is hands down the place to go!`,
-    `From the moment you walk into ${businessName}, you can tell they take pride in what they do. The ${primaryTopic.toLowerCase()} was executed to perfection, and the staff was extremely courteous throughout.${serviceMention}${commentAddon} It is rare to find a business that combines great service, pristine standards, and top-tier ${secondaryTopic.toLowerCase()} so effortlessly. Will definitely be a regular here!`,
-    `An exceptional experience all around at ${businessName}. Everything we tried was fresh, well-prepared, and delivered with genuine care.${serviceMention} The ${primaryTopic.toLowerCase()} was a standout highlight, and the ${secondaryTopic.toLowerCase()} was equally impressive.${commentAddon} It's easily one of the best spots in the area and I couldn't be happier with the visit. Highly recommended!`,
-    `Had such a pleasant experience at ${businessName} today! The team was super accommodating, and the ${primaryTopic.toLowerCase()} was truly phenomenal.${serviceMention}${commentAddon} You can tell a lot of passion and expertise goes into their work. If you value great quality and attentive service, do not hesitate to check them out. Will definitely be back again soon!`
+    `Dropped by ${businessName} today and was super impressed from start to finish. The ${primaryTopic} was fresh and full of flavor, and the ${secondaryTopic} was just as good.${serviceMention}${commentAddon} The staff was really friendly and made sure everything was taken care of. If you're anywhere in the area, definitely give this place a try!`,
+    `Such a great find! Came in for a quick visit and ended up staying much longer because of the cozy vibe. The ${primaryTopic} was top tier and you can tell they take real pride in what they do.${serviceMention}${commentAddon} Clean space, fast service, and really nice people working here. Will 100% be returning soon.`,
+    `Really can't say enough good things about ${businessName}. The ${primaryTopic} was outstanding and the ${secondaryTopic} was just as impressive.${serviceMention}${commentAddon} It's hard to find places with such consistent quality and friendly service these days. Easily a 5-star experience!`
   ];
 
   if (tone === "short") {
