@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     let session = null;
