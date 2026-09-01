@@ -239,4 +239,49 @@ export const FirestoreDB = {
     await FirestoreREST.setDocument("analytics", id, eventDoc);
     inMemoryStore.analytics.push(eventDoc);
   },
+
+  async getReviewsBySlug(slug: string) {
+    if (!slug) return [];
+    try {
+      const docs = await FirestoreREST.queryDocuments("reviews", "businessSlug", slug);
+      if (docs && docs.length > 0) return docs;
+    } catch {}
+
+    const { firestore } = getFirebaseAdmin();
+    if (firestore) {
+      try {
+        const snap = await firestore
+          .collection("reviews")
+          .where("businessSlug", "==", slug)
+          .orderBy("createdAt", "desc")
+          .limit(20)
+          .get();
+        if (!snap.empty) return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      } catch {}
+    }
+
+    return inMemoryStore.reviews.filter((r) => r.businessSlug === slug);
+  },
+
+  async getAnalyticsBySlug(slug: string) {
+    if (!slug) return [];
+    try {
+      const docs = await FirestoreREST.queryDocuments("analytics", "businessSlug", slug);
+      if (docs && docs.length > 0) return docs;
+    } catch {}
+
+    const { firestore } = getFirebaseAdmin();
+    if (firestore) {
+      try {
+        const snap = await firestore
+          .collection("analytics")
+          .where("businessSlug", "==", slug)
+          .limit(200)
+          .get();
+        if (!snap.empty) return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      } catch {}
+    }
+
+    return inMemoryStore.analytics.filter((a) => a.businessSlug === slug);
+  },
 };

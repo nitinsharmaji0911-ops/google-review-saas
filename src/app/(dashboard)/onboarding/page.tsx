@@ -147,8 +147,8 @@ export default function OnboardingPage() {
       if (res.ok && data.success) {
         setPromoSuccess(data.message || "🎉 7-Day VIP Free Trial Activated!");
         setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 1000);
+          router.push("/dashboard");
+        }, 800);
       } else {
         setPromoError(data.error || "Invalid or expired promo code.");
       }
@@ -306,7 +306,14 @@ export default function OnboardingPage() {
             <div key={s} className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setStep(s)}
+                onClick={() => {
+                  if (s === 1) setStep(1);
+                  else if (s === 2) {
+                    if (name.trim()) setStep(2);
+                  } else if (s === 3) {
+                    if (name.trim() && isValidGoogleUrl(googleReviewUrl)) setStep(3);
+                  }
+                }}
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all cursor-pointer ${
                   step >= s ? "bg-slate-950 text-white" : "bg-slate-200 text-slate-500 hover:bg-slate-300"
                 }`}

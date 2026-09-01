@@ -7,12 +7,6 @@ import { getSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    // 0. Auth check — only logged-in users can generate reviews
-    const session = await getSession();
-    if (!session || !session.userId) {
-      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-    }
-
     // 1. Rate Limiting: 20 AI generations per minute per IP
     const rl = await checkRateLimit(req, "ai_generate", { limit: 20, windowSeconds: 60 });
     if (!rl.success) {
@@ -28,6 +22,10 @@ export async function POST(req: NextRequest) {
       tone = "natural",
       rating = 5,
     } = body;
+
+    if (!businessSlug || typeof businessSlug !== "string") {
+      return NextResponse.json({ error: "A valid business slug is required." }, { status: 400 });
+    }
 
     // 2. Input validation & sanitization
     const validRating = Math.min(5, Math.max(1, Math.round(Number(rating) || 5)));
@@ -78,6 +76,10 @@ export async function POST(req: NextRequest) {
           businessId = fsBiz.id;
         }
       }
+    }
+
+    if (!businessId) {
+      return NextResponse.json({ error: "Business not found or inactive." }, { status: 404 });
     }
 
     // 4. Generate review using AI engine (Gemini Flash + NLP fallback)

@@ -165,7 +165,7 @@ export default function CustomerReviewPage() {
     const targetUrl =
       business.googleReviewUrl && business.googleReviewUrl.trim().length > 0
         ? business.googleReviewUrl.trim()
-        : "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4";
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + (business.location ? " " + business.location : ""))}`;
 
     // 1. Copy review text to clipboard
     try {

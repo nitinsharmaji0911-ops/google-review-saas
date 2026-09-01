@@ -46,7 +46,10 @@ export async function GET(req: NextRequest) {
               orderBy: { createdAt: "desc" },
               take: 20,
             },
-            analyticsEvents: true,
+            analyticsEvents: {
+              orderBy: { createdAt: "desc" },
+              take: 200,
+            },
           },
         });
       } catch {}
@@ -76,13 +79,30 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // Hydrate metrics from Firestore if Prisma was empty or not used
+    let analytics = business.analyticsEvents || [];
+    let reviewSessions = business.reviewSessions || [];
+    let feedbacks = business.feedbacks || [];
+
+    if (business.slug && (analytics.length === 0 || reviewSessions.length === 0)) {
+      try {
+        const [fsReviews, fsFeedbacks, fsAnalytics] = await Promise.all([
+          reviewSessions.length === 0 ? FirestoreDB.getReviewsBySlug(business.slug) : Promise.resolve([]),
+          feedbacks.length === 0 ? FirestoreDB.getFeedbacksBySlug(business.slug) : Promise.resolve([]),
+          analytics.length === 0 ? FirestoreDB.getAnalyticsBySlug(business.slug) : Promise.resolve([]),
+        ]);
+        if (fsReviews.length > 0) reviewSessions = fsReviews;
+        if (fsFeedbacks.length > 0) feedbacks = fsFeedbacks;
+        if (fsAnalytics.length > 0) analytics = fsAnalytics;
+      } catch {}
+    }
+
     // Calculate metrics
-    const analytics = business.analyticsEvents || [];
     const totalScans = analytics.filter((a: any) => a.eventType === "scan").length;
-    const reviewsGenerated = (business.reviewSessions || []).length;
+    const reviewsGenerated = reviewSessions.length;
     const googleClicks = analytics.filter((a: any) => a.eventType === "google_clicked").length;
     const conversionRate = totalScans > 0 ? `${Math.round((googleClicks / totalScans) * 100)}%` : "0%";
-    const unreadFeedbackCount = (business.feedbacks || []).filter((f: any) => f.status === "unread").length;
+    const unreadFeedbackCount = feedbacks.filter((f: any) => f.status === "unread").length;
 
     let isTrialActive = false;
     if (business.trialEndsAt) {
@@ -97,11 +117,17 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const adminEmails = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
     const isProAccount =
       business.isPro === true ||
       isTrialActive ||
       session.email === "nitin.sharmaji2405@gmail.com" ||
-      session.email?.endsWith("@welurik.com");
+      session.email?.endsWith("@welurik.com") ||
+      (session.email && adminEmails.includes(session.email.toLowerCase()));
 
     return NextResponse.json({
       success: true,
@@ -130,14 +156,14 @@ export async function GET(req: NextRequest) {
         googleClicks,
         conversionRate,
       },
-      recentReviews: (business.reviewSessions || []).map((r: any) => ({
+      recentReviews: reviewSessions.map((r: any) => ({
         id: r.id,
         rating: r.rating,
         selectedTopics: typeof r.selectedTopics === "string" ? JSON.parse(r.selectedTopics || "[]") : (r.selectedTopics || []),
         selectedServices: typeof r.selectedServices === "string" ? JSON.parse(r.selectedServices || "[]") : (r.selectedServices || []),
         generatedReview: r.generatedReview || "",
         status: r.status,
-        createdAt: new Date(r.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        createdAt: new Date(r.createdAt || Date.now()).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
       })),
       unreadFeedbackCount,
     });

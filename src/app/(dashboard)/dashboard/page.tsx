@@ -13,7 +13,6 @@ import {
   ArrowUpRight,
   SlidersHorizontal,
   CheckCircle2,
-  Smile,
   Loader2
 } from "lucide-react";
 import Link from "next/link";
@@ -175,7 +174,7 @@ export default function DashboardPage() {
             <span className="text-xs font-medium text-slate-300 capitalize">{business.category}</span>
             <span className="text-xs text-slate-400">•</span>
             <span className="text-xs font-semibold text-amber-300 flex items-center gap-1 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
-              <Star className="w-3 h-3 fill-amber-300" /> Lifetime Pro Active
+              <Star className="w-3 h-3 fill-amber-300" /> {business.planName || "Lifetime Pro Active"}
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight">{business.name}</h1>
@@ -294,7 +293,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
                       <div className="flex text-amber-400">
-                        {[...Array(rev.rating)].map((_, i) => (
+                        {[...Array(Math.max(1, Math.min(5, Number(rev.rating) || 5)))].map((_, i) => (
                           <Star key={i} className="w-3.5 h-3.5 fill-current" />
                         ))}
                       </div>

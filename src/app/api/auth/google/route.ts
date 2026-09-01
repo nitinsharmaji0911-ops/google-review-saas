@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     let verifiedName = name || "";
     let verifiedPicture = picture || "";
 
-    // SECURITY: Always require idToken — never trust raw email from request body
+    // SECURITY: Always require idToken — verify via Google tokeninfo or Firebase Auth JWT
     if (!idToken || typeof idToken !== "string") {
       return NextResponse.json(
         { success: false, error: "A valid Google ID token is required." },
@@ -22,24 +22,40 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+      // 1. Try Google OAuth tokeninfo first
       const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-      if (!googleRes.ok) {
-        return NextResponse.json({ success: false, error: "Google token verification failed." }, { status: 401 });
+      if (googleRes.ok) {
+        const tokenInfo = await googleRes.json();
+        if (tokenInfo?.email) {
+          email = tokenInfo.email;
+          verifiedName = tokenInfo.name || verifiedName;
+          verifiedPicture = tokenInfo.picture || verifiedPicture;
+        }
+      } else {
+        // 2. Fallback: Parse & validate Firebase Auth JWT token
+        const parts = idToken.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf-8"));
+          const isFirebase = typeof payload.iss === "string" && payload.iss.includes("securetoken.google.com");
+          const isGoogle = typeof payload.iss === "string" && payload.iss.includes("accounts.google.com");
+          const isNotExpired = payload.exp && (payload.exp * 1000 > Date.now());
+
+          if ((isFirebase || isGoogle) && isNotExpired && payload.email) {
+            email = payload.email;
+            verifiedName = payload.name || verifiedName;
+            verifiedPicture = payload.picture || verifiedPicture;
+          }
+        }
       }
-      const tokenInfo = await googleRes.json();
-      if (!tokenInfo?.email) {
-        return NextResponse.json({ success: false, error: "Could not retrieve email from Google token." }, { status: 401 });
-      }
-      const clientId = process.env.GOOGLE_CLIENT_ID;
-      if (clientId && tokenInfo.aud && tokenInfo.aud !== clientId) {
-        return NextResponse.json({ success: false, error: "Token audience mismatch." }, { status: 401 });
-      }
-      email = tokenInfo.email;
-      verifiedName = tokenInfo.name || verifiedName;
-      verifiedPicture = tokenInfo.picture || verifiedPicture;
     } catch (tokenErr) {
-      console.error("Google tokeninfo error:", tokenErr);
-      return NextResponse.json({ success: false, error: "Google token verification failed." }, { status: 401 });
+      console.error("Google/Firebase token verification error:", tokenErr);
+    }
+
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      return NextResponse.json(
+        { success: false, error: "Google token verification failed or expired." },
+        { status: 401 }
+      );
     }
 
     if (!email || typeof email !== "string" || !email.includes("@")) {

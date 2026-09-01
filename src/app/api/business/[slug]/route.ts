@@ -15,7 +15,8 @@ export async function GET(
       return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, business });
+    const { phone: _, ...publicBusiness } = business;
+    return NextResponse.json({ success: true, business: publicBusiness });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

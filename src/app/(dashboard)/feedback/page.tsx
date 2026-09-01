@@ -139,11 +139,18 @@ export default function FeedbackInboxPage() {
         <div className="space-y-3.5">
           {feedbacks.map((item) => {
             let issues: string[] = [];
-            try {
-              if (item.issueTopics) {
-                issues = typeof item.issueTopics === "string" ? JSON.parse(item.issueTopics) : item.issueTopics;
+            if (item.issueTopics) {
+              if (Array.isArray(item.issueTopics)) {
+                issues = item.issueTopics;
+              } else if (typeof item.issueTopics === "string") {
+                try {
+                  const parsed = JSON.parse(item.issueTopics);
+                  issues = Array.isArray(parsed) ? parsed : [item.issueTopics];
+                } catch {
+                  issues = item.issueTopics.split(",").map((s: string) => s.trim()).filter(Boolean);
+                }
               }
-            } catch {}
+            }
 
             const formattedDate = item.createdAt
               ? new Date(item.createdAt).toLocaleDateString("en-IN", {
