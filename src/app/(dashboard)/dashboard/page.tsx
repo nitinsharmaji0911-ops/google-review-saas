@@ -141,9 +141,9 @@ export default function DashboardPage() {
   const publicReviewUrl = `${origin}/r/${business.slug}`;
 
   return (
-    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 md:p-10 max-w-6xl mx-auto space-y-6 sm:space-y-8">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white rounded-[28px] p-6 md:p-8 shadow-xl shadow-slate-900/10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 md:p-8 shadow-xl shadow-slate-900/10">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-emerald-300 border border-white/10">
