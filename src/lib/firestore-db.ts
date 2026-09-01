@@ -175,6 +175,48 @@ export const FirestoreDB = {
     return feedbackDoc;
   },
 
+  async getFeedbacksBySlug(slug: string) {
+    if (!slug) return [];
+
+    // 1. Try Firestore REST
+    const docs = await FirestoreREST.queryDocuments("feedback", "businessSlug", slug);
+    if (docs && docs.length > 0) {
+      return docs;
+    }
+
+    // 2. Try Firestore Admin
+    const { firestore } = getFirebaseAdmin();
+    if (firestore) {
+      try {
+        const snap = await firestore
+          .collection("feedback")
+          .where("businessSlug", "==", slug)
+          .orderBy("createdAt", "desc")
+          .limit(50)
+          .get();
+        if (!snap.empty) {
+          return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        }
+      } catch {}
+    }
+
+    return inMemoryStore.feedback.filter((f) => f.businessSlug === slug);
+  },
+
+  async updateFeedbackStatus(id: string, status: string) {
+    if (!id || !status) return false;
+    await FirestoreREST.setDocument("feedback", id, { status });
+    const { firestore } = getFirebaseAdmin();
+    if (firestore) {
+      try {
+        await firestore.collection("feedback").doc(id).update({ status });
+      } catch {}
+    }
+    const local = inMemoryStore.feedback.find((f) => f.id === id);
+    if (local) local.status = status;
+    return true;
+  },
+
   // --- REVIEWS ---
   async createReview(data: any) {
     return this.createReviewSession(data);

@@ -24,7 +24,8 @@ export async function GET(req: NextRequest) {
     } catch {}
 
     if (!business) {
-      if (session.businessSlug) {
+      business = await FirestoreDB.getBusinessByUserId(session.userId);
+      if (!business && session.businessSlug) {
         business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
       }
     }
@@ -34,24 +35,10 @@ export async function GET(req: NextRequest) {
     }
 
     let feedbackList: any[] = [];
-    if (business.feedbacks && Array.isArray(business.feedbacks)) {
+    if (business.feedbacks && Array.isArray(business.feedbacks) && business.feedbacks.length > 0) {
       feedbackList = business.feedbacks;
     } else {
-      // Fetch from Firestore
-      try {
-        const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
-        if (firestore) {
-          const snap = await firestore
-            .collection("feedback")
-            .where("businessSlug", "==", business.slug)
-            .orderBy("createdAt", "desc")
-            .limit(50)
-            .get();
-          if (!snap.empty) {
-            feedbackList = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-          }
-        }
-      } catch {}
+      feedbackList = await FirestoreDB.getFeedbacksBySlug(business.slug);
     }
 
     return NextResponse.json({
@@ -89,15 +76,25 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Verify ownership in Prisma
+    let business: any = null;
     try {
-      const business = await prisma.business.findUnique({
+      business = await prisma.business.findUnique({
         where: { userId: session.userId },
       });
+    } catch {}
 
-      if (!business) {
-        return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
+    if (!business) {
+      business = await FirestoreDB.getBusinessByUserId(session.userId);
+      if (!business && session.businessSlug) {
+        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
       }
+    }
 
+    if (!business) {
+      return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
+    }
+
+    try {
       const feedbackItem = await prisma.feedback.findUnique({
         where: { id },
       });
@@ -117,12 +114,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Update in Firestore
-    try {
-      const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
-      if (firestore) {
-        await firestore.collection("feedback").doc(id).update({ status });
-      }
-    } catch {}
+    await FirestoreDB.updateFeedbackStatus(id, status).catch(() => {});
 
     return NextResponse.json({ success: true, status });
   } catch (error: any) {
