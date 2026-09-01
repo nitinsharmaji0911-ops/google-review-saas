@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
-import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Lock, Zap } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Check, Lock, Zap } from "lucide-react";
 import Link from "next/link";
 
 declare global {
