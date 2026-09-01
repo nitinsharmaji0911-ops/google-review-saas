@@ -61,6 +61,7 @@ export default function CustomerReviewPage() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [step, setStep] = useState<"select" | "review">("select");
+  const [genError, setGenError] = useState("");
 
   useEffect(() => {
     async function loadBusiness() {
@@ -123,6 +124,7 @@ export default function CustomerReviewPage() {
 
     setTone(targetTone);
     setIsCopied(false);
+    setGenError("");
 
     if (step === "review") {
       setIsRegenerating(true);
@@ -150,10 +152,10 @@ export default function CustomerReviewPage() {
         setToneCache((prev) => ({ ...prev, [targetTone]: data.review }));
         setStep("review");
       } else {
-        alert("Could not generate review. Please try again.");
+        setGenError(data.error || "Could not generate review. Please try again.");
       }
     } catch {
-      alert("Something went wrong while generating the review.");
+      setGenError("Something went wrong while generating the review. Please try again.");
     } finally {
       setIsGenerating(false);
       setIsRegenerating(false);
@@ -444,15 +446,23 @@ export default function CustomerReviewPage() {
                 />
               </div>
 
+              {/* Inline Generation Error */}
+              {genError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>{genError}</span>
+                </div>
+              )}
+
               {/* Generate CTA Button */}
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                disabled={isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)}
+                disabled={isGenerating}
                 onClick={() => handleGenerate("natural")}
                 className={`w-full py-4 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all ${
-                  isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)
+                  isGenerating
                     ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                     : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200"
                 }`}
@@ -465,7 +475,7 @@ export default function CustomerReviewPage() {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate Review
+                    Generate {rating}-Star Review
                   </>
                 )}
               </motion.button>

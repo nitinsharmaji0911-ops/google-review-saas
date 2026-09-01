@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Business Fields
   const [name, setName] = useState("");
@@ -48,7 +49,8 @@ export default function SettingsPage() {
       clean.includes("google.com/maps") ||
       clean.includes("goo.gl/maps") ||
       clean.includes("business.google.com") ||
-      clean.includes("maps.google.com")
+      clean.includes("maps.google.com") ||
+      clean.includes("google.")
     );
   };
 
@@ -147,6 +149,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (data.success) {
         setSaveSuccess(true);
+        setSaveError("");
         if (typeof window !== "undefined") {
           try {
             sessionStorage.removeItem("welurik_dashboard_cache");
@@ -154,10 +157,10 @@ export default function SettingsPage() {
         }
         setTimeout(() => setSaveSuccess(false), 3000);
       } else {
-        alert(data.error || "Failed to save settings");
+        setSaveError(data.error || "Failed to save settings");
       }
     } catch {
-      alert("Error saving settings");
+      setSaveError("Error saving settings. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -402,6 +405,11 @@ export default function SettingsPage() {
             {saveSuccess && (
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 animate-in fade-in">
                 <Check className="w-3.5 h-3.5" /> Settings saved!
+              </span>
+            )}
+            {saveError && (
+              <span className="text-xs font-bold text-rose-700 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200 flex items-center gap-1.5 animate-in fade-in">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-500" /> {saveError}
               </span>
             )}
           </div>

@@ -48,7 +48,36 @@ export async function POST(req: Request) {
                 planName: order.planType || "lifetime",
                 monthlyAiQuota: 10000,
               },
-            });
+            }).catch(() => {});
+          }
+
+          if (order.userEmail) {
+            try {
+              const { FirestoreDB } = await import("@/lib/firestore-db");
+              const { FirestoreREST } = await import("@/lib/firestore-rest");
+              const u = await FirestoreDB.getUserByEmail(order.userEmail);
+              if (u) {
+                await FirestoreREST.setDocument("users", u.id, {
+                  ...u,
+                  isPro: true,
+                  planName: "Lifetime License",
+                  planType: "lifetime",
+                });
+                if (u.businessSlug) {
+                  const b = await FirestoreDB.getBusinessBySlug(u.businessSlug);
+                  if (b) {
+                    await FirestoreREST.setDocument("businesses", b.slug || b.id, {
+                      ...b,
+                      isPro: true,
+                      planName: "Lifetime License",
+                      planType: "lifetime",
+                    });
+                  }
+                }
+              }
+            } catch (fsWebhookErr) {
+              console.warn("Firestore webhook Pro sync note:", fsWebhookErr);
+            }
           }
         }
       }

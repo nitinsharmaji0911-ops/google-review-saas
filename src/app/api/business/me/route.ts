@@ -67,9 +67,9 @@ export async function GET(req: NextRequest) {
         googleReviewUrl: userDoc?.googleReviewUrl || "",
         brandColor: "#0f172a",
         userId: session.userId,
-        isPro: true,
-        planName: "7-Day VIP Free Trial",
-        trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        isPro: userDoc?.isPro || false,
+        planName: userDoc?.planName || "unpaid",
+        trialEndsAt: userDoc?.trialEndsAt || null,
         services: [{ id: "srv_0", name: "General Service" }],
         topics: [
           { id: "top_0", name: "Fast Service", type: "positive" },

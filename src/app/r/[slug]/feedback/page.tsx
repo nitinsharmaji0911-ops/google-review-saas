@@ -19,6 +19,7 @@ export default function PrivateFeedbackPage() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     async function loadBusiness() {
@@ -49,6 +50,7 @@ export default function PrivateFeedbackPage() {
     if (!message.trim()) return;
 
     setSubmitting(true);
+    setSubmitError("");
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -65,10 +67,10 @@ export default function PrivateFeedbackPage() {
       if (data.success) {
         setSubmitted(true);
       } else {
-        alert(data.error || "Failed to submit feedback");
+        setSubmitError(data.error || "Failed to submit feedback. Please try again.");
       }
-    } catch (err) {
-      alert("Something went wrong. Please try again.");
+    } catch {
+      setSubmitError("Something went wrong. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -89,6 +91,12 @@ export default function PrivateFeedbackPage() {
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-6">
           {!submitted ? (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {submitError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium rounded-xl flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>{submitError}</span>
+                </div>
+              )}
               <div className="text-center space-y-1">
                 <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2">
                   <AlertTriangle className="w-5 h-5" />

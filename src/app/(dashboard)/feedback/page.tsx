@@ -58,7 +58,11 @@ export default function FeedbackInboxPage() {
         body: JSON.stringify({ id, status: nextStatus }),
       });
       const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (res.ok && data.success) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("refresh_business"));
+        }
+      } else {
         // Revert on failure
         setFeedbacks((prev) =>
           prev.map((f) => (f.id === id ? { ...f, status: currentStatus } : f))

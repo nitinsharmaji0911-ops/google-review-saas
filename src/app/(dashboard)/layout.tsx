@@ -70,22 +70,28 @@ export default function DashboardLayout({
   };
 
   useEffect(() => {
-    fetch("/api/business/me")
-      .then((r) => {
-        if (r.status === 401) {
-          router.push("/login");
-          return null;
-        }
-        return r.json();
-      })
-      .then((d) => {
-        if (d && d.success && d.business) {
-          setBusiness(d.business);
-          setUnreadCount(d.unreadFeedbackCount || 0);
-        }
-      })
-      .catch(() => {});
-  }, [router]);
+    const fetchBusiness = () => {
+      fetch("/api/business/me")
+        .then((r) => {
+          if (r.status === 401) {
+            router.push("/login");
+            return null;
+          }
+          return r.json();
+        })
+        .then((d) => {
+          if (d && d.success && d.business) {
+            setBusiness(d.business);
+            setUnreadCount(d.unreadFeedbackCount || 0);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchBusiness();
+    window.addEventListener("refresh_business", fetchBusiness);
+    return () => window.removeEventListener("refresh_business", fetchBusiness);
+  }, [router, pathname]);
 
   const handleLogout = async () => {
     try {

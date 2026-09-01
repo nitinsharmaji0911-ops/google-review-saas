@@ -61,7 +61,8 @@ export default function OnboardingPage() {
       clean.includes("google.com/maps") ||
       clean.includes("goo.gl/maps") ||
       clean.includes("business.google.com") ||
-      clean.includes("maps.google.com")
+      clean.includes("maps.google.com") ||
+      clean.includes("google.")
     );
   };
 
