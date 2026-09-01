@@ -1,7 +1,8 @@
+import { FirestoreREST } from "./firestore-rest";
 import { getFirebaseAdmin } from "./firebase";
 import { DEMO_BUSINESS } from "./db";
 
-// In-Memory Fallback Cache when Firebase Admin credentials are not yet configured in .env
+// In-Memory Fallback Cache for local offline tests
 const inMemoryStore = {
   users: new Map<string, any>(),
   businesses: new Map<string, any>(),
@@ -10,7 +11,6 @@ const inMemoryStore = {
   analytics: [] as any[],
 };
 
-// Seed demo data into in-memory store
 inMemoryStore.businesses.set("the-coffee-house", {
   ...DEMO_BUSINESS,
   id: "the-coffee-house-id",
@@ -20,14 +20,21 @@ inMemoryStore.businesses.set("the-coffee-house", {
 
 /**
  * Firestore Database Service
- * Provides robust Firestore operations with automatic offline fallback
+ * Uses Firestore REST API with automatic Cloud persistence
  */
 export const FirestoreDB = {
   // --- USERS ---
   async getUserByEmail(email: string) {
-    const { firestore } = getFirebaseAdmin();
     const normalized = email.toLowerCase().trim();
 
+    // 1. Try Firestore REST
+    const docs = await FirestoreREST.queryDocuments("users", "email", normalized);
+    if (docs && docs.length > 0) {
+      return docs[0];
+    }
+
+    // 2. Try Firestore Admin
+    const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {
         const snap = await firestore.collection("users").where("email", "==", normalized).limit(1).get();
@@ -35,33 +42,31 @@ export const FirestoreDB = {
           const doc = snap.docs[0];
           return { id: doc.id, ...doc.data() } as any;
         }
-        return null;
-      } catch (err) {
-        console.warn("Firestore getUserByEmail error, using local fallback:", err);
-      }
+      } catch {}
     }
 
     return inMemoryStore.users.get(normalized) || null;
   },
 
-  async createUser(data: { email: string; password: string }) {
-    const { firestore } = getFirebaseAdmin();
+  async createUser(data: { email: string; password?: string }) {
     const normalized = data.email.toLowerCase().trim();
     const id = "usr_" + Math.random().toString(36).substring(2, 9);
     const userDoc = {
       id,
       email: normalized,
-      password: data.password,
+      password: data.password || "",
       createdAt: new Date().toISOString(),
     };
 
+    // 1. Save via Firestore REST
+    await FirestoreREST.setDocument("users", id, userDoc);
+
+    // 2. Save via Firestore Admin if active
+    const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {
         await firestore.collection("users").doc(id).set(userDoc);
-        return userDoc;
-      } catch (err) {
-        console.warn("Firestore createUser error, using local fallback:", err);
-      }
+      } catch {}
     }
 
     inMemoryStore.users.set(normalized, userDoc);
@@ -69,35 +74,17 @@ export const FirestoreDB = {
   },
 
   // --- BUSINESSES ---
-  async getBusinessBySlug(slug: string) {
-    const { firestore } = getFirebaseAdmin();
-
-    if (firestore) {
-      try {
-        const snap = await firestore.collection("businesses").where("slug", "==", slug).limit(1).get();
-        if (!snap.empty) {
-          const doc = snap.docs[0];
-          return { id: doc.id, ...doc.data() } as any;
-        }
-      } catch (err) {
-        console.warn("Firestore getBusinessBySlug error, using fallback:", err);
-      }
-    }
-
-    if (inMemoryStore.businesses.has(slug)) {
-      return inMemoryStore.businesses.get(slug);
-    }
-
-    if (slug === "the-coffee-house" || slug === "demo") {
-      return DEMO_BUSINESS;
-    }
-
-    return null;
-  },
-
   async getBusinessByUserId(userId: string) {
-    const { firestore } = getFirebaseAdmin();
+    if (!userId) return null;
 
+    // 1. Try Firestore REST
+    const docs = await FirestoreREST.queryDocuments("businesses", "userId", userId);
+    if (docs && docs.length > 0) {
+      return docs[0];
+    }
+
+    // 2. Try Firestore Admin
+    const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {
         const snap = await firestore.collection("businesses").where("userId", "==", userId).limit(1).get();
@@ -105,128 +92,121 @@ export const FirestoreDB = {
           const doc = snap.docs[0];
           return { id: doc.id, ...doc.data() } as any;
         }
-      } catch (err) {
-        console.warn("Firestore getBusinessByUserId error:", err);
-      }
+      } catch {}
     }
 
-    for (const biz of Array.from(inMemoryStore.businesses.values())) {
-      if (biz.userId === userId) {
-        return biz;
-      }
+    for (const b of Array.from(inMemoryStore.businesses.values())) {
+      if (b.userId === userId) return b;
     }
-
     return null;
   },
 
-  async saveBusiness(business: any) {
+  async getBusinessBySlug(slug: string) {
+    if (!slug) return null;
+
+    // 1. Try direct Firestore REST get
+    const doc = await FirestoreREST.getDocument("businesses", slug);
+    if (doc) return doc;
+
+    // Query by slug
+    const docs = await FirestoreREST.queryDocuments("businesses", "slug", slug);
+    if (docs && docs.length > 0) {
+      return docs[0];
+    }
+
+    // 2. Try Firestore Admin
     const { firestore } = getFirebaseAdmin();
-    const slug = business.slug;
-    const id = business.id || "biz_" + Math.random().toString(36).substring(2, 9);
-    const data = {
-      ...business,
-      id,
+    if (firestore) {
+      try {
+        const docSnap = await firestore.collection("businesses").doc(slug).get();
+        if (docSnap.exists) {
+          return { id: docSnap.id, ...docSnap.data() } as any;
+        }
+      } catch {}
+    }
+
+    return inMemoryStore.businesses.get(slug) || null;
+  },
+
+  async saveBusiness(data: any) {
+    const slug = data.slug;
+    const docId = slug || `biz_${Date.now()}`;
+    const businessDoc = {
+      ...data,
+      id: docId,
       updatedAt: new Date().toISOString(),
     };
 
+    // 1. Save via Firestore REST
+    await FirestoreREST.setDocument("businesses", docId, businessDoc);
+
+    // 2. Save via Firestore Admin
+    const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {
-        await firestore.collection("businesses").doc(id).set(data, { merge: true });
-      } catch (err) {
-        console.warn("Firestore saveBusiness error, using local fallback:", err);
-      }
+        await firestore.collection("businesses").doc(docId).set(businessDoc, { merge: true });
+      } catch {}
     }
 
-    inMemoryStore.businesses.set(slug, data);
-    return data;
+    inMemoryStore.businesses.set(slug, businessDoc);
+    return businessDoc;
   },
 
-  // --- REVIEWS ---
-  async createReview(review: any) {
-    const { firestore } = getFirebaseAdmin();
-    const id = "rev_" + Math.random().toString(36).substring(2, 9);
-    const data = {
+  // --- FEEDBACKS ---
+  async createFeedback(data: any) {
+    const id = `fb_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const feedbackDoc = {
+      ...data,
       id,
-      ...review,
-      createdAt: new Date().toISOString(),
-    };
-
-    if (firestore) {
-      try {
-        await firestore.collection("reviews").doc(id).set(data);
-      } catch (err) {
-        console.warn("Firestore createReview error:", err);
-      }
-    }
-
-    inMemoryStore.reviews.unshift(data);
-    return data;
-  },
-
-  async getRecentReviews(businessSlug: string, limitCount = 10) {
-    const { firestore } = getFirebaseAdmin();
-
-    if (firestore) {
-      try {
-        const snap = await firestore
-          .collection("reviews")
-          .where("businessSlug", "==", businessSlug)
-          .orderBy("createdAt", "desc")
-          .limit(limitCount)
-          .get();
-
-        if (!snap.empty) {
-          return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        }
-      } catch (err) {
-        console.warn("Firestore getRecentReviews error:", err);
-      }
-    }
-
-    return inMemoryStore.reviews.slice(0, limitCount);
-  },
-
-  // --- FEEDBACK ---
-  async createFeedback(feedback: any) {
-    const { firestore } = getFirebaseAdmin();
-    const id = "fb_" + Math.random().toString(36).substring(2, 9);
-    const data = {
-      id,
-      ...feedback,
       status: "unread",
       createdAt: new Date().toISOString(),
     };
 
+    await FirestoreREST.setDocument("feedback", id, feedbackDoc);
+
+    const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {
-        await firestore.collection("feedback").doc(id).set(data);
-      } catch (err) {
-        console.warn("Firestore createFeedback error:", err);
-      }
+        await firestore.collection("feedback").doc(id).set(feedbackDoc);
+      } catch {}
     }
 
-    inMemoryStore.feedback.unshift(data);
-    return data;
+    inMemoryStore.feedback.unshift(feedbackDoc);
+    return feedbackDoc;
+  },
+
+  // --- REVIEWS ---
+  async createReviewSession(data: any) {
+    const id = `rev_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const reviewDoc = {
+      ...data,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+
+    await FirestoreREST.setDocument("reviews", id, reviewDoc);
+
+    const { firestore } = getFirebaseAdmin();
+    if (firestore) {
+      try {
+        await firestore.collection("reviews").doc(id).set(reviewDoc);
+      } catch {}
+    }
+
+    inMemoryStore.reviews.unshift(reviewDoc);
+    return reviewDoc;
   },
 
   // --- ANALYTICS ---
-  async trackEvent(businessSlug: string, eventType: string, metadata: any = {}) {
-    const { firestore } = getFirebaseAdmin();
-    const data = {
+  async trackEvent(businessSlug: string, eventType: string) {
+    const id = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const eventDoc = {
       businessSlug,
       eventType,
-      metadata,
-      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
-    if (firestore) {
-      try {
-        await firestore.collection("analytics").add(data);
-      } catch (err) {
-        console.warn("Firestore trackEvent error:", err);
-      }
-    }
-
-    inMemoryStore.analytics.push(data);
+    await FirestoreREST.setDocument("analytics", id, eventDoc);
+    inMemoryStore.analytics.push(eventDoc);
   },
 };
