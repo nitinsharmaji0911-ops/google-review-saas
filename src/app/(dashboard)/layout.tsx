@@ -11,8 +11,12 @@ import {
   ExternalLink,
   QrCode,
   LogOut,
+  Lock,
+  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
+import { CheckoutButton } from "@/components/CheckoutButton";
 
 export default function DashboardLayout({
   children,
@@ -218,8 +222,54 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</div>
+        {/* Unpaid Account Paywall Guard */}
+        {business && business.isPro !== true && pathname !== "/onboarding" ? (
+          <div className="min-h-[80vh] flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center border border-slate-200 shadow-xl space-y-6">
+              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <Lock className="w-7 h-7" />
+              </div>
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Lifetime License Required
+                </div>
+                <h2 className="text-2xl font-black text-slate-950">Activate Your Workspace</h2>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Complete your one-time payment of <strong>₹1,999</strong> to unlock your analytics dashboard, QR standee studio, and start getting 5-star Google reviews.
+                </p>
+              </div>
+
+              <div className="bg-slate-950 text-white rounded-2xl p-4.5 space-y-3 text-left">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-slate-300 font-medium">Lifetime Pro License</span>
+                  <span className="text-2xl font-black text-white">₹1,999</span>
+                </div>
+                <div className="border-t border-slate-800 pt-2 space-y-1.5 text-xs text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Unlimited AI Google Review Generations</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Printable Acrylic QR Standees</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Zero monthly recurring fees</span>
+                  </div>
+                </div>
+              </div>
+
+              <CheckoutButton
+                planType="lifetime"
+                buttonText="Pay ₹1,999 with UPI / Card to Unlock"
+                className="w-full py-4 text-xs font-black"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</div>
+        )}
 
         {/* Mobile Fixed Bottom Navigation Bar */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 px-2 py-2 flex items-center justify-around z-30 no-print">
