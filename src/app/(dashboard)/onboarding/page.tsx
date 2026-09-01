@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
-import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Check, Lock, Zap } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Check, Lock, Zap, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import WelurikLogo from "@/components/Logo";
 
@@ -382,9 +382,22 @@ export default function OnboardingPage() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Google Review URL
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-slate-700">
+                      Google Review URL
+                    </label>
+                    {googleReviewUrl.trim().length > 5 && (
+                      <a
+                        href={googleReviewUrl.startsWith("http") ? googleReviewUrl : `https://${googleReviewUrl}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 inline-flex items-center gap-1 hover:underline cursor-pointer"
+                      >
+                        <span>Test Link</span>
+                        <ExternalLink className="w-3 h-3 text-emerald-600" />
+                      </a>
+                    )}
+                  </div>
                   <input
                     type="url"
                     required
@@ -393,6 +406,24 @@ export default function OnboardingPage() {
                     placeholder="https://g.page/r/your-id/review or https://maps.app.goo.gl/..."
                     className="w-full text-xs px-3.5 py-3 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 font-mono text-slate-900"
                   />
+
+                  {googleReviewUrl.trim().length > 5 && (
+                    <div className="mt-2 flex items-center justify-between bg-emerald-50/80 border border-emerald-200/70 px-3 py-2 rounded-xl text-xs">
+                      <div className="flex items-center gap-1.5 text-emerald-800 font-medium text-[11.5px]">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Ready to verify</span>
+                      </div>
+                      <a
+                        href={googleReviewUrl.startsWith("http") ? googleReviewUrl : `https://${googleReviewUrl}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-2xs cursor-pointer transition-all"
+                      >
+                        <span>🧪 Click to Test GMB Link</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* Step-by-Step Visual Procedure Box */}
