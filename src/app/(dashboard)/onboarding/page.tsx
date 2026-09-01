@@ -241,8 +241,10 @@ export default function OnboardingPage() {
 
             const verifyData = await verifyRes.json();
             if (verifyRes.ok && verifyData.success) {
-              router.push("/dashboard");
-              router.refresh();
+              if (typeof window !== "undefined") {
+                sessionStorage.removeItem("welurik_dashboard_cache");
+              }
+              window.location.href = "/dashboard";
             } else {
               setPaymentError(verifyData.error || "Payment verification failed.");
               setLoading(false);

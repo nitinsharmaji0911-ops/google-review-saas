@@ -117,6 +117,9 @@ export function CheckoutButton({
 
             const verifyData = await verifyRes.json();
             if (verifyRes.ok && verifyData.success) {
+              if (typeof window !== "undefined") {
+                sessionStorage.removeItem("welurik_dashboard_cache");
+              }
               router.push(`/checkout/success?order_id=${verifyData.orderId || orderData.orderId}&payment_id=${response.razorpay_payment_id || "demo"}`);
             } else {
               setErrorMessage(verifyData.error || "Payment verification failed");
