@@ -297,54 +297,78 @@ export default function OnboardingPage() {
           {/* STEP 3: Payment Lock & Activation */}
           {step === 3 && (
             <div className="space-y-5">
-              <div>
-                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-bold mb-2">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> One-Time Lifetime License
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Instant Lifetime Access
                 </div>
-                <h2 className="text-xl font-bold text-slate-950">Activate & Launch</h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Complete your ₹1,999 one-time payment to unlock your workspace.
+                <h2 className="text-xl font-black text-slate-950 tracking-tight">Activate & Launch Workspace</h2>
+                <p className="text-xs text-slate-500">
+                  Complete your one-time payment to unlock your QR standee studio and dashboard.
                 </p>
               </div>
 
-              {/* Price Pill */}
-              <div className="bg-slate-950 text-white rounded-2xl p-4.5 space-y-3 shadow-lg">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs font-medium text-slate-300">Lifetime License</span>
+              {/* Ultra-Clean Modern Pricing Card */}
+              <div className="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-5 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-slate-200/60 pb-3.5">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Lifetime Pro License</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">One-time payment • Lifetime access</p>
+                  </div>
                   <div className="text-right">
-                    <span className="text-2xl font-black text-white">₹1,999</span>
-                    <span className="text-[10px] text-slate-400 block -mt-0.5 font-medium">One-time payment</span>
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <span className="text-xs text-slate-400 line-through font-medium">₹4,999</span>
+                      <span className="text-xl font-black text-slate-950">₹1,999</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100/60 px-1.5 py-0.5 rounded">SAVE 60%</span>
                   </div>
                 </div>
 
-                <div className="border-t border-slate-800 pt-2.5 space-y-1.5 text-xs text-slate-300">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Unlimited AI Google Reviews forever</span>
+                <div className="space-y-2.5 text-xs text-slate-700">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="font-medium">Unlimited AI Google Review Generations</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Printable Acrylic QR Standee generator</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="font-medium">Print-Ready Acrylic QR Standee Studio</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Zero monthly subscription fees</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="font-medium">Private Feedback & Issue Resolution Inbox</span>
                   </div>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="font-medium">Zero Monthly Fees • Free Future Updates</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs font-bold text-slate-900">
+                  <span className="text-slate-500 font-semibold">Total Payable:</span>
+                  <span className="text-base font-black text-slate-950">₹1,999</span>
                 </div>
               </div>
 
               {paymentError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-600 font-medium">
-                  {paymentError}
+                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-600 font-medium flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                  <span>{paymentError}</span>
                 </div>
               )}
 
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-2.5 pt-1">
                 <button
                   type="button"
                   disabled={loading}
                   onClick={() => setStep(2)}
-                  className="w-1/3 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-semibold transition-colors"
+                  className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
                   Back
                 </button>
@@ -352,12 +376,12 @@ export default function OnboardingPage() {
                   type="button"
                   disabled={loading}
                   onClick={handlePayAndActivate}
-                  className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white rounded-full text-xs font-black tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-[0.98] transition-all"
+                  className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white rounded-xl text-xs font-black tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-[0.99] transition-all cursor-pointer"
                 >
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Opening Gateway...
+                      Opening Secure Gateway...
                     </>
                   ) : (
                     <>
@@ -368,10 +392,10 @@ export default function OnboardingPage() {
                 </button>
               </div>
 
-              <p className="text-center text-[10px] text-slate-400 flex items-center justify-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                Secured by Razorpay • Instant UPI, Cards & NetBanking
-              </p>
+              <div className="flex items-center justify-center gap-2 pt-1 text-[11px] text-slate-400 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Secured by Razorpay • UPI (GPay, PhonePe), Cards & NetBanking</span>
+              </div>
             </div>
           )}
         </div>

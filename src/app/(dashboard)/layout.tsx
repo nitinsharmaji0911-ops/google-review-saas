@@ -229,46 +229,67 @@ export default function DashboardLayout({
         {/* Unpaid Account Paywall Guard */}
         {business && business.isPro !== true && pathname !== "/onboarding" ? (
           <div className="min-h-[80vh] flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center border border-slate-200 shadow-xl space-y-6">
-              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-                <Lock className="w-7 h-7" />
+            <div className="max-w-md w-full bg-white rounded-[32px] p-7 sm:p-8 text-center border border-slate-200/80 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-5">
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <Lock className="w-6 h-6" />
               </div>
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Lifetime License Required
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Instant Lifetime Access
                 </div>
-                <h2 className="text-2xl font-black text-slate-950">Activate Your Workspace</h2>
+                <h2 className="text-2xl font-black text-slate-950 tracking-tight">Activate Your Workspace</h2>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   Complete your one-time payment of <strong>₹1,999</strong> to unlock your analytics dashboard, QR standee studio, and start getting 5-star Google reviews.
                 </p>
               </div>
 
-              <div className="bg-slate-950 text-white rounded-2xl p-4.5 space-y-3 text-left">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-slate-300 font-medium">Lifetime Pro License</span>
-                  <span className="text-2xl font-black text-white">₹1,999</span>
+              {/* Ultra-Clean Modern Pricing Card */}
+              <div className="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-5 space-y-4 text-left shadow-sm">
+                <div className="flex items-center justify-between border-b border-slate-200/60 pb-3.5">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Lifetime Pro License</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">One-time payment • Lifetime access</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <span className="text-xs text-slate-400 line-through font-medium">₹4,999</span>
+                      <span className="text-xl font-black text-slate-950">₹1,999</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100/60 px-1.5 py-0.5 rounded">SAVE 60%</span>
+                  </div>
                 </div>
-                <div className="border-t border-slate-800 pt-2 space-y-1.5 text-xs text-slate-300">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Unlimited AI Google Review Generations</span>
+
+                <div className="border-t border-slate-200/60 pt-2.5 space-y-2 text-xs text-slate-700">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-medium">Unlimited AI Google Review Generations</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Printable Acrylic QR Standees</span>
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-medium">Printable Acrylic QR Standees</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>Zero monthly recurring fees</span>
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-medium">Zero monthly recurring fees</span>
                   </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs font-bold text-slate-900">
+                  <span className="text-slate-500 font-semibold">Total Payable:</span>
+                  <span className="text-base font-black text-slate-950">₹1,999</span>
                 </div>
               </div>
 
               <CheckoutButton
                 planType="lifetime"
-                buttonText="Pay ₹1,999 with UPI / Card to Unlock"
-                className="w-full py-4 text-xs font-black"
+                buttonText="Pay ₹1,999 with UPI / Card & Unlock"
+                className="w-full py-4 text-xs font-black rounded-xl"
               />
+
+              <div className="flex items-center justify-center gap-2 pt-1 text-[11px] text-slate-400 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Secured by Razorpay • UPI (GPay, PhonePe), Cards & NetBanking</span>
+              </div>
             </div>
           </div>
         ) : (
