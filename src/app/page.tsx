@@ -20,7 +20,6 @@ import {
   Play
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
-import { CheckoutButton } from "@/components/CheckoutButton";
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
