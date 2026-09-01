@@ -259,21 +259,6 @@ export default function CustomerReviewPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-between items-center py-6 sm:py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
       <div className="w-full max-w-sm mx-auto">
-        
-        {/* Quick Demo Switcher Pill */}
-        <div className="mb-5 flex items-center justify-between bg-white border border-slate-200/90 rounded-2xl px-3.5 py-2 shadow-xs text-xs">
-          <span className="text-slate-600 font-semibold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Customer Review Mode
-          </span>
-          <Link
-            href="/dashboard"
-            className="text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-colors"
-          >
-            Admin Dashboard →
-          </Link>
-        </div>
-
         {/* Brand Identity */}
         <div className="text-center mb-6 space-y-1">
           <span className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
