@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { FirestoreDB } from "@/lib/firestore-db";
+import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
 import { createSessionPayload, SESSION_COOKIE_NAME, hashPassword } from "@/lib/auth";
 import crypto from "crypto";
 

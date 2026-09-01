@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FirestoreDB } from "@/lib/firestore-db";
+import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
 import { getSession } from "@/lib/auth";
 
 // GET business by slug (Powered by Firebase Firestore)
