@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
 import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Check, Lock, Zap } from "lucide-react";
