@@ -202,11 +202,12 @@ export const FirestoreDB = {
   },
 
   // --- ANALYTICS ---
-  async trackEvent(businessSlug: string, eventType: string) {
+  async trackEvent(businessSlug: string, eventType: string, metadata?: any) {
     const id = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const eventDoc = {
       businessSlug,
       eventType,
+      ...(metadata || {}),
       createdAt: new Date().toISOString(),
     };
 
