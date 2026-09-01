@@ -95,6 +95,10 @@ export default function DashboardLayout({
   const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
   const publicReviewUrl = business?.slug ? `${origin}/r/${business.slug}` : "#";
 
+  if (pathname === "/onboarding") {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-[#f8fafc] flex font-sans selection:bg-slate-900 selection:text-white">
       {/* LEFT SIDEBAR (Linear / Vercel style) */}
