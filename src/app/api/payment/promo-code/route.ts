@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       business = await FirestoreDB.getBusinessBySlug(businessSlug);
     }
     if (!business && clientId) {
-      business = await FirestoreDB.getBusinessById(clientId);
+      business = await FirestoreREST.getDocument("businesses", clientId);
     }
 
     // 7 Days from now
