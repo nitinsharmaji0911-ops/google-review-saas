@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Copy,
@@ -254,7 +255,12 @@ export default function CustomerReviewPage() {
     <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
       <div className="w-full max-w-sm mx-auto">
         {/* Brand Identity */}
-        <div className="text-center mb-6 space-y-1">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="text-center mb-6 space-y-1"
+        >
           <span className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
             Review & Feedback
           </span>
@@ -264,175 +270,195 @@ export default function CustomerReviewPage() {
           {business.location && (
             <p className="text-xs text-slate-400 font-normal">{business.location}</p>
           )}
-        </div>
+        </motion.div>
 
         {/* STEP 1: EXPERIENCE SELECTION */}
-        {step === "select" && (
-          <div className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-200/70 space-y-6">
-            {/* Star Rating */}
-            <div className="text-center">
-              <label className="block text-xs font-semibold text-slate-600 mb-2">
-                Rate Your Visit
-              </label>
-              <div className="flex justify-center gap-1.5">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => {
-                      setRating(star);
-                      setToneCache({});
-                    }}
-                    className="p-1 focus:outline-none transition-transform hover:scale-110 active:scale-95"
-                  >
+        <AnimatePresence mode="wait">
+          {step === "select" ? (
+            <motion.div
+              key="step-select"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+              className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-200/70 space-y-6"
+            >
+              {/* Star Rating */}
+              <div className="text-center">
+                <label className="block text-xs font-semibold text-slate-600 mb-2">
+                  Rate Your Visit
+                </label>
+                <div className="flex justify-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <motion.button
+                      key={star}
+                      type="button"
+                      whileHover={{ scale: 1.25 }}
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => {
+                        setRating(star);
+                        setToneCache({});
+                      }}
+                      className="p-1 focus:outline-none transition-transform"
+                    >
+                      <Star
+                        className={`w-7 h-7 transition-colors ${
+                          star <= rating
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-slate-200 fill-slate-100"
+                        }`}
+                      />
+                    </motion.button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1 font-medium">
+                  {rating === 5 && "5 Stars • Excellent"}
+                  {rating === 4 && "4 Stars • Very Good"}
+                  {rating === 3 && "3 Stars • Good"}
+                  {rating === 2 && "2 Stars • Fair"}
+                  {rating === 1 && "1 Star"}
+                </p>
+              </div>
+
+              {/* Quick Tags / Topics */}
+              {allTopics.length > 0 && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-2.5">
+                    Add Quick Tags
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {allTopics.map((topic) => {
+                      const isSelected = selectedTopics.includes(topic.name);
+                      return (
+                        <motion.button
+                          key={topic.id || topic.name}
+                          type="button"
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.94 }}
+                          onClick={() => {
+                            toggleTopic(topic.name);
+                            setToneCache({});
+                          }}
+                          className={`text-xs font-medium px-3.5 py-2 rounded-xl transition-colors border flex items-center gap-1.5 ${
+                            isSelected
+                              ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                              : "bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100"
+                          }`}
+                        >
+                          {isSelected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                          {topic.name}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Specific Services / Items */}
+              {business.services && business.services.length > 0 && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-2.5">
+                    Items / Services (Optional)
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {business.services.map((service) => {
+                      const isSelected = selectedServices.includes(service.name);
+                      return (
+                        <motion.button
+                          key={service.id || service.name}
+                          type="button"
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.94 }}
+                          onClick={() => {
+                            toggleService(service.name);
+                            setToneCache({});
+                          }}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-xl transition-colors border flex items-center gap-1.5 ${
+                            isSelected
+                              ? "bg-slate-800 text-white border-slate-800"
+                              : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                          }`}
+                        >
+                          {isSelected && <CheckCircle2 className="w-3 h-3" />}
+                          {service.name}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Optional Customer Note */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Your Review (Optional note)
+                </label>
+                <textarea
+                  rows={2}
+                  value={customerComment}
+                  onChange={(e) => {
+                    setCustomerComment(e.target.value);
+                    setToneCache({});
+                  }}
+                  placeholder="Share anything specific about your experience..."
+                  className="w-full text-xs p-3 bg-slate-50 border border-slate-200/80 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-800 placeholder-slate-400 resize-none font-normal transition-all"
+                />
+              </div>
+
+              {/* Generate CTA Button */}
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                disabled={isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)}
+                onClick={() => handleGenerate("natural")}
+                className={`w-full py-4 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all ${
+                  isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                    : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200"
+                }`}
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Generating Review...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Generate Review
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="step-review"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+              className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-200/70 space-y-5"
+            >
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep("select")}
+                  className="text-xs font-semibold text-slate-400 hover:text-slate-900 flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Adjust
+                </button>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
                     <Star
-                      className={`w-7 h-7 transition-colors ${
-                        star <= rating
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-slate-200 fill-slate-100"
+                      key={s}
+                      className={`w-3.5 h-3.5 ${
+                        s <= rating ? "fill-amber-400 text-amber-400" : "text-slate-200 fill-slate-100"
                       }`}
                     />
-                  </button>
-                ))}
-              </div>
-              <p className="text-[11px] text-slate-400 mt-1 font-medium">
-                {rating === 5 && "5 Stars • Excellent"}
-                {rating === 4 && "4 Stars • Very Good"}
-                {rating === 3 && "3 Stars • Good"}
-                {rating === 2 && "2 Stars • Fair"}
-                {rating === 1 && "1 Star"}
-              </p>
-            </div>
-
-            {/* Quick Tags / Topics */}
-            {allTopics.length > 0 && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2.5">
-                  Add Quick Tags
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {allTopics.map((topic) => {
-                    const isSelected = selectedTopics.includes(topic.name);
-                    return (
-                      <button
-                        key={topic.id || topic.name}
-                        type="button"
-                        onClick={() => {
-                          toggleTopic(topic.name);
-                          setToneCache({});
-                        }}
-                        className={`text-xs font-medium px-3.5 py-2 rounded-xl transition-all border flex items-center gap-1.5 active:scale-95 ${
-                          isSelected
-                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                            : "bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100"
-                        }`}
-                      >
-                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5" />}
-                        {topic.name}
-                      </button>
-                    );
-                  })}
+                  ))}
                 </div>
               </div>
-            )}
-
-            {/* Specific Services / Items */}
-            {business.services && business.services.length > 0 && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2.5">
-                  Items / Services (Optional)
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {business.services.map((service) => {
-                    const isSelected = selectedServices.includes(service.name);
-                    return (
-                      <button
-                        key={service.id || service.name}
-                        type="button"
-                        onClick={() => {
-                          toggleService(service.name);
-                          setToneCache({});
-                        }}
-                        className={`text-xs font-medium px-3 py-1.5 rounded-xl transition-all border flex items-center gap-1.5 active:scale-95 ${
-                          isSelected
-                            ? "bg-slate-800 text-white border-slate-800"
-                            : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
-                        }`}
-                      >
-                        {isSelected && <CheckCircle2 className="w-3 h-3" />}
-                        {service.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Optional Customer Note */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Your Review (Optional note)
-              </label>
-              <textarea
-                rows={2}
-                value={customerComment}
-                onChange={(e) => {
-                  setCustomerComment(e.target.value);
-                  setToneCache({});
-                }}
-                placeholder="Share anything specific about your experience..."
-                className="w-full text-xs p-3 bg-slate-50 border border-slate-200/80 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-800 placeholder-slate-400 resize-none font-normal transition-all"
-              />
-            </div>
-
-            {/* Generate CTA Button */}
-            <button
-              type="button"
-              disabled={isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)}
-              onClick={() => handleGenerate("natural")}
-              className={`w-full py-4 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] ${
-                isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)
-                  ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                  : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200"
-              }`}
-            >
-              {isGenerating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Generating Review...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Generate Review
-                </>
-              )}
-            </button>
-          </div>
-        )}
-
-        {/* STEP 2: REVIEW PRESENTATION & DIRECT GOOGLE POST */}
-        {step === "review" && (
-          <div className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-200/70 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setStep("select")}
-                className="text-xs font-semibold text-slate-400 hover:text-slate-900 flex items-center gap-1 transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Adjust
-              </button>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    className={`w-3.5 h-3.5 ${
-                      s <= rating ? "fill-amber-400 text-amber-400" : "text-slate-200 fill-slate-100"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
 
             {/* Tone Variations Switcher */}
             <div>
@@ -488,10 +514,12 @@ export default function CustomerReviewPage() {
 
             {/* DIRECT GOOGLE POST ACTION BUTTON */}
             <div className="space-y-2.5 pt-1">
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.96, y: 1 }}
                 onClick={handleCopyAndOpenGoogle}
-                className="w-full py-4 px-5 active:scale-[0.98] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all bg-[#15803D] hover:bg-[#166534]"
+                className="w-full py-4 px-5 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-shadow bg-[#15803D] hover:bg-[#166534] cursor-pointer"
               >
                 {isCopied ? (
                   <>
@@ -505,7 +533,7 @@ export default function CustomerReviewPage() {
                     <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                   </>
                 )}
-              </button>
+              </motion.button>
 
               {isCopied ? (
                 <a
@@ -524,8 +552,9 @@ export default function CustomerReviewPage() {
                 </p>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
 
       <div className="text-center mt-8 space-y-1">

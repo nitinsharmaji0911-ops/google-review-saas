@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, ShieldCheck, Download, Sparkles, Star } from "lucide-react";
 import confetti from "canvas-confetti";
 import WelurikLogo from "@/components/Logo";
@@ -41,16 +42,31 @@ function SuccessContent() {
   }, []);
 
   return (
-    <div className="bg-white rounded-3xl p-8 sm:p-10 shadow-2xl shadow-green-900/5 border border-zinc-200/80 space-y-6">
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0, y: 20 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 320, damping: 24 }}
+      className="bg-white rounded-3xl p-8 sm:p-10 shadow-2xl shadow-green-900/5 border border-zinc-200/80 space-y-6"
+    >
       {/* Success Badge */}
       <div className="relative inline-flex">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto shadow-inner">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.15, type: "spring", stiffness: 380, damping: 18 }}
+          className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto shadow-inner"
+        >
           <CheckCircle2 className="w-10 h-10" />
-        </div>
-        <div className="absolute -top-1 -right-1 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-0.5 shadow-sm">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="absolute -top-1 -right-1 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-0.5 shadow-sm"
+        >
           <Star className="w-2.5 h-2.5 fill-black" />
           Pro Active
-        </div>
+        </motion.div>
       </div>
 
       <div className="space-y-2">
@@ -101,23 +117,27 @@ function SuccessContent() {
 
       {/* Action CTAs */}
       <div className="space-y-3 pt-2">
-        <Link
-          href="/dashboard"
-          className="w-full py-4 px-6 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-base rounded-2xl shadow-lg shadow-green-600/25 transition-all flex items-center justify-center gap-2 group"
-        >
-          <span>Go to Your Pro Dashboard</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Link
+            href="/dashboard"
+            className="w-full py-4 px-6 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-base rounded-2xl shadow-lg shadow-green-600/25 transition-all flex items-center justify-center gap-2 group"
+          >
+            <span>Go to Your Pro Dashboard</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </motion.div>
 
-        <Link
-          href="/qr-studio"
-          className="w-full py-3.5 px-6 bg-white hover:bg-zinc-50 text-zinc-800 font-semibold text-sm rounded-2xl border border-zinc-300 transition-all flex items-center justify-center gap-2"
-        >
-          <Download className="w-4 h-4 text-zinc-500" />
-          <span>Generate & Print QR Standees Now</span>
-        </Link>
+        <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+          <Link
+            href="/qr-studio"
+            className="w-full py-3.5 px-6 bg-white hover:bg-zinc-50 text-zinc-800 font-semibold text-sm rounded-2xl border border-zinc-300 transition-all flex items-center justify-center gap-2"
+          >
+            <Download className="w-4 h-4 text-zinc-500" />
+            <span>Generate & Print QR Standees Now</span>
+          </Link>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

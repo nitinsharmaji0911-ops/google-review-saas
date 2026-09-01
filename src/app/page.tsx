@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
   Sparkles,
@@ -131,8 +132,12 @@ export default function LandingPage() {
         ========================================================================
       */}
       <div className="w-full max-w-[1080px] mx-auto px-3.5 sm:px-4 pt-3.5 sm:pt-6 z-40 relative">
-        <header className="w-full bg-white border-2 border-black rounded-full px-3.5 sm:px-6 py-1.5 sm:py-2.5 shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] flex items-center justify-between">
-          
+        <motion.header
+          initial={{ y: -25, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full bg-white border-2 border-black rounded-full px-3.5 sm:px-6 py-1.5 sm:py-2.5 shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] flex items-center justify-between"
+        >
           {/* Brand Logo */}
           <Link href="/" className="group hover:opacity-90 transition-opacity flex items-center">
             <WelurikLogo className="h-7 sm:h-9" />
@@ -157,13 +162,15 @@ export default function LandingPage() {
               Sign In
             </Link>
 
-            {/* Desktop Only: Get Started Button */}
-            <Link
-              href="/signup"
-              className="hidden md:inline-flex text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-5 py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all"
-            >
-              Get Started
-            </Link>
+            {/* Desktop Only: Get Started Button with tactile spring */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                href="/signup"
+                className="hidden md:inline-flex text-[13px] font-bold text-white bg-black hover:bg-neutral-800 px-5 py-2 rounded-full border border-black shadow-[2px_2px_0px_#000000] transition-all"
+              >
+                Get Started
+              </Link>
+            </motion.div>
 
             {/* Mobile Hamburger Toggle */}
             <button
@@ -175,64 +182,72 @@ export default function LandingPage() {
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
-        </header>
+        </motion.header>
 
         {/* Mobile Dropdown Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-3.5 right-3.5 mt-2 bg-white border-2 border-black rounded-3xl p-4 sm:p-5 shadow-[4px_4px_0px_#000000] space-y-2.5 z-50 animate-in fade-in slide-in-from-top-2">
-            <Link
-              href="/#how-it-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-1 text-sm font-bold text-black"
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden absolute top-full left-3.5 right-3.5 mt-2 bg-white border-2 border-black rounded-3xl p-4 sm:p-5 shadow-[4px_4px_0px_#000000] space-y-2.5 z-50"
             >
-              How It Works
-            </Link>
-            <Link
-              href="/#features"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-1 text-sm font-bold text-black"
-            >
-              Features
-            </Link>
-            <Link
-              href="/#pricing"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-1 text-sm font-bold text-black"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/#faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-1 text-sm font-bold text-black"
-            >
-              FAQ
-            </Link>
-            <Link
-              href="/r/the-coffee-house"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-1 text-sm font-bold text-[#15803D]"
-            >
-              Customer Demo Funnel
-            </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-1 text-sm font-bold text-black"
-            >
-              Admin Dashboard
-            </Link>
-            <div className="pt-2 border-t-2 border-black/10 flex flex-col gap-2">
               <Link
-                href="/signup"
+                href="/#how-it-works"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border-2 border-black rounded-full shadow-[2px_2px_0px_#000000]"
+                className="block py-1 text-sm font-bold text-black"
               >
-                Get Lifetime Access (₹1,999)
+                How It Works
               </Link>
-            </div>
-          </div>
-        )}
+              <Link
+                href="/#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-1 text-sm font-bold text-black"
+              >
+                Features
+              </Link>
+              <Link
+                href="/#pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-1 text-sm font-bold text-black"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-1 text-sm font-bold text-black"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/r/the-coffee-house"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-1 text-sm font-bold text-[#15803D]"
+              >
+                Customer Demo Funnel
+              </Link>
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-1 text-sm font-bold text-black"
+              >
+                Admin Dashboard
+              </Link>
+              <div className="pt-2 border-t-2 border-black/10 flex flex-col gap-2">
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border-2 border-black rounded-full shadow-[2px_2px_0px_#000000]"
+                >
+                  Get Lifetime Access (₹1,999)
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 
@@ -248,7 +263,12 @@ export default function LandingPage() {
           <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left pr-0 lg:pr-4">
             
             {/* Google Verified 4.9 Star Rating Pill */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] sm:shadow-[3px_3px_0px_#000000] text-[11px] sm:text-xs font-bold text-black select-none">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border-2 border-black bg-white shadow-[2px_2px_0px_#000000] sm:shadow-[3px_3px_0px_#000000] text-[11px] sm:text-xs font-bold text-black select-none"
+            >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -261,18 +281,28 @@ export default function LandingPage() {
                   <Star key={s} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Headline */}
-            <h1 className="text-[30px] xs:text-[38px] sm:text-5xl lg:text-[60px] font-black text-black tracking-[-0.035em] leading-[1.08] sm:leading-[1.04]">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-[30px] xs:text-[38px] sm:text-5xl lg:text-[60px] font-black text-black tracking-[-0.035em] leading-[1.08] sm:leading-[1.04]"
+            >
               Turn Happy Customers <br className="hidden xs:inline" />
               into <span className="text-[#15803D] underline decoration-4 decoration-[#15803D]/30">5-Star Reviews</span>
-            </h1>
+            </motion.h1>
 
             {/* Subtitle */}
-            <p className="text-[13px] sm:text-base lg:text-[17px] text-slate-700 font-medium leading-[1.5] sm:leading-[1.6] max-w-[510px] mx-auto lg:mx-0">
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-[13px] sm:text-base lg:text-[17px] text-slate-700 font-medium leading-[1.5] sm:leading-[1.6] max-w-[510px] mx-auto lg:mx-0"
+            >
               AI-powered QR standees that eliminate customer writer's block and multiply your Google Maps reviews in 30 seconds.
-            </p>
+            </motion.p>
 
             {/* Visual Standee Card for Mobile & Tablet */}
             <div className="lg:hidden p-3 bg-gradient-to-r from-emerald-50 via-white to-amber-50 rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] flex items-center gap-3 text-left my-2">
@@ -295,39 +325,65 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Clean Mobile & Desktop CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-2.5 sm:gap-3 pt-1">
-              <Link
-                href="/signup"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-[13px] sm:text-[14px] font-black border-2 border-black shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all text-center"
+            {/* Clean Mobile & Desktop CTAs with Tactile Spring Interaction */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-2.5 sm:gap-3 pt-1"
+            >
+              <motion.div
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97, y: 1 }}
+                className="w-full sm:w-auto"
               >
-                Get Lifetime Access (₹1,999) <ArrowRight className="w-4 h-4" />
-              </Link>
+                <Link
+                  href="/signup"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-[13px] sm:text-[14px] font-black border-2 border-black shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
+                >
+                  Get Lifetime Access (₹1,999) <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
 
-              <Link
-                href="/r/the-coffee-house"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white hover:bg-slate-50 text-black rounded-full text-[12.5px] sm:text-[14px] font-bold border-2 border-black shadow-[2px_2px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all text-center"
+              <motion.div
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97, y: 1 }}
+                className="w-full sm:w-auto"
               >
-                <Play className="w-3 h-3 fill-black text-black" /> Try Customer Demo
-              </Link>
-            </div>
-
+                <Link
+                  href="/r/the-coffee-house"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white hover:bg-slate-50 text-black rounded-full text-[12.5px] sm:text-[14px] font-bold border-2 border-black shadow-[2px_2px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
+                >
+                  <Play className="w-3 h-3 fill-black text-black" /> Try Customer Demo
+                </Link>
+              </motion.div>
+            </motion.div>
 
           </div>
 
           {/* RIGHT COLUMN: Interactive Smartphone Mockup + Standee Floating Card */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative pt-2 sm:py-4">
-            {/* Background Standee Real Photo Preview Card */}
-            <div className="hidden xl:block absolute -top-6 -right-10 w-44 rounded-2xl border-2 border-black bg-white p-1.5 shadow-[4px_4px_0px_#000000] rotate-6 z-20 hover:rotate-0 transition-transform duration-300">
+            
+            {/* Background Standee Real Photo Preview Card with Gentle Ambient Floating Animation */}
+            <motion.div
+              animate={{ y: [-4, 6, -4], rotate: [6, 4, 6] }}
+              transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+              whileHover={{ rotate: 0, scale: 1.05 }}
+              className="hidden xl:block absolute -top-6 -right-10 w-44 rounded-2xl border-2 border-black bg-white p-1.5 shadow-[4px_4px_0px_#000000] z-20 transition-all duration-300 cursor-pointer"
+            >
               <img
                 src="/images/standee-cafe-counter.jpg"
                 alt="Acrylic QR Table Standee"
                 className="w-full h-28 object-cover rounded-xl"
               />
               <p className="text-[9px] font-black text-black pt-1 px-1 text-center">4"x6" Acrylic Standee</p>
-            </div>
+            </motion.div>
             
-            <div 
+            {/* Phone Frame */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
               className="w-full max-w-[280px] xs:max-w-[300px] sm:max-w-[320px] bg-white rounded-[40px] sm:rounded-[46px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_#000000] transition-all"
@@ -350,138 +406,171 @@ export default function LandingPage() {
                       {slides[currentSlide].header}
                     </span>
                   </div>
-                  <span className="text-[8.5px] sm:text-[9.5px] font-black px-2 py-0.5 bg-[#dcfce7] text-[#15803D] border border-black rounded-full">
+                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-black/10">
                     {currentSlide + 1}/4
                   </span>
                 </div>
 
-                {/* Slides */}
-                <div className="my-auto py-1">
-                  {currentSlide === 0 && (
-                    <div className="space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                      <div className="bg-[#ECFDF5] p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1">
-                        <p className="text-[10.5px] font-black text-black">Hi Sarah! 👋</p>
-                        <p className="text-[9.5px] text-slate-600">How was your visit today?</p>
-                      </div>
-
-                      <div className="bg-white p-3 rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] space-y-2 text-center">
-                        <div className="flex justify-center gap-1 text-amber-400">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400 text-amber-400" />
-                          ))}
+                {/* Slides with AnimatePresence Smooth Transition */}
+                <div className="my-auto py-1 overflow-hidden relative min-h-[300px] flex flex-col justify-center">
+                  <AnimatePresence mode="wait">
+                    {currentSlide === 0 && (
+                      <motion.div
+                        key="slide-0"
+                        initial={{ opacity: 0, x: 18 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -18 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="space-y-2.5"
+                      >
+                        <div className="bg-[#ECFDF5] p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1">
+                          <p className="text-[10.5px] font-black text-black">Hi Sarah! 👋</p>
+                          <p className="text-[9.5px] text-slate-600">How was your visit today?</p>
                         </div>
-                        <span className="text-[9.5px] font-bold text-[#15803D] bg-[#dcfce7] border border-black px-2 py-0.5 rounded-full inline-block">
-                          5 Stars • Excellent
-                        </span>
-                        <button 
-                          onClick={() => setCurrentSlide(1)}
-                          className="w-full py-2 bg-black hover:bg-neutral-800 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 shadow-sm"
-                        >
-                          Next: Pick Highlights <ArrowRight className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
-                  {currentSlide === 1 && (
-                    <div className="space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                      <p className="text-[10.5px] font-black text-black">What did you enjoy most?</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {[
-                          { name: "☕ Specialty Latte", sel: true },
-                          { name: "🥐 Warm Croissant", sel: true },
-                          { name: "⚡ Fast Free Wi-Fi", sel: true },
-                          { name: "😊 Friendly Staff", sel: true },
-                        ].map((t, idx) => (
-                          <span
-                            key={idx}
-                            className="text-[9px] font-bold px-2 py-1 rounded-xl border-2 border-black flex items-center gap-1 bg-[#dcfce7] text-[#15803D] shadow-[1px_1px_0px_#000000]"
-                          >
-                            {t.name} <Check className="w-2.5 h-2.5 text-[#15803D]" />
-                          </span>
-                        ))}
-                      </div>
-
-                      <button 
-                        onClick={() => setCurrentSlide(2)}
-                        className="w-full py-2 bg-[#15803D] text-white border-2 border-black rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-[2px_2px_0px_#000000]"
-                      >
-                        <Sparkles className="w-3 h-3" /> Generate Review with AI
-                      </button>
-                    </div>
-                  )}
-
-                  {currentSlide === 2 && (
-                    <div className="space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                      <div className="bg-[#ECFDF5] border-2 border-black rounded-2xl p-2.5 space-y-1.5 shadow-[2px_2px_0px_#000000]">
-                        <span className="text-[9px] font-black text-black flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-[#15803D]" /> AI Review Generated:
-                        </span>
-                        <p className="text-[9px] text-slate-800 leading-relaxed italic bg-white p-2 rounded-xl border border-black/20">
-                          "Wonderful morning at The Coffee House! The Specialty Latte was delicious, and the croissants were fresh out of the oven. 10/10 recommend!"
-                        </p>
-                      </div>
-
-                      <button 
-                        onClick={() => setCurrentSlide(3)}
-                        className="w-full py-2 bg-[#15803D] text-white border-2 border-black rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-[2px_2px_0px_#000000]"
-                      >
-                        <Copy className="w-3 h-3" /> Copy & Open Google Maps
-                      </button>
-                    </div>
-                  )}
-
-                  {currentSlide === 3 && (
-                    <div className="space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                      <div className="bg-white border-2 border-black rounded-2xl p-2.5 shadow-[2px_2px_0px_#000000] space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[8.5px] font-black">
-                            S
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[9.5px] font-black text-black">Sarah Jenkins</p>
-                            <p className="text-[7.5px] text-slate-500">Local Guide • 5 Stars</p>
-                          </div>
-                          <div className="flex text-amber-400">
+                        <div className="bg-white p-3 rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] space-y-2 text-center">
+                          <div className="flex justify-center gap-1 text-amber-400">
                             {[1, 2, 3, 4, 5].map((s) => (
-                              <Star key={s} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                              <Star key={s} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400 text-amber-400" />
                             ))}
                           </div>
+                          <span className="text-[9.5px] font-bold text-[#15803D] bg-[#dcfce7] border border-black px-2 py-0.5 rounded-full inline-block">
+                            5 Stars • Excellent
+                          </span>
+                          <motion.button 
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setCurrentSlide(1)}
+                            className="w-full py-2 bg-black hover:bg-neutral-800 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+                          >
+                            Next: Pick Highlights <ArrowRight className="w-3 h-3" />
+                          </motion.button>
                         </div>
-                        <p className="text-[8.5px] text-slate-800 leading-relaxed">
-                          The Coffee House is our favorite spot in town! Incredible latte & croissants!
-                        </p>
-                      </div>
+                      </motion.div>
+                    )}
 
-                      <div className="p-1.5 bg-[#dcfce7] border-2 border-black rounded-xl text-center shadow-[1px_1px_0px_#000000]">
-                        <span className="text-[9px] font-black text-[#15803D]">
-                          🏆 Ranked #1 in Local Map Pack
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                    {currentSlide === 1 && (
+                      <motion.div
+                        key="slide-1"
+                        initial={{ opacity: 0, x: 18 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -18 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="space-y-2.5"
+                      >
+                        <p className="text-[10.5px] font-black text-black">What did you enjoy most?</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            { name: "☕ Specialty Latte", sel: true },
+                            { name: "🥐 Warm Croissant", sel: true },
+                            { name: "⚡ Fast Free Wi-Fi", sel: true },
+                            { name: "😊 Friendly Staff", sel: true },
+                          ].map((t, idx) => (
+                            <span
+                              key={idx}
+                              className="text-[9px] font-bold px-2 py-1 rounded-xl border-2 border-black flex items-center gap-1 bg-[#dcfce7] text-[#15803D] shadow-[1px_1px_0px_#000000]"
+                            >
+                              {t.name} <Check className="w-2.5 h-2.5 text-[#15803D]" />
+                            </span>
+                          ))}
+                        </div>
+
+                        <motion.button 
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setCurrentSlide(2)}
+                          className="w-full py-2 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-[2px_2px_0px_#000000] cursor-pointer"
+                        >
+                          <Sparkles className="w-3 h-3" /> Generate Review with AI
+                        </motion.button>
+                      </motion.div>
+                    )}
+
+                    {currentSlide === 2 && (
+                      <motion.div
+                        key="slide-2"
+                        initial={{ opacity: 0, x: 18 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -18 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="space-y-2.5"
+                      >
+                        <div className="bg-[#ECFDF5] border-2 border-black rounded-2xl p-2.5 space-y-1.5 shadow-[2px_2px_0px_#000000]">
+                          <span className="text-[9px] font-black text-black flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#15803D]" /> AI Review Generated:
+                          </span>
+                          <p className="text-[9px] text-slate-800 leading-relaxed italic bg-white p-2 rounded-xl border border-black/20">
+                            "Wonderful morning at The Coffee House! The Specialty Latte was delicious, and the croissants were fresh out of the oven. 10/10 recommend!"
+                          </p>
+                        </div>
+
+                        <motion.button 
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setCurrentSlide(3)}
+                          className="w-full py-2 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-[2px_2px_0px_#000000] cursor-pointer"
+                        >
+                          <Copy className="w-3 h-3" /> Copy & Open Google Maps
+                        </motion.button>
+                      </motion.div>
+                    )}
+
+                    {currentSlide === 3 && (
+                      <motion.div
+                        key="slide-3"
+                        initial={{ opacity: 0, x: 18 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -18 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="space-y-2.5"
+                      >
+                        <div className="bg-white border-2 border-black rounded-2xl p-3 space-y-2 shadow-[3px_3px_0px_#000000]">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">
+                              S
+                            </div>
+                            <div>
+                              <p className="text-[9.5px] font-black text-black">Sarah Jenkins</p>
+                              <div className="flex text-amber-400 gap-0.5">
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                  <Star key={s} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-[9px] text-slate-700 leading-snug">
+                            "The Coffee House is easily our favorite spot! Incredible Specialty Latte and awesome staff. 10/10!"
+                          </p>
+                        </div>
+
+                        <div className="bg-[#dcfce7] border-2 border-black rounded-xl p-2 text-center shadow-[2px_2px_0px_#000000]">
+                          <p className="text-[9px] font-black text-[#15803D]">
+                            🎉 Ranked #1 In Local Map Pack
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Step Pills */}
                 <div className="pt-2 border-t-2 border-black/10 flex items-center gap-1">
                   {slides.map((s, idx) => (
-                    <button
+                    <motion.button
                       key={idx}
+                      whileTap={{ scale: 0.92 }}
                       type="button"
                       onClick={() => setCurrentSlide(idx)}
-                      className={`flex-1 py-1 px-0.5 rounded-lg text-[8px] sm:text-[8.5px] font-black transition-all text-center border ${
+                      className={`flex-1 py-1 px-0.5 rounded-lg text-[8px] sm:text-[8.5px] font-black transition-colors text-center border cursor-pointer ${
                         currentSlide === idx
                           ? "bg-black text-white border-black"
-                          : "bg-slate-100 text-slate-600 border-slate-200"
+                          : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
                       }`}
                     >
                       {s.stepTitle}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
 
               </div>
-            </div>
+            </motion.div>
 
           </div>
 
@@ -494,18 +583,31 @@ export default function LandingPage() {
         ========================================================================
       */}
       <section id="how-it-works" className="py-14 sm:py-20 px-4 sm:px-8 max-w-6xl mx-auto space-y-10 sm:space-y-14">
-        <div className="text-center space-y-2.5 max-w-xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="text-center space-y-2.5 max-w-xl mx-auto"
+        >
           <span className="text-xs font-black text-[#15803D] uppercase tracking-widest bg-[#dcfce7] px-3.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] inline-block">
             zero friction
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
             How It Works in 3 Simple Steps
           </h2>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Step 1 Card with Photo */}
-          <div className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-4 flex flex-col justify-between overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.45, delay: 0.1 }}
+            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] transition-shadow space-y-4 flex flex-col justify-between overflow-hidden"
+          >
             <div className="space-y-3">
               <div className="w-10 h-10 bg-black text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
                 1
@@ -525,10 +627,17 @@ export default function LandingPage() {
                 In-Store Table Tent
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Step 2 Card with Photo */}
-          <div className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-4 flex flex-col justify-between overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.45, delay: 0.2 }}
+            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] transition-shadow space-y-4 flex flex-col justify-between overflow-hidden"
+          >
             <div className="space-y-3">
               <div className="w-10 h-10 bg-[#15803D] text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
                 2
@@ -548,10 +657,17 @@ export default function LandingPage() {
                 Billing Desk Display
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Step 3 Card with Photo */}
-          <div className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1 transition-all space-y-4 flex flex-col justify-between overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.45, delay: 0.3 }}
+            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[28px] border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] transition-shadow space-y-4 flex flex-col justify-between overflow-hidden"
+          >
             <div className="space-y-3">
               <div className="w-10 h-10 bg-black text-white border-2 border-black rounded-xl flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#000000]">
                 3
@@ -571,7 +687,7 @@ export default function LandingPage() {
                 +42 Reviews Boost
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -581,18 +697,31 @@ export default function LandingPage() {
         ========================================================================
       */}
       <section id="features" className="py-14 sm:py-20 px-4 sm:px-8 max-w-6xl mx-auto space-y-10 sm:space-y-14 border-t-2 border-black/10">
-        <div className="text-center space-y-2 max-w-xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="text-center space-y-2 max-w-xl mx-auto"
+        >
           <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
             powerful architecture
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
             Everything You Need To Dominate Google Maps
           </h2>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {/* Feature 1 */}
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.05 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-black">
                 <Printer className="w-4 h-4" />
@@ -613,12 +742,17 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
 
-
-
-          {/* Feature 3 */}
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+          {/* Feature 2 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 bg-amber-50 border-2 border-black rounded-xl flex items-center justify-center text-amber-600">
                 <TrendingUp className="w-4 h-4" />
@@ -639,10 +773,17 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Feature 4 */}
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+          {/* Feature 3 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 bg-[#dcfce7] border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
                 <BarChart3 className="w-4 h-4" />
@@ -663,10 +804,17 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Feature 5 */}
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+          {/* Feature 4 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 bg-rose-50 border-2 border-black rounded-xl flex items-center justify-center text-rose-600">
                 <MessageSquare className="w-4 h-4" />
@@ -687,10 +835,17 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Feature 6 */}
-          <div className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between">
+          {/* Feature 5 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.25 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white p-6 rounded-[24px] border-2 border-black shadow-[4px_4px_0px_#000000] space-y-3 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center text-[#15803D]">
                 <ShieldCheck className="w-4 h-4" />
@@ -711,7 +866,7 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -720,7 +875,14 @@ export default function LandingPage() {
         PRICING CARD (₹1,999 Lifetime License)
         ========================================================================
       */}
-      <section id="pricing" className="py-14 sm:py-20 px-4 sm:px-8 max-w-lg mx-auto text-center space-y-6">
+      <motion.section
+        id="pricing"
+        initial={{ opacity: 0, scale: 0.96 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.5 }}
+        className="py-14 sm:py-20 px-4 sm:px-8 max-w-lg mx-auto text-center space-y-6"
+      >
         <div className="space-y-2">
           <span className="text-xs font-black text-[#15803D] uppercase tracking-widest bg-[#dcfce7] px-3.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] inline-block">
             one-time lifetime deal
@@ -733,7 +895,11 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="bg-white border-[2.5px] border-black rounded-[30px] p-6 sm:p-7 space-y-5 text-left shadow-[6px_6px_0px_#000000]">
+        <motion.div
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.2 }}
+          className="bg-white border-[2.5px] border-black rounded-[30px] p-6 sm:p-7 space-y-5 text-left shadow-[6px_6px_0px_#000000]"
+        >
           <ul className="space-y-2.5 text-xs text-slate-800">
             {[
               "Unlimited QR Camera Scans & Google Handoffs",
@@ -751,54 +917,76 @@ export default function LandingPage() {
             ))}
           </ul>
 
-          <Link
-            href="/signup"
-            className="w-full py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-sm flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center cursor-pointer"
-          >
-            Claim Lifetime Access for ₹1,999 <ArrowRight className="w-4 h-4" />
-          </Link>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href="/signup"
+              className="w-full py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-sm flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] transition-shadow text-center cursor-pointer"
+            >
+              Claim Lifetime Access for ₹1,999 <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
           <p className="text-center text-[10.5px] text-slate-500 font-semibold">Instant activation via UPI, QR & Cards</p>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* 
         ========================================================================
-        FAQ ACCORDION
+        FAQ ACCORDION with Motion.dev Expand/Collapse Animation
         ========================================================================
       */}
       <section id="faq" className="py-14 sm:py-20 px-4 sm:px-8 max-w-3xl mx-auto space-y-8 border-t-2 border-black/10">
-        <div className="text-center space-y-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="text-center space-y-2"
+        >
           <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
             got questions?
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
             Frequently Asked Questions
           </h2>
-        </div>
+        </motion.div>
 
         <div className="space-y-3.5">
           {faqs.map((faq, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl border-2 border-black overflow-hidden transition-all shadow-[3px_3px_0px_#000000]"
+              className="bg-white rounded-2xl border-2 border-black overflow-hidden transition-shadow shadow-[3px_3px_0px_#000000] hover:shadow-[4px_4px_0px_#000000]"
             >
               <button
                 type="button"
                 onClick={() => toggleFaq(i)}
-                className="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs sm:text-sm font-black text-black hover:text-slate-700"
+                className="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs sm:text-sm font-black text-black hover:text-slate-700 cursor-pointer"
               >
                 <span>{faq.q}</span>
-                <ChevronDown
-                  className={`w-4 h-4 text-black shrink-0 ml-2 transition-transform duration-200 ${
-                    openFaq === i ? "rotate-180" : ""
-                  }`}
-                />
+                <motion.div
+                  animate={{ rotate: openFaq === i ? 180 : 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="shrink-0 ml-2"
+                >
+                  <ChevronDown className="w-4 h-4 text-black" />
+                </motion.div>
               </button>
-              {openFaq === i && (
-                <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-slate-700 leading-relaxed font-medium border-t-2 border-black/10 pt-3 animate-in fade-in">
-                  {faq.a}
-                </div>
-              )}
+
+              <AnimatePresence initial={false}>
+                {openFaq === i && (
+                  <motion.div
+                    key="content"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-slate-700 leading-relaxed font-medium border-t-2 border-black/10 pt-3">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
@@ -810,8 +998,13 @@ export default function LandingPage() {
         ========================================================================
       */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-4xl mx-auto text-center">
-        <div className="bg-white border-[3px] border-black rounded-[32px] sm:rounded-[36px] p-7 sm:p-14 space-y-5 shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] relative overflow-hidden">
-          
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="bg-white border-[3px] border-black rounded-[32px] sm:rounded-[36px] p-7 sm:p-14 space-y-5 shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] relative overflow-hidden"
+        >
           <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-black tracking-tight leading-[1.15] relative z-10">
             Start Collecting 5-Star Reviews Today
           </h2>
@@ -819,14 +1012,16 @@ export default function LandingPage() {
             Outsmart your competitors with Welurik Review and grow your business with our 30-second review assistant.
           </p>
           <div className="pt-2 flex items-center justify-center relative z-10">
-            <Link
-              href="/signup"
-              className="w-full sm:w-auto px-8 py-4 bg-[#15803D] hover:bg-[#166534] text-white font-black rounded-full text-sm sm:text-base border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all text-center inline-flex items-center justify-center gap-2"
-            >
-              Get Started for ₹1,999 (Lifetime) <ArrowRight className="w-4 h-4" />
-            </Link>
+            <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97, y: 1 }}>
+              <Link
+                href="/signup"
+                className="w-full sm:w-auto px-8 py-4 bg-[#15803D] hover:bg-[#166534] text-white font-black rounded-full text-sm sm:text-base border-2 border-black shadow-[4px_4px_0px_#000000] transition-shadow text-center inline-flex items-center justify-center gap-2"
+              >
+                Get Started for ₹1,999 (Lifetime) <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 
