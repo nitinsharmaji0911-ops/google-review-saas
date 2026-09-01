@@ -8,9 +8,8 @@ import {
   ExternalLink,
   CheckCircle2,
   Star,
-  MessageSquare,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import Link from "next/link";
@@ -193,16 +192,14 @@ export default function CustomerReviewPage() {
       }
     }
 
-    // 2. Confetti effect on high ratings
-    if (rating >= 4) {
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 60,
-          origin: { y: 0.7 },
-        });
-      } catch {}
-    }
+    // 2. Confetti celebration
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.7 },
+      });
+    } catch {}
 
     // 3. Track conversion analytics
     fetch("/api/analytics/track", {
@@ -214,7 +211,7 @@ export default function CustomerReviewPage() {
       }),
     }).catch(() => {});
 
-    // 4. Reliable redirect to Google Review Page (Avoids browser popup blockers)
+    // 4. Redirect directly to Google Maps review page
     setTimeout(() => {
       window.location.href = targetUrl;
     }, 500);
@@ -251,18 +248,15 @@ export default function CustomerReviewPage() {
     );
   }
 
-  const positiveTopics = business.topics?.filter((t) => t.type === "positive") || [];
-  const issueTopics = business.topics?.filter((t) => t.type === "issue") || [];
-
-  const displayedTopics = rating <= 2 && issueTopics.length > 0 ? issueTopics : positiveTopics;
+  const allTopics = business.topics || [];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-between items-center py-6 sm:py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
       <div className="w-full max-w-sm mx-auto">
         {/* Brand Identity */}
         <div className="text-center mb-6 space-y-1">
           <span className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
-            Assisted Review
+            Review & Feedback
           </span>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             {business.name}
@@ -287,7 +281,6 @@ export default function CustomerReviewPage() {
                     type="button"
                     onClick={() => {
                       setRating(star);
-                      setSelectedTopics([]);
                       setToneCache({});
                     }}
                     className="p-1 focus:outline-none transition-transform hover:scale-110 active:scale-95"
@@ -295,38 +288,30 @@ export default function CustomerReviewPage() {
                     <Star
                       className={`w-7 h-7 transition-colors ${
                         star <= rating
-                          ? rating <= 2
-                            ? "fill-rose-500 text-rose-500"
-                            : rating === 3
-                            ? "fill-amber-400 text-amber-400"
-                            : "fill-amber-400 text-amber-400"
+                          ? "fill-amber-400 text-amber-400"
                           : "text-slate-200 fill-slate-100"
                       }`}
                     />
                   </button>
                 ))}
               </div>
-              <p className="text-[11px] font-semibold text-slate-500 mt-1">
-                {rating === 5
-                  ? "5 Stars • Excellent"
-                  : rating === 4
-                  ? "4 Stars • Very Good"
-                  : rating === 3
-                  ? "3 Stars • Average"
-                  : rating === 2
-                  ? "2 Stars • Disappointing"
-                  : "1 Star • Poor"}
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">
+                {rating === 5 && "5 Stars • Excellent"}
+                {rating === 4 && "4 Stars • Very Good"}
+                {rating === 3 && "3 Stars • Good"}
+                {rating === 2 && "2 Stars • Fair"}
+                {rating === 1 && "1 Star"}
               </p>
             </div>
 
             {/* Quick Tags / Topics */}
-            {displayedTopics.length > 0 && (
+            {allTopics.length > 0 && (
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-2.5">
-                  {rating <= 2 ? "What didn't meet expectations?" : "Add Quick Tags"}
+                  Add Quick Tags
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {displayedTopics.map((topic) => {
+                  {allTopics.map((topic) => {
                     const isSelected = selectedTopics.includes(topic.name);
                     return (
                       <button
@@ -338,9 +323,7 @@ export default function CustomerReviewPage() {
                         }}
                         className={`text-xs font-medium px-3.5 py-2 rounded-xl transition-all border flex items-center gap-1.5 active:scale-95 ${
                           isSelected
-                            ? rating <= 2
-                              ? "bg-rose-600 text-white border-rose-600 shadow-sm"
-                              : "bg-slate-900 text-white border-slate-900 shadow-sm"
+                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
                             : "bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100"
                         }`}
                       >
@@ -397,11 +380,7 @@ export default function CustomerReviewPage() {
                   setCustomerComment(e.target.value);
                   setToneCache({});
                 }}
-                placeholder={
-                  rating <= 2
-                    ? "Explain what happened..."
-                    : "Share anything specific about your experience..."
-                }
+                placeholder="Share anything specific about your experience..."
                 className="w-full text-xs p-3 bg-slate-50 border border-slate-200/80 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-800 placeholder-slate-400 resize-none font-normal transition-all"
               />
             </div>
@@ -414,8 +393,6 @@ export default function CustomerReviewPage() {
               className={`w-full py-4 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] ${
                 isGenerating || (selectedTopics.length === 0 && selectedServices.length === 0 && !customerComment)
                   ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                  : rating <= 2
-                  ? "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-200"
                   : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200"
               }`}
             >
@@ -434,7 +411,7 @@ export default function CustomerReviewPage() {
           </div>
         )}
 
-        {/* STEP 2: REVIEW PRESENTATION & 1-TAP GOOGLE POST */}
+        {/* STEP 2: REVIEW PRESENTATION & DIRECT GOOGLE POST */}
         {step === "review" && (
           <div className="bg-white rounded-[28px] p-6 shadow-sm border border-slate-200/70 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between">
@@ -450,11 +427,7 @@ export default function CustomerReviewPage() {
                   <Star
                     key={s}
                     className={`w-3.5 h-3.5 ${
-                      s <= rating
-                        ? rating <= 2
-                          ? "fill-rose-500 text-rose-500"
-                          : "fill-amber-400 text-amber-400"
-                        : "text-slate-200 fill-slate-100"
+                      s <= rating ? "fill-amber-400 text-amber-400" : "text-slate-200 fill-slate-100"
                     }`}
                   />
                 ))}
@@ -513,14 +486,12 @@ export default function CustomerReviewPage() {
               />
             </div>
 
-            {/* MAIN HANDOFF ACTION BUTTON */}
+            {/* DIRECT GOOGLE POST ACTION BUTTON */}
             <div className="space-y-2.5 pt-1">
               <button
                 type="button"
                 onClick={handleCopyAndOpenGoogle}
-                className={`w-full py-4 px-5 active:scale-[0.98] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all ${
-                  rating <= 2 ? "bg-slate-900 hover:bg-slate-800" : "bg-[#15803D] hover:bg-[#166534]"
-                }`}
+                className="w-full py-4 px-5 active:scale-[0.98] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all bg-[#15803D] hover:bg-[#166534]"
               >
                 {isCopied ? (
                   <>
@@ -555,26 +526,9 @@ export default function CustomerReviewPage() {
             </div>
           </div>
         )}
-
-        {/* Private Feedback Compliance Link */}
-        <div className="text-center mt-6">
-          <Link
-            href={`/r/${slug}/feedback`}
-            className="text-xs text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
-          >
-            <MessageSquare className="w-3 h-3" />
-            Have a private suggestion or issue? Tell the manager
-          </Link>
-        </div>
       </div>
 
-      <div className="text-center mt-8 space-y-2">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-black bg-white hover:bg-slate-50 px-4 py-2 rounded-full border border-slate-200 shadow-xs transition-all"
-        >
-          <span>💼</span> View Business Admin Dashboard →
-        </Link>
+      <div className="text-center mt-8 space-y-1">
         <p className="text-[11px] text-slate-400 font-medium block">
           Powered by Welurik Review
         </p>

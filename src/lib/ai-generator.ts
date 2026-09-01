@@ -27,12 +27,12 @@ async function generateWithGemini(
   const rating = params.rating || 5;
 
   const sentimentInstructions = {
-    5: "SENTIMENT: Warm, polite, highly appreciative 5-star review.",
-    4: "SENTIMENT: Polite, positive 4-star review with thoughtful appreciation.",
-    3: "SENTIMENT: Courteous, balanced 3-star review with gentle, constructive feedback.",
-    2: "SENTIMENT: Polite but disappointed 2-star review. Respectfully explains issues with civility.",
-    1: "SENTIMENT: Calm, polite, and constructive 1-star review. Expresses disappointment respectfully without being rude, aggressive, or harsh.",
-  }[rating] || "SENTIMENT: Polite, positive 5-star review.";
+    5: "SENTIMENT: Warm, enthusiastic, highly appreciative 5-star review praising the experience.",
+    4: "SENTIMENT: Friendly, positive review praising the visit, staff, and quality.",
+    3: "SENTIMENT: Helpful, polite, and positive review highlighting the good service.",
+    2: "SENTIMENT: Polite, supportive review highlighting the positive aspects and strengths.",
+    1: "SENTIMENT: Constructive, friendly review highlighting the business strengths.",
+  }[rating] || "SENTIMENT: Warm, polite, highly appreciative review.";
 
   const toneInstructions = {
     short: "STRICT LENGTH: Maximum 1 to 2 short sentences. Under 20 words total. Clean and polite.",
