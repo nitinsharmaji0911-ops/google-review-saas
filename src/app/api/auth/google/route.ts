@@ -7,13 +7,32 @@ import crypto from "crypto";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { idToken, email: clientEmail, name, picture } = body;
+    const { idToken, accessToken, email: clientEmail, name, picture } = body;
 
     let email = clientEmail;
     let verifiedName = name || "";
     let verifiedPicture = picture || "";
 
-    // 1. If an idToken is provided, verify with Google TokenInfo endpoint
+    // 1. If an accessToken is provided, verify via Google UserInfo endpoint
+    if (accessToken && typeof accessToken === "string") {
+      try {
+        const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (userInfoRes.ok) {
+          const info = await userInfoRes.json();
+          if (info && info.email) {
+            email = info.email;
+            verifiedName = info.name || verifiedName;
+            verifiedPicture = info.picture || verifiedPicture;
+          }
+        }
+      } catch (tokenErr) {
+        console.warn("Google userinfo verification error:", tokenErr);
+      }
+    }
+
+    // 2. If an idToken is provided, verify with Google TokenInfo endpoint
     if (idToken && typeof idToken === "string") {
       try {
         const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
@@ -39,7 +58,7 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 2. Look up existing user in Prisma DB or Firestore
+    // 3. Look up existing user in Prisma DB or Firestore
     let user: any = null;
     try {
       user = await prisma.user.findUnique({
@@ -54,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     let userId = user?.id;
 
-    // 3. If new user, create account automatically
+    // 4. If new user, create account automatically
     if (!user) {
       const randomPassword = crypto.randomBytes(24).toString("hex");
       const hashedPassword = hashPassword(randomPassword);
@@ -82,7 +101,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Determine business profile and redirect destination
+    // 5. Determine business profile and redirect destination
     const businessSlug = user?.business?.slug || user?.businessSlug || "";
     const businessId = user?.business?.id || user?.businessId || undefined;
 
