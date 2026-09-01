@@ -9,7 +9,8 @@ import {
   Check,
   Store,
   Sparkles,
-  Link as LinkIcon
+  Link as LinkIcon,
+  AlertCircle
 } from "lucide-react";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
 
@@ -36,6 +37,20 @@ export default function SettingsPage() {
   const [newService, setNewService] = useState("");
   const [newPositiveTopic, setNewPositiveTopic] = useState("");
   const [newIssueTopic, setNewIssueTopic] = useState("");
+
+  const isValidGoogleUrl = (url: string) => {
+    if (!url || typeof url !== "string") return false;
+    const clean = url.trim().toLowerCase();
+    return (
+      clean.includes("g.page") ||
+      clean.includes("maps.app.goo.gl") ||
+      clean.includes("search.google.com/local/writereview") ||
+      clean.includes("google.com/maps") ||
+      clean.includes("goo.gl/maps") ||
+      clean.includes("business.google.com") ||
+      clean.includes("maps.google.com")
+    );
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -246,24 +261,39 @@ export default function SettingsPage() {
               value={googleReviewUrl}
               onChange={(e) => setGoogleReviewUrl(e.target.value)}
               placeholder="https://g.page/r/your-id/review or https://search.google.com/local/writereview?placeid=..."
-              className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-900 font-mono"
+              className={`w-full text-xs px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 font-mono text-slate-900 ${
+                googleReviewUrl && !isValidGoogleUrl(googleReviewUrl)
+                  ? "border-rose-300 focus:ring-rose-500"
+                  : "border-slate-200/80 focus:ring-slate-900"
+              }`}
             />
-            {googleReviewUrl && googleReviewUrl.trim().length > 5 && (
-              <div className="mt-2 flex items-center justify-between bg-emerald-50/80 border border-emerald-200/70 px-3 py-2 rounded-xl text-xs">
-                <div className="flex items-center gap-1.5 text-emerald-800 font-medium text-[11.5px]">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Verify link destination</span>
-                </div>
-                <a
-                  href={googleReviewUrl.startsWith("http") ? googleReviewUrl : `https://${googleReviewUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-2xs cursor-pointer transition-all"
-                >
-                  <span>🧪 Test GMB Link</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
+            {googleReviewUrl && googleReviewUrl.trim().length > 0 && (
+              <>
+                {isValidGoogleUrl(googleReviewUrl) ? (
+                  <div className="mt-2 flex items-center justify-between bg-emerald-50 border border-emerald-200/80 px-3 py-2 rounded-xl text-xs">
+                    <div className="flex items-center gap-1.5 text-emerald-800 font-medium text-[11.5px]">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Valid Google Business format</span>
+                    </div>
+                    <a
+                      href={googleReviewUrl.startsWith("http") ? googleReviewUrl : `https://${googleReviewUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-2xs cursor-pointer transition-all"
+                    >
+                      <span>🧪 Test GMB Link</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex items-center gap-2 bg-rose-50 border border-rose-200/80 px-3 py-2 rounded-xl text-xs text-rose-700">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span className="text-[11.5px]">
+                      <strong>Invalid format:</strong> Please enter a real Google Review link (e.g. <code>g.page/r/...</code> or <code>maps.app.goo.gl/...</code>).
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
