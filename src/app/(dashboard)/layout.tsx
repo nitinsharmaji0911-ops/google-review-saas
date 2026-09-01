@@ -132,7 +132,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[#ECFDF5] flex font-sans selection:bg-slate-900 selection:text-white">
       {/* LEFT SIDEBAR (Linear / Vercel style) */}
       <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-4 shrink-0 hidden md:flex no-print">
         <div className="space-y-6">

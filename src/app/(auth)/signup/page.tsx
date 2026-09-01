@@ -56,7 +56,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-black font-sans selection:bg-black selection:text-white flex flex-col justify-between relative overflow-hidden">
+    <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-black font-sans selection:bg-black selection:text-white flex flex-col justify-between relative overflow-hidden">
       {/* Top Header */}
       <header className="max-w-6xl w-full mx-auto px-6 sm:px-8 py-6 flex items-center justify-between z-10">
         <Link href="/" className="group hover:opacity-80 transition-opacity flex items-center">

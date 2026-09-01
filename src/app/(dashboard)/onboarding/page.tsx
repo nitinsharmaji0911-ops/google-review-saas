@@ -280,7 +280,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFE] text-slate-900 font-sans selection:bg-slate-900 selection:text-white flex flex-col justify-between py-8 px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-slate-900 font-sans selection:bg-slate-900 selection:text-white flex flex-col justify-between py-8 px-6 relative overflow-hidden">
       {/* Ambient Glow */}
       <div className="absolute top-[10%] right-[15%] w-[500px] h-[500px] bg-gradient-to-tr from-emerald-200/20 via-teal-200/25 to-slate-200/20 rounded-full blur-[130px] pointer-events-none -z-10" />
 

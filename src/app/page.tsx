@@ -359,7 +359,7 @@ export default function LandingPage() {
                 <div className="my-auto py-1">
                   {currentSlide === 0 && (
                     <div className="space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                      <div className="bg-[#FAF9F5] p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1">
+                      <div className="bg-[#ECFDF5] p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1">
                         <p className="text-[10.5px] font-black text-black">Hi Sarah! 👋</p>
                         <p className="text-[9.5px] text-slate-600">How was your visit today?</p>
                       </div>
@@ -413,7 +413,7 @@ export default function LandingPage() {
 
                   {currentSlide === 2 && (
                     <div className="space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                      <div className="bg-[#FAF9F5] border-2 border-black rounded-2xl p-2.5 space-y-1.5 shadow-[2px_2px_0px_#000000]">
+                      <div className="bg-[#ECFDF5] border-2 border-black rounded-2xl p-2.5 space-y-1.5 shadow-[2px_2px_0px_#000000]">
                         <span className="text-[9px] font-black text-black flex items-center gap-1">
                           <Sparkles className="w-3 h-3 text-[#15803D]" /> AI Review Generated:
                         </span>

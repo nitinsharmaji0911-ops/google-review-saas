@@ -94,7 +94,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-[#FAF9F5] text-slate-900 font-sans antialiased selection:bg-[#15803D] selection:text-white">
+      <body className="min-h-screen bg-[#ECFDF5] text-slate-900 font-sans antialiased selection:bg-[#15803D] selection:text-white">
         {children}
       </body>
     </html>

@@ -251,7 +251,7 @@ export default function CustomerReviewPage() {
   const allTopics = business.topics || [];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
       <div className="w-full max-w-sm mx-auto">
         {/* Brand Identity */}
         <div className="text-center mb-6 space-y-1">

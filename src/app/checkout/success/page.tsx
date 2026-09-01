@@ -123,7 +123,7 @@ function SuccessContent() {
 
 export default function CheckoutSuccessPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50/50 via-white to-zinc-50 flex flex-col justify-between text-zinc-900 font-sans">
+    <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg flex flex-col justify-between text-zinc-900 font-sans">
       {/* Header */}
       <header className="py-6 px-6 sm:px-12 flex items-center justify-between border-b border-zinc-200/60 bg-white/80 backdrop-blur-md">
         <Link href="/" className="flex items-center gap-2">

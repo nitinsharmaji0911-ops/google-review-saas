@@ -75,7 +75,7 @@ export default function PrivateFeedbackPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between items-center py-6 px-4">
+    <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg flex flex-col justify-between items-center py-6 px-4">
       <div className="w-full max-w-md mx-auto">
         <div className="mb-4">
           <Link

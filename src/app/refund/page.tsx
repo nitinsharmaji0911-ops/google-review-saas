@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#FDFDFE] text-slate-900 font-sans selection:bg-slate-900 selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-slate-900 font-sans selection:bg-slate-900 selection:text-white flex flex-col justify-between">
       {/* Top Header */}
       <header className="max-w-5xl w-full mx-auto px-6 py-8 flex items-center justify-between border-b border-slate-100">
         <Link href="/" className="group hover:opacity-80 transition-opacity flex items-center">
