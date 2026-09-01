@@ -35,30 +35,21 @@ export default function OnboardingPage() {
 
   const selectedCategoryConfig = getCategoryById(category);
 
-  // Auto-restore existing business data if user already started
+  // Auto-restore existing business data into form fields while preserving Step 1 start
   useEffect(() => {
     fetch("/api/business/me")
       .then((r) => r.json())
       .then((d) => {
         if (d && d.success && d.business) {
           const b = d.business;
-          if (b.isPro) {
-            router.push("/dashboard");
-            return;
-          }
           if (b.name) setName(b.name);
           if (b.category) setCategory(b.category);
           if (b.location) setLocation(b.location);
-          if (b.googleReviewUrl) {
-            setGoogleReviewUrl(b.googleReviewUrl);
-            setStep(3); // Already completed steps 1 & 2
-          } else if (b.name) {
-            setStep(2); // Already completed step 1
-          }
+          if (b.googleReviewUrl) setGoogleReviewUrl(b.googleReviewUrl);
         }
       })
       .catch(() => {});
-  }, [router]);
+  }, []);
 
   const isValidGoogleUrl = (url: string) => {
     if (!url || typeof url !== "string") return false;
@@ -313,13 +304,15 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-center gap-2">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
-              <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
-                  step >= s ? "bg-slate-950 text-white" : "bg-slate-200 text-slate-500"
+              <button
+                type="button"
+                onClick={() => setStep(s)}
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all cursor-pointer ${
+                  step >= s ? "bg-slate-950 text-white" : "bg-slate-200 text-slate-500 hover:bg-slate-300"
                 }`}
               >
                 {s}
-              </div>
+              </button>
               {s < 3 && <div className={`w-6 h-0.5 ${step > s ? "bg-slate-950" : "bg-slate-200"}`} />}
             </div>
           ))}
