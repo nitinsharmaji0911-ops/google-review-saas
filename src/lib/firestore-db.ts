@@ -1,4 +1,5 @@
 import { FirestoreREST } from "./firestore-rest";
+export { FirestoreREST };
 import { getFirebaseAdmin } from "./firebase";
 import { DEMO_BUSINESS } from "./db";
 
