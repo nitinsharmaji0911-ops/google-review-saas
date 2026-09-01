@@ -115,7 +115,13 @@ export default function GoogleAuthButton({
           return;
         }
 
-        // If popup closed abruptly (due to 3rd party cookie block in Chrome) or was blocked, redirect directly
+        if (code === "auth/api-key-not-valid" || popupErr.message?.includes("api-key-not-valid")) {
+          onError?.("Firebase API Key is restricted in Google Cloud Console. Set 'API restrictions' to 'Don't restrict key' in Google Cloud Credentials.");
+          setLoading(false);
+          return;
+        }
+
+        // If popup was blocked by browser, try redirect
         await signInWithRedirect(auth, provider);
         return;
       }
@@ -128,7 +134,19 @@ export default function GoogleAuthButton({
         return;
       }
 
-      onError?.(err.message || "Google sign-in could not be completed. Please try again.");
+      if (code === "auth/api-key-not-valid" || err.message?.includes("api-key-not-valid")) {
+        onError?.("Firebase API Key is restricted in Google Cloud Console. In Google Cloud Console -> Credentials -> Edit Browser Key, set 'API restrictions' to 'Don't restrict key' and save.");
+        setLoading(false);
+        return;
+      }
+
+      if (code === "auth/unauthorized-domain") {
+        onError?.("Domain not authorized in Firebase Console -> Authentication -> Settings -> Authorized domains.");
+        setLoading(false);
+        return;
+      }
+
+      onError?.("Google sign-in could not be completed. Please check your credentials or register with email.");
       setLoading(false);
     }
   };
