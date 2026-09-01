@@ -52,10 +52,14 @@ export async function GET(req: NextRequest) {
     const googleClicks = analytics.filter((a: any) => a.eventType === "google_clicked").length;
     const conversionRate = totalScans > 0 ? `${Math.round((googleClicks / totalScans) * 100)}%` : "0%";
 
-    const unreadFeedbackCount = (business.feedbacks || []).filter((f: any) => f.status === "unread").length;
+    let isTrialActive = false;
+    if (business.trialEndsAt) {
+      isTrialActive = new Date(business.trialEndsAt).getTime() > Date.now();
+    }
 
     const isProAccount =
       business.isPro === true ||
+      isTrialActive ||
       session.email === "nitin.sharmaji2405@gmail.com" ||
       session.email?.endsWith("@welurik.com");
 
@@ -72,7 +76,9 @@ export async function GET(req: NextRequest) {
         brandColor: business.brandColor || "#16A34A",
         phone: business.phone || "",
         isPro: isProAccount,
-        planName: business.planName || "lifetime",
+        trialEndsAt: business.trialEndsAt,
+        isTrialActive,
+        planName: business.planName || (isTrialActive ? "7-Day VIP Free Trial" : "lifetime"),
         monthlyAiQuota: business.monthlyAiQuota || 10000,
         aiCallsThisMonth: business.aiCallsThisMonth || 0,
         services: business.services || [],

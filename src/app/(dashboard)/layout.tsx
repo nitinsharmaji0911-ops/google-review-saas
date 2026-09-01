@@ -29,6 +29,45 @@ export default function DashboardLayout({
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loggingOut, setLoggingOut] = useState(false);
 
+  // Paywall Promo Code States
+  const [paywallPromo, setPaywallPromo] = useState("");
+  const [paywallLoading, setPaywallLoading] = useState(false);
+  const [paywallSuccess, setPaywallSuccess] = useState("");
+  const [paywallError, setPaywallError] = useState("");
+  const [showPaywallPromo, setShowPaywallPromo] = useState(false);
+
+  const handleApplyPaywallPromo = async () => {
+    if (!paywallPromo.trim()) return;
+    setPaywallLoading(true);
+    setPaywallError("");
+    setPaywallSuccess("");
+
+    try {
+      const res = await fetch("/api/payment/promo-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: paywallPromo,
+          businessSlug: business?.slug,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPaywallSuccess(data.message || "🎉 7-Day VIP Trial Activated!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        setPaywallError(data.error || "Invalid or expired promo code.");
+      }
+    } catch {
+      setPaywallError("Failed to apply promo code. Please try again.");
+    } finally {
+      setPaywallLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetch("/api/business/me")
       .then((r) => {
@@ -282,6 +321,63 @@ export default function DashboardLayout({
                   <span className="text-slate-500 font-semibold">Total Payable:</span>
                   <span className="text-base font-black text-slate-950">₹1,999</span>
                 </div>
+              </div>
+
+              {/* VIP Promo Code Option */}
+              <div className="bg-slate-50/80 border border-dashed border-slate-300/80 rounded-2xl p-3.5 space-y-2 text-left">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800">
+                    Have a VIP Promo / Partner Code?
+                  </span>
+                  {!showPaywallPromo && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPaywallPromo(true)}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
+                    >
+                      Enter Code
+                    </button>
+                  )}
+                </div>
+
+                {showPaywallPromo && (
+                  <div className="space-y-2 pt-1">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={paywallPromo}
+                        onChange={(e) => setPaywallPromo(e.target.value.toUpperCase())}
+                        placeholder="e.g. VIP7, FRIENDS7"
+                        className="flex-1 text-xs uppercase px-3 py-2.5 bg-white border border-slate-300 rounded-xl font-mono font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-900"
+                      />
+                      <button
+                        type="button"
+                        disabled={paywallLoading || !paywallPromo.trim()}
+                        onClick={handleApplyPaywallPromo}
+                        className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                      >
+                        {paywallLoading ? (
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          "Apply"
+                        )}
+                      </button>
+                    </div>
+
+                    {paywallSuccess && (
+                      <p className="text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                        <span>{paywallSuccess}</span>
+                      </p>
+                    )}
+
+                    {paywallError && (
+                      <p className="text-xs font-medium text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                        {paywallError}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <CheckoutButton

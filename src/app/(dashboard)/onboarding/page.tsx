@@ -25,7 +25,67 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [paymentError, setPaymentError] = useState("");
 
+  // Promo Code States
+  const [promoCode, setPromoCode] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [promoSuccess, setPromoSuccess] = useState("");
+  const [showPromo, setShowPromo] = useState(false);
+
   const selectedCategoryConfig = getCategoryById(category);
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    setPromoError("");
+    setPromoSuccess("");
+
+    try {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+      // 1. Save business configuration first
+      await fetch("/api/business/" + slug, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          category,
+          location,
+          googleReviewUrl,
+          brandColor,
+          services: selectedCategoryConfig.defaultServices,
+          topics: [
+            ...selectedCategoryConfig.positiveTopics.map((n) => ({ name: n, type: "positive" })),
+            ...selectedCategoryConfig.issueTopics.map((n) => ({ name: n, type: "issue" })),
+          ],
+        }),
+      });
+
+      // 2. Call promo-code activation endpoint
+      const res = await fetch("/api/payment/promo-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: promoCode,
+          businessSlug: slug,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPromoSuccess(data.message || "🎉 7-Day VIP Free Trial Activated!");
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1000);
+      } else {
+        setPromoError(data.error || "Invalid or expired promo code.");
+      }
+    } catch (err: any) {
+      setPromoError("Failed to apply promo code. Please try again.");
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -403,6 +463,63 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
+              {/* VIP Promo Code Option */}
+              <div className="bg-slate-50/80 border border-dashed border-slate-300/80 rounded-2xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Have a VIP Promo / Partner Code?
+                  </span>
+                  {!showPromo && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPromo(true)}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
+                    >
+                      Enter Code
+                    </button>
+                  )}
+                </div>
+
+                {showPromo && (
+                  <div className="space-y-2 pt-1 animate-in fade-in duration-150">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                        placeholder="e.g. VIP7, FRIENDS7"
+                        className="flex-1 text-xs uppercase px-3 py-2.5 bg-white border border-slate-300 rounded-xl font-mono font-bold focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-900"
+                      />
+                      <button
+                        type="button"
+                        disabled={promoLoading || !promoCode.trim()}
+                        onClick={handleApplyPromo}
+                        className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                      >
+                        {promoLoading ? (
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          "Apply"
+                        )}
+                      </button>
+                    </div>
+
+                    {promoSuccess && (
+                      <p className="text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                        <span>{promoSuccess}</span>
+                      </p>
+                    )}
+
+                    {promoError && (
+                      <p className="text-xs font-medium text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                        {promoError}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {paymentError && (
                 <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-600 font-medium flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
@@ -413,7 +530,7 @@ export default function OnboardingPage() {
               <div className="flex gap-2.5 pt-1">
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || promoLoading}
                   onClick={() => setStep(2)}
                   className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
@@ -421,7 +538,7 @@ export default function OnboardingPage() {
                 </button>
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || promoLoading}
                   onClick={handlePayAndActivate}
                   className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white rounded-xl text-xs font-black tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-[0.99] transition-all cursor-pointer"
                 >
