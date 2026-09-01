@@ -57,6 +57,15 @@ export async function GET(req: NextRequest) {
     if (business.trialEndsAt) {
       isTrialActive = new Date(business.trialEndsAt).getTime() > Date.now();
     }
+    if (!isTrialActive && session.email) {
+      const userDoc = await FirestoreDB.getUserByEmail(session.email);
+      if (userDoc?.trialEndsAt) {
+        isTrialActive = new Date(userDoc.trialEndsAt).getTime() > Date.now();
+      }
+      if (userDoc?.isPro === true) {
+        business.isPro = true;
+      }
+    }
 
     const isProAccount =
       business.isPro === true ||

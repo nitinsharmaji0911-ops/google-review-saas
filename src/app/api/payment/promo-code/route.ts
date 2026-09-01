@@ -41,20 +41,8 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = session?.userId;
+    const userEmail = session?.email;
     const businessSlug = clientSlug || session?.businessSlug;
-
-    // Look up business to activate
-    let business: any = null;
-
-    if (userId) {
-      business = await FirestoreDB.getBusinessByUserId(userId);
-    }
-    if (!business && businessSlug) {
-      business = await FirestoreDB.getBusinessBySlug(businessSlug);
-    }
-    if (!business && clientId) {
-      business = await FirestoreREST.getDocument("businesses", clientId);
-    }
 
     // 7 Days from now
     const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -66,15 +54,52 @@ export async function POST(req: NextRequest) {
       activatedAt: new Date().toISOString(),
     };
 
+    // 1. Update User document directly in Firestore
+    if (userEmail) {
+      const user = await FirestoreDB.getUserByEmail(userEmail);
+      if (user) {
+        await FirestoreREST.setDocument("users", user.id, {
+          ...user,
+          ...activationData,
+        });
+      }
+    }
+
+    // 2. Look up and update business
+    let business: any = null;
+    if (userId) {
+      business = await FirestoreDB.getBusinessByUserId(userId);
+    }
+    if (!business && businessSlug) {
+      business = await FirestoreDB.getBusinessBySlug(businessSlug);
+    }
+    if (!business && clientId) {
+      business = await FirestoreREST.getDocument("businesses", clientId);
+    }
+
+    const targetSlug = business?.slug || businessSlug || (business?.name ? business.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business");
+
     if (business) {
-      // 1. Update in Firestore
       await FirestoreREST.setDocument("businesses", business.slug || business.id, {
         ...business,
         ...activationData,
       });
+    } else {
+      // Create active business placeholder if not yet created
+      await FirestoreREST.setDocument("businesses", targetSlug, {
+        id: targetSlug,
+        slug: targetSlug,
+        name: session?.email?.split("@")[0] || "My Business",
+        userId: userId || "user",
+        category: "cafe",
+        googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4",
+        ...activationData,
+      });
+    }
 
-      // 2. Update in Prisma
-      try {
+    // 3. Update in Prisma if possible
+    try {
+      if (business?.id) {
         await prisma.business.update({
           where: { id: business.id },
           data: {
@@ -82,8 +107,8 @@ export async function POST(req: NextRequest) {
             planName: "7-Day VIP Free Trial",
           },
         });
-      } catch {}
-    }
+      }
+    } catch {}
 
     return NextResponse.json({
       success: true,
