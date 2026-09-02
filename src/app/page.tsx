@@ -868,9 +868,6 @@ export default function LandingPage() {
             <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
               ₹1,999 Lifetime License
             </h2>
-            <span className="text-xs font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
-              60% OFF
-            </span>
           </div>
           <p className="text-xs font-medium text-slate-600">
             No monthly subscription. No hidden charges.
@@ -1032,9 +1029,6 @@ export default function LandingPage() {
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] line-through text-slate-400 font-bold">₹4,999</span>
             <span className="text-sm font-black text-black">₹1,999</span>
-            <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-full">
-              60% OFF
-            </span>
           </div>
           <span className="text-[10px] font-bold text-slate-500 truncate">
             Lifetime License • One-time
