@@ -99,13 +99,21 @@ function ResetPasswordForm() {
           </p>
         </div>
 
-        <Link
-          href="/forgot-password"
-          className="w-full py-3.5 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-xs sm:text-sm font-black border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] transition-all flex items-center justify-center gap-2"
-        >
-          <RefreshCw className="w-4 h-4" />
-          <span>Request a new reset link</span>
-        </Link>
+        <div className="space-y-2.5 pt-2">
+          <Link
+            href="/forgot-password"
+            className="w-full py-3.5 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-xs sm:text-sm font-black border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] transition-all flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Request a new reset link</span>
+          </Link>
+          <Link
+            href="/login"
+            className="w-full py-3 bg-white hover:bg-slate-50 text-black rounded-full text-xs sm:text-sm font-black border-2 border-black shadow-[2px_2px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#000000] transition-all flex items-center justify-center gap-2"
+          >
+            <span>Back to Sign In</span>
+          </Link>
+        </div>
       </div>
     );
   }
