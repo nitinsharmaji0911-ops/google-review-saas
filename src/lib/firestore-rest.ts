@@ -3,10 +3,11 @@
  * Provides 100% serverless cloud persistence directly over HTTPS with zero dependency on local files
  */
 
-const HARDCODED_KEY = "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "saas-64015";
-const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || HARDCODED_KEY;
-const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
+export const FIRESTORE_PROJECT_ID = "saas-64015";
+export const FIRESTORE_API_KEY = "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
+const PROJECT_ID = FIRESTORE_PROJECT_ID;
+const API_KEY = FIRESTORE_API_KEY;
+const BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents`;
 
 function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
   const fields: Record<string, any> = {};
@@ -107,7 +108,7 @@ export const FirestoreREST = {
 
   async queryDocuments(collection: string, field: string, value: string): Promise<any[]> {
     try {
-      const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery?key=${API_KEY}`;
+      const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents:runQuery?key=${FIRESTORE_API_KEY}`;
       const queryBody = {
         structuredQuery: {
           from: [{ collectionId: collection }],

@@ -24,52 +24,73 @@ export default function GoogleAuthButton({
 
   // 1. Process Google Redirect result when user returns from Google
   useEffect(() => {
-    async function handleRedirectResult() {
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+
+    let handled = false;
+
+    async function syncUserWithBackend(user: any) {
+      if (handled) return;
+      handled = true;
+      setLoading(true);
+
       try {
-        const auth = getFirebaseAuth();
-        if (!auth) return;
+        const idToken = await user.getIdToken();
 
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          setLoading(true);
-          const user = result.user;
-          const idToken = await user.getIdToken();
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            idToken,
+            email: user.email,
+            name: user.displayName || user.email?.split("@")[0] || "",
+            picture: user.photoURL || "",
+            googleId: user.uid,
+          }),
+        });
 
-          const res = await fetch("/api/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              idToken,
-              email: user.email,
-              name: user.displayName || user.email?.split("@")[0] || "",
-              picture: user.photoURL || "",
-              googleId: user.uid,
-            }),
-          });
-
-          const data = await res.json();
-          if (data.success) {
-            onSuccess?.();
-            if (typeof window !== "undefined") {
-              try {
-                sessionStorage.removeItem("welurik_dashboard_cache");
-              } catch {}
-            }
-            const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-            const fromRoute = params?.get("from");
-            window.location.href = fromRoute || data.redirect || "/dashboard";
-          } else {
-            onError?.(data.error || "Failed to establish session from Google sign-in.");
-            setLoading(false);
+        const data = await res.json();
+        if (data.success) {
+          onSuccess?.();
+          if (typeof window !== "undefined") {
+            try {
+              sessionStorage.removeItem("welurik_dashboard_cache");
+              sessionStorage.removeItem("welurik_google_redirect_pending");
+            } catch {}
           }
+          const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+          const fromRoute = params?.get("from");
+          window.location.href = fromRoute || data.redirect || "/dashboard";
+        } else {
+          onError?.(data.error || "Failed to establish session from Google sign-in.");
+          setLoading(false);
         }
       } catch (err: any) {
-        console.warn("Google redirect processing note:", err);
+        console.warn("Backend Google auth sync error:", err);
         setLoading(false);
       }
     }
 
-    handleRedirectResult();
+    // A. Check getRedirectResult
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
+          syncUserWithBackend(result.user);
+        }
+      })
+      .catch((err: any) => {
+        console.warn("Google redirect processing note:", err);
+      });
+
+    // B. Mobile redirect fallback (iOS Safari / Android Chrome)
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      const wasPending = typeof window !== "undefined" ? sessionStorage.getItem("welurik_google_redirect_pending") : null;
+      if (user && wasPending) {
+        syncUserWithBackend(user);
+      }
+    });
+
+    return () => unsubscribe();
   }, [router, onError, onSuccess]);
 
   const handleGoogleAuth = async () => {
@@ -136,6 +157,11 @@ export default function GoogleAuthButton({
         }
 
         // If popup was blocked by browser, try redirect
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem("welurik_google_redirect_pending", "true");
+          } catch {}
+        }
         await signInWithRedirect(auth, provider);
         return;
       }
