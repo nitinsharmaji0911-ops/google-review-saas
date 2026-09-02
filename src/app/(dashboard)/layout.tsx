@@ -83,7 +83,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const fetchBusiness = () => {
-      fetch("/api/business/me")
+      fetch("/api/business/me", { cache: "no-store" })
         .then((r) => {
           if (r.status === 401) {
             router.push("/login");
@@ -95,7 +95,13 @@ export default function DashboardLayout({
           if (d && d.success && d.business) {
             setBusiness(d.business);
             setUnreadCount(d.unreadFeedbackCount || 0);
-            if (d.isSuperAdmin) setIsSuperAdmin(true);
+            setIsSuperAdmin(Boolean(d.isSuperAdmin));
+            if (d.business.isPro !== true && typeof window !== "undefined") {
+              try {
+                sessionStorage.removeItem("welurik_dashboard_cache");
+                sessionStorage.removeItem("welurik_pro_activated");
+              } catch {}
+            }
           }
         })
         .catch(() => {});
@@ -288,14 +294,16 @@ export default function DashboardLayout({
                 <span>⚡</span>
               </Link>
             )}
-            <Link
-              href="/qr-studio"
-              className="text-xs font-semibold px-2 py-1.5 rounded-lg bg-slate-900 text-white flex items-center gap-1"
-              title="Print QR Standees"
-            >
-              <QrCode className="w-3 h-3" />
-              <span className="hidden xs:inline">QR</span>
-            </Link>
+            {business?.isPro === true && (
+              <Link
+                href="/qr-studio"
+                className="text-xs font-semibold px-2 py-1.5 rounded-lg bg-slate-900 text-white flex items-center gap-1"
+                title="Print QR Standees"
+              >
+                <QrCode className="w-3 h-3" />
+                <span className="hidden xs:inline">QR</span>
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               disabled={loggingOut}
@@ -441,59 +449,61 @@ export default function DashboardLayout({
           <div className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</div>
         )}
 
-        {/* Mobile Fixed Bottom Navigation Bar */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/98 backdrop-blur-xl border-t border-slate-200/80 px-1 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around z-30 no-print shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            const shortLabel =
-              item.label === "Standee Studio"
-                ? "Standee"
-                : item.label === "Keywords & Topics"
-                ? "Keywords"
-                : item.label === "Private Feedback"
-                ? "Feedback"
-                : item.label;
+        {/* Mobile Fixed Bottom Navigation Bar - only active when business is Pro */}
+        {business?.isPro === true && (
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/98 backdrop-blur-xl border-t border-slate-200/80 px-1 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around z-30 no-print shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              const shortLabel =
+                item.label === "Standee Studio"
+                  ? "Standee"
+                  : item.label === "Keywords & Topics"
+                  ? "Keywords"
+                  : item.label === "Private Feedback"
+                  ? "Feedback"
+                  : item.label;
 
-            return (
-              <motion.div key={item.href} whileTap={{ scale: 0.88 }} className="flex-1">
-                <Link
-                  href={item.href}
-                  className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
-                    isActive ? "text-slate-950 font-bold" : "text-slate-400 hover:text-slate-600"
-                  }`}
+              return (
+                <motion.div key={item.href} whileTap={{ scale: 0.88 }} className="flex-1">
+                  <Link
+                    href={item.href}
+                    className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
+                      isActive ? "text-slate-950 font-bold" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    <div className="relative">
+                      <Icon className={`w-4 h-4 ${isActive ? "text-slate-950 stroke-[2.5]" : "text-slate-400"}`} />
+                      {item.count && (
+                        <span className="absolute -top-1 -right-2 text-[8.5px] font-black w-3.5 h-3.5 bg-rose-500 text-white rounded-full flex items-center justify-center">
+                          {item.count}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[9.5px] mt-0.5 tracking-tight truncate max-w-[58px] text-center">
+                      {shortLabel}
+                    </span>
+                  </Link>
+                </motion.div>
+              );
+            })}
+            {business?.slug && (
+              <motion.div whileTap={{ scale: 0.88 }} className="flex-1">
+                <a
+                  href={publicReviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-emerald-600 hover:text-emerald-700"
                 >
-                  <div className="relative">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-950 stroke-[2.5]" : "text-slate-400"}`} />
-                    {item.count && (
-                      <span className="absolute -top-1 -right-2 text-[8.5px] font-black w-3.5 h-3.5 bg-rose-500 text-white rounded-full flex items-center justify-center">
-                        {item.count}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[9.5px] mt-0.5 tracking-tight truncate max-w-[58px] text-center">
-                    {shortLabel}
+                  <QrCode className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                  <span className="text-[9.5px] mt-0.5 text-emerald-600 font-bold truncate max-w-[58px] text-center">
+                    Funnel
                   </span>
-                </Link>
+                </a>
               </motion.div>
-            );
-          })}
-          {business?.slug && (
-            <motion.div whileTap={{ scale: 0.88 }} className="flex-1">
-              <a
-                href={publicReviewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-emerald-600 hover:text-emerald-700"
-              >
-                <QrCode className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
-                <span className="text-[9.5px] mt-0.5 text-emerald-600 font-bold truncate max-w-[58px] text-center">
-                  Funnel
-                </span>
-              </a>
-            </motion.div>
-          )}
-        </nav>
+            )}
+          </nav>
+        )}
       </div>
     </div>
   );

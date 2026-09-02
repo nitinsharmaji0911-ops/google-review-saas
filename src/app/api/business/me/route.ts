@@ -104,44 +104,49 @@ export async function GET(req: NextRequest) {
     const conversionRate = totalScans > 0 ? `${Math.round((googleClicks / totalScans) * 100)}%` : "0%";
     const unreadFeedbackCount = feedbacks.filter((f: any) => f.status === "unread").length;
 
-    let isTrialActive = false;
-    if (business.trialEndsAt) {
-      isTrialActive = new Date(business.trialEndsAt).getTime() > Date.now();
-    }
-    if (!isTrialActive && session.email) {
-      if (userDoc?.trialEndsAt) {
-        isTrialActive = new Date(userDoc.trialEndsAt).getTime() > Date.now();
-      }
-      if (userDoc?.isPro === true) {
-        business.isPro = true;
-      }
-    }
-
     const adminEmails = (process.env.ADMIN_EMAILS || "")
       .split(",")
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
-    const isProAccount =
-      business?.isPro === true ||
-      userDoc?.isPro === true ||
-      isTrialActive ||
-      session.email === "nitin.sharmaji0512@gmail.com" ||
-      session.email === "nitin.sharmaji2405@gmail.com" ||
-      session.email?.toLowerCase().startsWith("nitin.sharmaji") ||
-      session.email?.endsWith("@welurik.com") ||
-      (session.email && adminEmails.includes(session.email.toLowerCase()));
+    const normalizedEmail = (session.email || "").toLowerCase().trim();
+    const isFounderSuperAdmin =
+      normalizedEmail === "nitin.sharmaji0512@gmail.com" ||
+      normalizedEmail === "nitin.sharmaji2405@gmail.com" ||
+      adminEmails.includes(normalizedEmail);
 
-    if (isProAccount && business) {
-      business.isPro = true;
+    let isTrialActive = false;
+    // Check trial only if not explicitly revoked
+    if (business.trialEndsAt && business.isPro !== false && userDoc?.isPro !== false) {
+      isTrialActive = new Date(business.trialEndsAt).getTime() > Date.now();
+    }
+    if (!isTrialActive && session.email && business.isPro !== false && userDoc?.isPro !== false) {
+      if (userDoc?.trialEndsAt) {
+        isTrialActive = new Date(userDoc.trialEndsAt).getTime() > Date.now();
+      }
     }
 
-    const isSuperAdmin =
-      session.email === "nitin.sharmaji0512@gmail.com" ||
-      session.email === "nitin.sharmaji2405@gmail.com" ||
-      session.email?.toLowerCase().startsWith("nitin.sharmaji") ||
-      session.email?.endsWith("@welurik.com") ||
-      Boolean(session.email && adminEmails.includes(session.email.toLowerCase()));
+    // Determine final isProAccount status
+    let isProAccount = false;
+    if (isFounderSuperAdmin) {
+      isProAccount = true;
+    } else if (userDoc?.isPro === false || business?.isPro === false) {
+      // Explicitly revoked by Admin Vault
+      isProAccount = false;
+      isTrialActive = false;
+    } else if (business?.isPro === true || userDoc?.isPro === true || isTrialActive) {
+      isProAccount = true;
+    }
+
+    if (business) {
+      business.isPro = isProAccount;
+      if (!isProAccount) {
+        business.planName = "Unpaid";
+        business.trialEndsAt = null;
+      }
+    }
+
+    const isSuperAdmin = isFounderSuperAdmin;
 
     return NextResponse.json({
       success: true,

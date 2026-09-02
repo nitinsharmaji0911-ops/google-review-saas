@@ -138,6 +138,8 @@ export default function AdminVaultPage() {
                     ...u,
                     isPro: newStatus,
                     planName: newStatus ? "Lifetime License (Admin Granted)" : "Unpaid",
+                    trialEndsAt: newStatus ? u.trialEndsAt : null,
+                    business: u.business ? { ...u.business, isPro: newStatus } : null,
                   }
                 : u
             ),
@@ -506,7 +508,9 @@ export default function AdminVaultPage() {
                       </tr>
                     ) : (
                       filteredUsers.map((user) => {
-                        const isNitin = user.email.toLowerCase() === "nitin.sharmaji2405@gmail.com";
+                        const isNitin =
+                          user.email.toLowerCase() === "nitin.sharmaji0512@gmail.com" ||
+                          user.email.toLowerCase() === "nitin.sharmaji2405@gmail.com";
                         return (
                           <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
                             {/* User Info */}

@@ -17,8 +17,6 @@ function checkIsSuperAdmin(email?: string | null): boolean {
   return (
     normalized === "nitin.sharmaji0512@gmail.com" ||
     normalized === "nitin.sharmaji2405@gmail.com" ||
-    normalized.startsWith("nitin.sharmaji") ||
-    normalized.endsWith("@welurik.com") ||
     adminEmails.includes(normalized)
   );
 }
@@ -70,7 +68,8 @@ export async function GET(req: NextRequest) {
         null;
 
       const isTrialActive = u.trialEndsAt ? new Date(u.trialEndsAt).getTime() > Date.now() : false;
-      const isPro = u.isPro === true || biz?.isPro === true || isTrialActive;
+      const isExplicitlyRevoked = u.isPro === false || biz?.isPro === false;
+      const isPro = !isExplicitlyRevoked && (u.isPro === true || biz?.isPro === true || isTrialActive);
 
       userMap.set(key, {
         id: u.id || key,
@@ -223,36 +222,47 @@ export async function PATCH(req: NextRequest) {
 
     // 1. Update User in Firestore
     let user: any = null;
+    let targetDocId = "";
     if (email) {
       const normalized = email.toLowerCase().trim();
-      const docId = "usr_" + Buffer.from(normalized).toString("hex").substring(0, 60);
-      user = await FirestoreREST.getDocument("users", docId);
-      if (user) {
-        await FirestoreREST.setDocument("users", docId, {
-          ...user,
-          isPro: newIsPro,
-          planName: plan,
-          updatedAt: new Date().toISOString(),
-        });
+      targetDocId = "usr_" + Buffer.from(normalized).toString("hex");
+      user = await FirestoreREST.getDocument("users", targetDocId);
+      if (!user) {
+        const queryDocs = await FirestoreREST.queryDocuments("users", "email", normalized);
+        if (queryDocs && queryDocs.length > 0) {
+          user = queryDocs[0];
+          targetDocId = user.id;
+        }
       }
+
+      await FirestoreREST.setDocument("users", targetDocId, {
+        ...(user || {}),
+        id: targetDocId,
+        email: normalized,
+        isPro: newIsPro,
+        planName: plan,
+        trialEndsAt: newIsPro ? (user?.trialEndsAt || null) : null,
+        updatedAt: new Date().toISOString(),
+      });
     }
 
     // 2. Update Business in Firestore
     const targetSlug = slug || user?.businessSlug;
     if (targetSlug) {
       const biz = await FirestoreREST.getDocument("businesses", targetSlug);
-      if (biz) {
-        await FirestoreREST.setDocument("businesses", targetSlug, {
-          ...biz,
-          isPro: newIsPro,
-          planName: plan,
-          updatedAt: new Date().toISOString(),
-        });
-      }
+      await FirestoreREST.setDocument("businesses", targetSlug, {
+        ...(biz || {}),
+        slug: targetSlug,
+        isPro: newIsPro,
+        planName: plan,
+        trialEndsAt: newIsPro ? (biz?.trialEndsAt || null) : null,
+        updatedAt: new Date().toISOString(),
+      });
 
-      if (biz?.userId) {
-        await FirestoreREST.setDocument("user_businesses", biz.userId, {
-          userId: biz.userId,
+      const uId = biz?.userId || user?.id || targetDocId;
+      if (uId) {
+        await FirestoreREST.setDocument("user_businesses", uId, {
+          userId: uId,
           businessSlug: targetSlug,
           businessId: targetSlug,
           isPro: newIsPro,
@@ -262,12 +272,6 @@ export async function PATCH(req: NextRequest) {
 
     // 3. Update in Prisma if available
     try {
-      if (email) {
-        await prisma.user.updateMany({
-          where: { email: email.toLowerCase().trim() },
-          data: { isPro: newIsPro } as any,
-        });
-      }
       if (targetSlug) {
         await prisma.business.updateMany({
           where: { slug: targetSlug },

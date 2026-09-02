@@ -96,8 +96,8 @@ export async function POST(req: NextRequest) {
     });
 
     const isSuperAdmin =
-      normalizedEmail.includes("nitin.sharmaji") ||
-      normalizedEmail.endsWith("@welurik.com");
+      normalizedEmail === "nitin.sharmaji0512@gmail.com" ||
+      normalizedEmail === "nitin.sharmaji2405@gmail.com";
 
     const redirectPath = isSuperAdmin ? "/admin-vault" : (businessSlug ? "/dashboard" : "/onboarding");
 
