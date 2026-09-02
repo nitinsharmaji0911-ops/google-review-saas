@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
       });
     } catch {}
 
+    // Look up in Firestore if not found in Prisma
+    if (!user) {
+      try {
+        user = await FirestoreDB.getUserByEmail(normalizedEmail);
+      } catch {}
+    }
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },
