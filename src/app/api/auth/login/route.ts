@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
-import { createSessionPayload, SESSION_COOKIE_NAME, verifyPassword } from "@/lib/auth";
+import { createSessionPayload, SESSION_COOKIE_NAME, verifyPassword, hashPassword } from "@/lib/auth";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -61,18 +61,58 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     if (!user) {
-      user = await FirestoreDB.getUserByEmail(normalizedEmail);
-    }
-
-    if (!user || !user.password) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },
         { status: 401 }
       );
     }
 
-    // STRICT SECURITY: Verify password solely via secure timing-safe cryptographic scrypt hash
-    const isMatch = verifyPassword(password, user.password);
+    // 1. Verify password via local secure scrypt hash
+    let isMatch = false;
+    if (user.password) {
+      isMatch = verifyPassword(password, user.password);
+    }
+
+    // 2. If not matched locally, verify with Firebase Authentication (e.g. after Firebase password reset)
+    if (!isMatch) {
+      try {
+        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
+        const fbRes = await fetch(
+          `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${fbKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: normalizedEmail,
+              password,
+              returnSecureToken: true,
+            }),
+          }
+        );
+        const fbData = await fbRes.json().catch(() => ({}));
+        if (fbData && fbData.idToken) {
+          isMatch = true;
+          // Automatically sync local hash so future logins are instant
+          const newHashedPassword = hashPassword(password);
+          if (user.id) {
+            await FirestoreREST.setDocument("users", user.id, {
+              ...user,
+              password: newHashedPassword,
+              updatedAt: new Date().toISOString(),
+            }).catch(() => {});
+            try {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { password: newHashedPassword },
+              });
+            } catch {}
+          }
+        }
+      } catch (fbErr) {
+        console.warn("Firebase signin fallback note:", fbErr);
+      }
+    }
+
     if (!isMatch) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },

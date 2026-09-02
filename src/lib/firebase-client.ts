@@ -114,18 +114,22 @@ export async function verifyFirebaseResetCode(
 ): Promise<{ valid: boolean; email?: string; error?: string }> {
   try {
     const authInstance = getFirebaseAuth();
-    if (!authInstance || !process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-      // Validate via server endpoint
-      const res = await fetch(`/api/auth/reset-password?code=${encodeURIComponent(oobCode)}`);
-      const data = await res.json().catch(() => ({}));
-      if (data.valid) {
-        return { valid: true, email: data.email };
+    if (authInstance) {
+      try {
+        const email = await fbVerifyPasswordResetCode(authInstance, oobCode);
+        return { valid: true, email };
+      } catch (fbErr) {
+        console.warn("fbVerifyPasswordResetCode note:", fbErr);
       }
-      return { valid: false, error: "This password reset link is invalid or has expired." };
     }
 
-    const email = await fbVerifyPasswordResetCode(authInstance, oobCode);
-    return { valid: true, email };
+    // Validate via server endpoint
+    const res = await fetch(`/api/auth/reset-password?code=${encodeURIComponent(oobCode)}`);
+    const data = await res.json().catch(() => ({}));
+    if (data.valid) {
+      return { valid: true, email: data.email };
+    }
+    return { valid: false, error: data.error || "This password reset link is invalid or has expired." };
   } catch {
     return { valid: false, error: "This password reset link is invalid or has expired." };
   }
@@ -139,9 +143,15 @@ export async function confirmFirebasePasswordReset(
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    let firebaseSuccess = false;
     const authInstance = getFirebaseAuth();
-    if (authInstance && process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-      await fbConfirmPasswordReset(authInstance, oobCode, newPassword);
+    if (authInstance) {
+      try {
+        await fbConfirmPasswordReset(authInstance, oobCode, newPassword);
+        firebaseSuccess = true;
+      } catch (fbErr: any) {
+        console.warn("fbConfirmPasswordReset note:", fbErr);
+      }
     }
 
     // Also synchronize password update in backend database
@@ -152,7 +162,7 @@ export async function confirmFirebasePasswordReset(
     });
 
     const data = await res.json().catch(() => ({}));
-    if (!data.success && !authInstance) {
+    if (!data.success && !firebaseSuccess) {
       return { success: false, error: data.error || "This password reset link is invalid or has expired." };
     }
 
