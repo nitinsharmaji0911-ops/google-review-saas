@@ -306,7 +306,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-2.5 sm:gap-3 pt-1"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-1.5"
             >
               <motion.div
                 whileHover={{ scale: 1.03, y: -2 }}
@@ -315,7 +315,7 @@ export default function LandingPage() {
               >
                 <Link
                   href="/signup"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-[13px] sm:text-[14px] font-black border-2 border-black shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-sm sm:text-[15px] font-black border-2 border-black shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
                 >
                   Get Lifetime Access (₹1,999) <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -328,7 +328,7 @@ export default function LandingPage() {
               >
                 <Link
                   href="/r/the-coffee-house"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white hover:bg-slate-50 text-black rounded-full text-[12.5px] sm:text-[14px] font-bold border-2 border-black shadow-[2px_2px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 bg-white hover:bg-slate-50 text-black rounded-full text-xs sm:text-sm font-bold border-2 border-black shadow-[2px_2px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
                 >
                   <Play className="w-3 h-3 fill-black text-black" /> Try Customer Demo
                 </Link>
@@ -1027,8 +1027,9 @@ export default function LandingPage() {
         MOBILE STICKY BOTTOM ACTION BAR (High-Converting Mobile UX)
         ========================================================================
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-lg border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
-        <div className="flex flex-col min-w-0">
+      <div className="md:hidden fixed bottom-3 left-3 right-3 z-50 flex items-center gap-2.5 pointer-events-none">
+        {/* Floating Price Pill */}
+        <div className="pointer-events-auto bg-white/95 backdrop-blur-md border-2 border-black rounded-2xl p-2.5 px-3 shadow-[3px_3px_0px_#000000] flex flex-col justify-center shrink-0">
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] line-through text-slate-400 font-bold">₹4,999</span>
             <span className="text-sm font-black text-black">₹1,999</span>
@@ -1037,12 +1038,14 @@ export default function LandingPage() {
             </span>
           </div>
           <span className="text-[10px] font-bold text-slate-500 truncate">
-            Lifetime License • One-time
+            Lifetime License
           </span>
         </div>
+
+        {/* Large Floating Get Access Button */}
         <motion.div
           animate={{
-            scale: [1, 1.06, 0.98, 1.04, 1],
+            scale: [1, 1.05, 0.98, 1.03, 1],
           }}
           transition={{
             duration: 0.7,
@@ -1051,12 +1054,13 @@ export default function LandingPage() {
             ease: "easeInOut",
           }}
           whileTap={{ scale: 0.94 }}
+          className="pointer-events-auto flex-1 min-w-0"
         >
           <Link
             href="/signup"
-            className="px-5 py-2.5 bg-[#15803D] hover:bg-[#166534] text-white text-xs font-black rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 shrink-0"
+            className="w-full py-3.5 px-4 bg-[#15803D] hover:bg-[#166534] text-white text-sm font-black rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] flex items-center justify-center gap-1.5 text-center transition-all whitespace-nowrap"
           >
-            Get Access <ArrowRight className="w-3.5 h-3.5" />
+            Get Access <ArrowRight className="w-4 h-4 shrink-0" />
           </Link>
         </motion.div>
       </div>

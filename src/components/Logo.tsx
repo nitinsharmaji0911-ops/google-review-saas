@@ -16,8 +16,8 @@ export default function Logo({
   height,
   width,
 }: LogoProps) {
-  // Exact Welurik Review logo with green square + matte black W
-  const src = inverted ? "/welurik-review-dark.png" : "/welurik-review-light.png";
+  // Crisp W Review logo mark (no elurik, no underline, cache-busted)
+  const src = "/w-review-v3.png";
 
   const effectiveStyle: React.CSSProperties = {
     display: "block",
