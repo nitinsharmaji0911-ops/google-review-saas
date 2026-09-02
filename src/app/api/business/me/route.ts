@@ -123,11 +123,16 @@ export async function GET(req: NextRequest) {
       .filter(Boolean);
 
     const isProAccount =
-      business.isPro === true ||
+      business?.isPro === true ||
+      userDoc?.isPro === true ||
       isTrialActive ||
       session.email === "nitin.sharmaji2405@gmail.com" ||
       session.email?.endsWith("@welurik.com") ||
       (session.email && adminEmails.includes(session.email.toLowerCase()));
+
+    if (isProAccount && business) {
+      business.isPro = true;
+    }
 
     return NextResponse.json({
       success: true,

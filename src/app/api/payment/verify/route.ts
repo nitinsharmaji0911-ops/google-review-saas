@@ -166,13 +166,31 @@ export async function POST(req: Request) {
         fsBusiness = await FirestoreDB.getBusinessBySlug(defaultSlug);
       }
 
-      if (fsBusiness) {
-        await FirestoreREST.setDocument("businesses", fsBusiness.slug || fsBusiness.id, {
-          ...fsBusiness,
+      const targetSlug = fsBusiness?.slug || businessSlug || fsUser?.businessSlug || (userEmail ? userEmail.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business");
+
+      const finalBizDoc = {
+        ...(fsBusiness || {}),
+        id: fsBusiness?.id || targetSlug,
+        slug: targetSlug,
+        name: fsBusiness?.name || (userEmail ? userEmail.split("@")[0] : "My Business"),
+        userId: userId || fsBusiness?.userId || "user",
+        category: fsBusiness?.category || "cafe",
+        isPro: true,
+        planName: "Lifetime License",
+        planType: "lifetime",
+        monthlyAiQuota: 999999,
+        paidAt: activationTime,
+      };
+
+      await FirestoreREST.setDocument("businesses", targetSlug, finalBizDoc);
+
+      if (userId) {
+        await FirestoreREST.setDocument("user_businesses", userId, {
+          userId,
+          businessSlug: targetSlug,
+          businessId: targetSlug,
           isPro: true,
-          planName: "Lifetime License",
-          planType: "lifetime",
-          monthlyAiQuota: 999999,
+          name: finalBizDoc.name,
           paidAt: activationTime,
         });
       }

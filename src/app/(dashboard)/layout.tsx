@@ -55,10 +55,21 @@ export default function DashboardLayout({
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setPaywallSuccess(data.message || "🎉 7-Day VIP Trial Activated!");
+        setPaywallSuccess(data.message || "🎉 VIP Access Activated!");
+        setBusiness((prev: any) => ({
+          ...(prev || {}),
+          isPro: true,
+          planName: "VIP Pro License",
+        }));
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem("welurik_pro_activated", "true");
+            sessionStorage.removeItem("welurik_dashboard_cache");
+          } catch {}
+        }
         setTimeout(() => {
           window.location.reload();
-        }, 1000);
+        }, 500);
       } else {
         setPaywallError(data.error || "Invalid or expired promo code.");
       }
@@ -271,7 +282,10 @@ export default function DashboardLayout({
         </header>
 
         {/* Unpaid Account Paywall Guard */}
-        {business && business.isPro !== true && pathname !== "/onboarding" ? (
+        {business &&
+        business.isPro !== true &&
+        (typeof window === "undefined" || sessionStorage.getItem("welurik_pro_activated") !== "true") &&
+        pathname !== "/onboarding" ? (
           <div className="min-h-[80vh] flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-[32px] p-7 sm:p-8 text-center border border-slate-200/80 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-5">
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">

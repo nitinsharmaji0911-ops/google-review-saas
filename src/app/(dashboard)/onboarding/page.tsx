@@ -146,10 +146,17 @@ export default function OnboardingPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setPromoSuccess(data.message || "🎉 7-Day VIP Free Trial Activated!");
+        setPromoSuccess(data.message || "🎉 VIP Access Activated!");
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem("welurik_pro_activated", "true");
+            sessionStorage.removeItem("welurik_dashboard_cache");
+          } catch {}
+          window.dispatchEvent(new Event("refresh_business"));
+        }
         setTimeout(() => {
-          router.push("/dashboard");
-        }, 800);
+          window.location.href = "/dashboard";
+        }, 400);
       } else {
         setPromoError(data.error || "Invalid or expired promo code.");
       }
