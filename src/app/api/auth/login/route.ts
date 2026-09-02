@@ -142,11 +142,7 @@ export async function POST(req: NextRequest) {
       businessSlug: businessSlug || undefined,
     });
 
-    const isSuperAdmin =
-      normalizedEmail === "nitin.sharmaji0512@gmail.com" ||
-      normalizedEmail === "nitin.sharmaji2405@gmail.com";
-
-    const redirectPath = isSuperAdmin ? "/admin-vault" : (businessSlug ? "/dashboard" : "/onboarding");
+    const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
 
     // Record login activity in Firestore for Super Admin audit log
     try {

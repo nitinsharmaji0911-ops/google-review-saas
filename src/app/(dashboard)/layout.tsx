@@ -252,16 +252,6 @@ export default function DashboardLayout({
             </a>
           )}
 
-          {isSuperAdmin && (
-            <Link
-              href="/admin-vault"
-              className="w-full py-2.5 px-3 bg-black hover:bg-slate-800 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-[2px_2px_0px_#15803D] cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Admin Vault ⚡</span>
-            </Link>
-          )}
-
           <button
             onClick={handleLogout}
             disabled={loggingOut}
@@ -284,16 +274,6 @@ export default function DashboardLayout({
             <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">{business?.name || "Welurik"}</span>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            {isSuperAdmin && (
-              <Link
-                href="/admin-vault"
-                className="text-[11px] font-black px-2 py-1.5 rounded-lg bg-black text-emerald-400 border border-emerald-500 whitespace-nowrap flex items-center gap-1"
-                title="Super Admin Vault"
-              >
-                <span>Vault</span>
-                <span>⚡</span>
-              </Link>
-            )}
             {business?.isPro === true && (
               <Link
                 href="/qr-studio"
