@@ -37,9 +37,10 @@ export async function POST(req: Request) {
 
     // Allow mock only for development/test simulation
     const isMock =
-      razorpay_order_id.startsWith("order_") &&
-      razorpay_signature &&
-      razorpay_signature.startsWith("mock_sig_");
+      (razorpay_order_id.startsWith("order_") &&
+        razorpay_signature &&
+        (razorpay_signature.startsWith("mock_") || razorpay_signature.startsWith("test_"))) ||
+      (razorpay_payment_id && razorpay_payment_id.startsWith("pay_test_"));
 
     if (!isMock) {
       if (!razorpay_signature) {

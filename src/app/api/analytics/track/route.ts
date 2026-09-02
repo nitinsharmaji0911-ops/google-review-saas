@@ -5,14 +5,15 @@ import { FirestoreDB } from "@/lib/firestore-db";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { businessSlug, eventType, metadata } = body;
+    const businessSlug = body.businessSlug || body.slug;
+    const { eventType, metadata } = body;
 
     if (!businessSlug || !eventType) {
       return NextResponse.json({ success: false, error: "Missing parameters" }, { status: 400 });
     }
 
     // 1. Track event in Firestore (Primary Cloud Store)
-    FirestoreDB.trackEvent(businessSlug, eventType, metadata).catch((e) => {
+    await FirestoreDB.trackEvent(businessSlug, eventType, metadata).catch((e) => {
       console.warn("Firestore trackEvent note:", e);
     });
 

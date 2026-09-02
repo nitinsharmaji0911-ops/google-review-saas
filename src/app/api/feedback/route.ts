@@ -41,18 +41,21 @@ export async function GET(req: NextRequest) {
       feedbackList = await FirestoreDB.getFeedbacksBySlug(business.slug);
     }
 
+    const formattedList = feedbackList.map((f: any) => ({
+      id: f.id,
+      customerName: f.customerName || null,
+      customerPhone: f.customerPhone || null,
+      customerEmail: f.customerEmail || null,
+      message: f.message || f.feedback || "",
+      issueTopics: typeof f.issueTopics === "string" ? f.issueTopics : JSON.stringify(f.issueTopics || f.selectedIssues || []),
+      status: f.status || "unread",
+      createdAt: f.createdAt ? new Date(f.createdAt).toISOString() : new Date().toISOString(),
+    }));
+
     return NextResponse.json({
       success: true,
-      feedback: feedbackList.map((f: any) => ({
-        id: f.id,
-        customerName: f.customerName || null,
-        customerPhone: f.customerPhone || null,
-        customerEmail: f.customerEmail || null,
-        message: f.message,
-        issueTopics: typeof f.issueTopics === "string" ? f.issueTopics : JSON.stringify(f.issueTopics || []),
-        status: f.status || "unread",
-        createdAt: f.createdAt ? new Date(f.createdAt).toISOString() : new Date().toISOString(),
-      })),
+      feedback: formattedList,
+      feedbacks: formattedList,
     });
   } catch (error: any) {
     console.error("GET /api/feedback error:", error);
@@ -127,9 +130,12 @@ export async function PATCH(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { businessSlug, customerName, customerPhone, customerEmail, message, issueTopics } = body;
+    const businessSlug = body.businessSlug || body.slug;
+    const rawMessage = body.message || body.feedback;
+    const { customerName, customerPhone, customerEmail } = body;
+    const issueTopics = body.issueTopics || body.selectedIssues || [];
 
-    if (!businessSlug || !message || typeof message !== "string") {
+    if (!businessSlug || !rawMessage || typeof rawMessage !== "string") {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
 
@@ -148,7 +154,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
     }
 
-    const sanitizedMessage = message.slice(0, 1000).trim();
+    const sanitizedMessage = rawMessage.slice(0, 1000).trim();
     const sanitizedName = customerName ? String(customerName).slice(0, 100).trim() : null;
     const sanitizedPhone = customerPhone ? String(customerPhone).slice(0, 30).trim() : null;
     const sanitizedEmail = customerEmail ? String(customerEmail).slice(0, 100).trim() : null;
@@ -183,6 +189,8 @@ export async function POST(req: NextRequest) {
       message: sanitizedMessage,
       issueTopics: sanitizedTopics,
     }).catch(() => {});
+
+    await FirestoreDB.trackEvent(businessSlug, "feedback_submitted").catch(() => {});
 
     // Track analytics event
     try {

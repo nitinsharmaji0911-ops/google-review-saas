@@ -14,11 +14,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
+    const businessSlug = body.businessSlug || body.slug;
     const {
-      businessSlug,
-      selectedTopics = [],
-      selectedServices = [],
-      customerComment = "",
+      selectedTopics = body.topics || [],
+      selectedServices = body.services || [],
+      customerComment = body.comment || "",
       tone = "natural",
       rating = 5,
     } = body;
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Also track in Firestore
-    FirestoreDB.createReview({
+    await FirestoreDB.createReview({
       businessSlug: businessSlug || "my-business",
       rating: validRating,
       selectedTopics: sanitizedTopics,
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       status: "generated",
     }).catch(() => {});
 
-    FirestoreDB.trackEvent(businessSlug || "my-business", "review_generated", {
+    await FirestoreDB.trackEvent(businessSlug || "my-business", "review_generated", {
       source: result.source,
       tone: validTone,
     }).catch(() => {});

@@ -20,7 +20,7 @@ inMemoryStore.businesses.set("the-coffee-house", {
 });
 
 function emailToDocId(email: string) {
-  return "usr_" + Buffer.from(email.toLowerCase().trim()).toString("hex").substring(0, 60);
+  return "usr_" + Buffer.from(email.toLowerCase().trim()).toString("hex");
 }
 
 /**
