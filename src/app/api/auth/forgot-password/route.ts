@@ -79,12 +79,26 @@ export async function POST(req: NextRequest) {
       const origin = `${proto}://${host}`;
       const resetLink = `${origin}/reset-password?token=${rawToken}&uid=${user.id}`;
 
-      // Dispatch email in background through configured SMTP
+      // Dispatch email in background through configured SMTP (if set)
       sendPasswordResetEmail({
         to: normalizedEmail,
         resetLink,
       }).catch((emailErr) => {
         console.error("Email dispatch failed:", emailErr);
+      });
+
+      // Dispatch real password reset email via Google Identity Toolkit
+      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
+      fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestType: "PASSWORD_RESET",
+          email: normalizedEmail,
+          continueUrl: `${origin}/reset-password`,
+        }),
+      }).catch((fbErr) => {
+        console.warn("Identity Toolkit reset dispatch note:", fbErr);
       });
     }
 

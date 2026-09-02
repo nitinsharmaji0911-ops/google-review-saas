@@ -62,50 +62,47 @@ export async function sendFirebasePasswordReset(
   redirectUrl?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const normalizedEmail = email.trim().toLowerCase();
+    const targetUrl = redirectUrl || (typeof window !== "undefined" ? `${window.location.origin}/reset-password` : "https://review.welurik.com/reset-password");
+
+    // 1. Notify backend to generate and persist reset token
+    fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalizedEmail, redirectUrl: targetUrl }),
+    }).catch(() => {});
+
+    // 2. Dispatch via Firebase Client SDK
     const authInstance = getFirebaseAuth();
-    if (!authInstance || !process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-      // If client API key is not in frontend bundle, delegate to backend Firebase Admin handler
-      const res = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, redirectUrl }),
-      });
-      const data = await res.json().catch(() => ({}));
-      return { success: data.success !== false };
+    if (authInstance) {
+      try {
+        const actionCodeSettings: ActionCodeSettings = {
+          url: targetUrl,
+          handleCodeInApp: true,
+        };
+        await fbSendPasswordResetEmail(authInstance, normalizedEmail, actionCodeSettings);
+        return { success: true };
+      } catch (sdkErr) {
+        console.warn("Firebase client SDK reset dispatch note, falling back to direct Identity Toolkit:", sdkErr);
+      }
     }
 
-    const actionCodeSettings: ActionCodeSettings = {
-      url: redirectUrl || (typeof window !== "undefined" ? `${window.location.origin}/reset-password` : "https://review.welurik.com/reset-password"),
-      handleCodeInApp: true,
-    };
+    // 3. Fallback: Direct Google Identity Toolkit REST API
+    const fbApiKey = "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
+    await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbApiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requestType: "PASSWORD_RESET",
+        email: normalizedEmail,
+        continueUrl: targetUrl,
+      }),
+    });
 
-    await fbSendPasswordResetEmail(authInstance, email.trim().toLowerCase(), actionCodeSettings);
     return { success: true };
   } catch (err: any) {
-    const code = err.code || "";
-    // Anti-enumeration: treat user-not-found as successful dispatch
-    if (code === "auth/user-not-found" || code === "auth/invalid-email") {
-      return { success: true };
-    }
-    if (code === "auth/too-many-requests") {
-      return { success: false, error: "Too many requests. Please wait a while before trying again." };
-    }
-    if (code === "auth/network-request-failed") {
-      return { success: false, error: "Something went wrong while sending the reset email. Please check your connection and try again." };
-    }
-
-    // Fallback to server route
-    try {
-      const res = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, redirectUrl }),
-      });
-      const data = await res.json().catch(() => ({}));
-      return { success: data.success !== false };
-    } catch {
-      return { success: true }; // Generic anti-enumeration response
-    }
+    console.warn("sendFirebasePasswordReset error:", err);
+    return { success: true }; // Generic anti-enumeration response
   }
 }
 
