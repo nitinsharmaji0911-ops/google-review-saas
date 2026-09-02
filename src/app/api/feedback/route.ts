@@ -72,7 +72,8 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { id, status } = body;
+    const id = body.id || body.feedbackId;
+    const status = body.status;
 
     if (!id || !status || !["unread", "resolved"].includes(status)) {
       return NextResponse.json({ success: false, error: "Valid ID and status ('unread' | 'resolved') required" }, { status: 400 });
