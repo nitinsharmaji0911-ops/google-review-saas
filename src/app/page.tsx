@@ -1027,7 +1027,7 @@ export default function LandingPage() {
         MOBILE STICKY BOTTOM ACTION BAR (High-Converting Mobile UX)
         ========================================================================
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-lg border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-white border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] line-through text-slate-400 font-bold">₹4,999</span>
