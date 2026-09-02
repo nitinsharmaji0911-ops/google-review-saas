@@ -197,16 +197,16 @@ export default function QRStudioPage() {
           <div
             id="printable-standee"
             ref={standeeRef}
-            className="w-full max-w-sm bg-white rounded-[32px] shadow-lg border border-slate-200/90 overflow-hidden transition-all duration-300"
+            className="w-full max-w-[340px] sm:max-w-sm bg-white rounded-[28px] sm:rounded-[32px] shadow-lg border border-slate-200/90 overflow-hidden transition-all duration-300 mx-auto"
           >
             {/* NORDIC CLEAN MINIMAL */}
             {template === "minimal" && (
-              <div className="p-8 text-center flex flex-col items-center justify-between min-h-[480px]">
+              <div className="p-5 sm:p-8 text-center flex flex-col items-center justify-between min-h-[440px] sm:min-h-[480px]">
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Review Us On Google
                   </span>
-                  <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
                     {business?.name || "The Coffee House"}
                   </h3>
                   <div className="flex items-center justify-center gap-1">
@@ -216,24 +216,24 @@ export default function QRStudioPage() {
                   </div>
                 </div>
 
-                <div className="my-5 p-4 bg-white rounded-3xl border border-slate-200/90 shadow-sm relative">
+                <div className="my-4 sm:my-5 p-3 sm:p-4 bg-white rounded-3xl border border-slate-200/90 shadow-sm relative">
                   {qrDataUrl ? (
                     <img
                       src={qrDataUrl}
                       alt="Review QR Code"
-                      className="w-44 h-44 rounded-xl object-contain mx-auto"
+                      className="w-36 h-36 sm:w-44 sm:h-44 rounded-xl object-contain mx-auto"
                     />
                   ) : (
-                    <div className="w-44 h-44 bg-slate-100 flex items-center justify-center rounded-xl">
-                      <QrIcon className="w-10 h-10 text-slate-300" />
+                    <div className="w-36 h-36 sm:w-44 sm:h-44 bg-slate-100 flex items-center justify-center rounded-xl">
+                      <QrIcon className="w-8 h-8 sm:w-10 sm:h-10 text-slate-300" />
                     </div>
                   )}
                 </div>
 
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold text-slate-900">{headline}</h4>
-                  <p className="text-[11px] text-slate-500 max-w-[240px] leading-relaxed">{subheadline}</p>
-                  <p className="text-[10px] font-bold text-slate-900 pt-2 tracking-wide uppercase">
+                  <p className="text-[10.5px] sm:text-[11px] text-slate-500 max-w-[240px] leading-relaxed">{subheadline}</p>
+                  <p className="text-[9.5px] sm:text-[10px] font-bold text-slate-900 pt-2 tracking-wide uppercase">
                     ⚡ 30 Seconds • Tap to Post
                   </p>
                 </div>

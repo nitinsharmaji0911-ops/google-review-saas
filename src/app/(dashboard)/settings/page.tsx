@@ -278,7 +278,7 @@ export default function SettingsPage() {
             {googleReviewUrl && googleReviewUrl.trim().length > 0 && (
               <>
                 {isValidGoogleUrl(googleReviewUrl) ? (
-                  <div className="mt-2 flex items-center justify-between bg-emerald-50 border border-emerald-200/80 px-3 py-2 rounded-xl text-xs">
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border border-emerald-200/80 px-3 py-2 rounded-xl text-xs">
                     <div className="flex items-center gap-1.5 text-emerald-800 font-medium text-[11.5px]">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span>Valid Google Business format</span>
@@ -400,7 +400,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Submit Action Bar */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200/80">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-200/80">
           <div>
             {saveSuccess && (
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 animate-in fade-in">
@@ -417,7 +417,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="py-3 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs transition-all active:scale-[0.98]"
+            className="w-full sm:w-auto py-3 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
           >
             {saving ? "Saving..." : (
               <>

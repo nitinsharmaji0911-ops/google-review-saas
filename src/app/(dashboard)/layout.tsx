@@ -268,35 +268,40 @@ export default function DashboardLayout({
       {/* MAIN CONTENT WRAPPER */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header Bar */}
-        <header className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20 no-print">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+        <header className="md:hidden bg-white border-b border-slate-200 px-3.5 py-2.5 flex items-center justify-between sticky top-0 z-20 no-print gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0">
               {business?.name ? business.name.charAt(0) : "W"}
             </div>
-            <span className="font-bold text-sm text-slate-900 truncate max-w-[140px]">{business?.name || "Welurik"}</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">{business?.name || "Welurik"}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             {isSuperAdmin && (
               <Link
                 href="/admin-vault"
-                className="text-xs font-black px-2 py-1.5 rounded-lg bg-black text-emerald-400 border border-emerald-500"
+                className="text-[11px] font-black px-2 py-1.5 rounded-lg bg-black text-emerald-400 border border-emerald-500 whitespace-nowrap flex items-center gap-1"
+                title="Super Admin Vault"
               >
-                Vault ⚡
+                <span>Vault</span>
+                <span>⚡</span>
               </Link>
             )}
             <Link
               href="/qr-studio"
-              className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-900 text-white"
+              className="text-xs font-semibold px-2 py-1.5 rounded-lg bg-slate-900 text-white flex items-center gap-1"
+              title="Print QR Standees"
             >
-              QR
+              <QrCode className="w-3 h-3" />
+              <span className="hidden xs:inline">QR</span>
             </Link>
             <button
               onClick={handleLogout}
               disabled={loggingOut}
-              className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1 cursor-pointer transition-colors"
+              title="Sign Out"
             >
-              <LogOut className="w-3 h-3" />
-              <span>{loggingOut ? "..." : "Logout"}</span>
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{loggingOut ? "..." : "Logout"}</span>
             </button>
           </div>
         </header>
@@ -436,34 +441,54 @@ export default function DashboardLayout({
         )}
 
         {/* Mobile Fixed Bottom Navigation Bar */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 px-2 py-2 flex items-center justify-around z-30 no-print">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/98 backdrop-blur-xl border-t border-slate-200/80 px-1 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around z-30 no-print shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+            const shortLabel =
+              item.label === "Standee Studio"
+                ? "Standee"
+                : item.label === "Keywords & Topics"
+                ? "Keywords"
+                : item.label === "Private Feedback"
+                ? "Feedback"
+                : item.label;
+
             return (
-              <motion.div key={item.href} whileTap={{ scale: 0.86 }}>
+              <motion.div key={item.href} whileTap={{ scale: 0.88 }} className="flex-1">
                 <Link
                   href={item.href}
-                  className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+                  className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
                     isActive ? "text-slate-950 font-bold" : "text-slate-400 hover:text-slate-600"
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? "text-slate-950 stroke-[2.5]" : "text-slate-400"}`} />
-                  <span className="text-[10px] mt-0.5">{item.label}</span>
+                  <div className="relative">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-950 stroke-[2.5]" : "text-slate-400"}`} />
+                    {item.count && (
+                      <span className="absolute -top-1 -right-2 text-[8.5px] font-black w-3.5 h-3.5 bg-rose-500 text-white rounded-full flex items-center justify-center">
+                        {item.count}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9.5px] mt-0.5 tracking-tight truncate max-w-[58px] text-center">
+                    {shortLabel}
+                  </span>
                 </Link>
               </motion.div>
             );
           })}
           {business?.slug && (
-            <motion.div whileTap={{ scale: 0.86 }}>
+            <motion.div whileTap={{ scale: 0.88 }} className="flex-1">
               <a
                 href={publicReviewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-900"
+                className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-emerald-600 hover:text-emerald-700"
               >
-                <QrCode className="w-5 h-5 text-emerald-600" />
-                <span className="text-[10px] mt-0.5 text-emerald-600 font-semibold">Funnel</span>
+                <QrCode className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                <span className="text-[9.5px] mt-0.5 text-emerald-600 font-bold truncate max-w-[58px] text-center">
+                  Funnel
+                </span>
               </a>
             </motion.div>
           )}

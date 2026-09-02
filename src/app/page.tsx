@@ -267,7 +267,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[30px] xs:text-[38px] sm:text-5xl lg:text-[60px] font-black text-black tracking-[-0.035em] leading-[1.08] sm:leading-[1.04]"
+              className="text-[26px] xs:text-[34px] sm:text-5xl lg:text-[60px] font-black text-black tracking-[-0.035em] leading-[1.1] sm:leading-[1.04]"
             >
               Turn Happy Customers <br className="hidden xs:inline" />
               into <span className="text-[#15803D] underline decoration-4 decoration-[#15803D]/30">5-Star Reviews</span>
@@ -1024,7 +1024,7 @@ export default function LandingPage() {
         MOBILE STICKY BOTTOM ACTION BAR (High-Converting Mobile UX)
         ========================================================================
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-white border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 px-4 py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-md border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] line-through text-slate-400 font-bold">₹4,999</span>

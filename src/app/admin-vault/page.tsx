@@ -273,23 +273,24 @@ export default function AdminVaultPage() {
     <div className="min-h-screen bg-[#ECFDF5] text-slate-900 pb-16">
       {/* Top Admin Navbar */}
       <header className="bg-white border-b-2 border-black sticky top-0 z-40 shadow-[0_2px_0px_#000000]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/admin-vault" className="flex items-center">
-              <WelurikLogo className="h-7 sm:h-8" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Link href="/admin-vault" className="flex items-center shrink-0">
+              <WelurikLogo className="h-6 sm:h-8" />
             </Link>
-            <div className="hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+            <div className="hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm shrink-0">
               <ShieldCheck className="w-3 h-3 text-emerald-400" />
               Super Admin Vault
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={fetchAdminData}
               disabled={loading}
-              className="px-3 py-1.5 bg-white hover:bg-slate-50 text-black border-2 border-black rounded-xl text-xs font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 cursor-pointer active:translate-y-0.5"
+              className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-slate-50 text-black border-2 border-black rounded-xl text-xs font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 cursor-pointer active:translate-y-0.5"
+              title="Refresh User Data"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
@@ -298,7 +299,8 @@ export default function AdminVaultPage() {
             <button
               type="button"
               onClick={handleExportCSV}
-              className="px-3 py-1.5 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-xs font-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 cursor-pointer active:translate-y-0.5"
+              className="px-2.5 sm:px-3 py-1.5 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-xs font-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 cursor-pointer active:translate-y-0.5"
+              title="Export All Users to CSV"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Export CSV</span>
@@ -306,22 +308,23 @@ export default function AdminVaultPage() {
 
             <Link
               href="/dashboard"
-              className="px-3 py-1.5 bg-white hover:bg-slate-50 text-black border-2 border-black rounded-xl text-xs font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1"
+              className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-slate-50 text-black border-2 border-black rounded-xl text-xs font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1"
+              title="Back to Business Dashboard"
             >
-              <span>Dashboard</span>
+              <span className="text-xs">Dashboard</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-5 sm:pt-6 space-y-5 sm:space-y-6">
         {/* Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-black/10 pb-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-black tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight flex items-center gap-2">
               <span>Platform Intelligence</span>
-              <span className="text-xs bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-2 py-0.5 rounded-full">
+              <span className="text-[11px] sm:text-xs bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-2 py-0.5 rounded-full">
                 Live
               </span>
             </h1>
@@ -331,51 +334,51 @@ export default function AdminVaultPage() {
           </div>
 
           {actionMessage && (
-            <div className="bg-emerald-100 border-2 border-black text-emerald-950 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 animate-in fade-in">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-              {actionMessage}
+            <div className="bg-emerald-100 border-2 border-black text-emerald-950 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 animate-in fade-in self-start sm:self-auto">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+              <span>{actionMessage}</span>
             </div>
           )}
         </div>
 
         {/* 4 Telemetry Metrics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {/* Total Registered Users */}
-          <div className="bg-white border-2 border-black rounded-2xl p-4 sm:p-5 shadow-[3px_3px_0px_#000000] space-y-2">
+          <div className="bg-white border-2 border-black rounded-2xl p-3 sm:p-5 shadow-[3px_3px_0px_#000000] space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate">
                 Total Users
               </span>
-              <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl border border-black/20 flex items-center justify-center">
-                <Users className="w-4 h-4" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-50 text-blue-600 rounded-xl border border-black/20 flex items-center justify-center shrink-0">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-black">
+            <div className="text-xl sm:text-2xl md:text-3xl font-black text-black">
               {loading ? "..." : data?.stats.totalUsers || 0}
             </div>
-            <p className="text-[10px] text-slate-500 font-medium">Registered accounts</p>
+            <p className="text-[10px] text-slate-500 font-medium truncate">Registered accounts</p>
           </div>
 
           {/* Total Active Businesses */}
-          <div className="bg-white border-2 border-black rounded-2xl p-4 sm:p-5 shadow-[3px_3px_0px_#000000] space-y-2">
+          <div className="bg-white border-2 border-black rounded-2xl p-3 sm:p-5 shadow-[3px_3px_0px_#000000] space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate">
                 Businesses
               </span>
-              <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-xl border border-black/20 flex items-center justify-center">
-                <Building2 className="w-4 h-4" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-50 text-emerald-600 rounded-xl border border-black/20 flex items-center justify-center shrink-0">
+                <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-black">
+            <div className="text-xl sm:text-2xl md:text-3xl font-black text-black">
               {loading ? "..." : data?.stats.totalBusinesses || 0}
             </div>
-            <p className="text-[10px] text-slate-500 font-medium">Active storefronts</p>
+            <p className="text-[10px] text-slate-500 font-medium truncate">Active storefronts</p>
           </div>
 
           {/* Paid Pro Licenses */}
-          <div className="bg-white border-2 border-black rounded-2xl p-4 sm:p-5 shadow-[3px_3px_0px_#000000] space-y-2">
+          <div className="bg-white border-2 border-black rounded-2xl p-3 sm:p-5 shadow-[3px_3px_0px_#000000] space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate">
                 Pro Licenses
               </span>
               <div className="w-8 h-8 bg-amber-50 text-amber-600 rounded-xl border border-black/20 flex items-center justify-center">
@@ -472,6 +475,10 @@ export default function AdminVaultPage() {
 
             {/* Users Directory Table */}
             <div className="bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_#000000] overflow-hidden">
+              <div className="sm:hidden text-[10px] text-slate-500 font-bold px-3.5 py-1.5 bg-amber-50/80 border-b border-black/10 flex items-center justify-between">
+                <span>👉 Swipe horizontally for all columns</span>
+                <span className="text-emerald-700">Pro Actions →</span>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 border-b-2 border-black text-slate-700 font-bold uppercase tracking-wider text-[10px]">
@@ -644,9 +651,14 @@ export default function AdminVaultPage() {
                   Real-time security log of user authentications across Google OAuth & Email
                 </p>
               </div>
-              <span className="text-[10px] font-bold bg-black text-white px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-bold bg-black text-white px-2 py-0.5 rounded-md shrink-0">
                 {data?.recentLogins.length || 0} Events Recorded
               </span>
+            </div>
+
+            <div className="sm:hidden text-[10px] text-slate-500 font-bold px-3.5 py-1.5 bg-amber-50/80 border-b border-black/10 flex items-center justify-between">
+              <span>👉 Swipe horizontally to view full client info</span>
+              <span className="text-slate-700">Audit details →</span>
             </div>
 
             <div className="overflow-x-auto">
