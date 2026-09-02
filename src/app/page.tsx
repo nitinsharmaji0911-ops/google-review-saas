@@ -625,12 +625,12 @@ export default function LandingPage() {
             </div>
             <div className="relative rounded-2xl border-2 border-black overflow-hidden shadow-[2px_2px_0px_#000000] mt-2 group">
               <img
-                src="/images/retail-display-mockup.jpg"
-                alt="Reception counter QR display"
+                src="/images/step2-ai-tap.jpg"
+                alt="Customer selecting experience pills on mobile phone"
                 className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute bottom-2 left-2 bg-[#15803D] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                Billing Desk Display
+              <div className="absolute bottom-2 left-2 bg-[#15803D] text-white text-[10px] font-black px-2.5 py-0.5 rounded-md border border-black shadow-[1px_1px_0px_#000000]">
+                AI 5-Star Generator
               </div>
             </div>
           </motion.div>
@@ -655,12 +655,12 @@ export default function LandingPage() {
             </div>
             <div className="relative rounded-2xl border-2 border-black overflow-hidden shadow-[2px_2px_0px_#000000] mt-2 group">
               <img
-                src="/images/google-stars-boost.jpg"
-                alt="5-star Google review explosion"
+                src="/images/step3-google-post.jpg"
+                alt="5-star Google review posted on mobile phone"
                 className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute bottom-2 left-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-md">
-                +42 Reviews Boost
+              <div className="absolute bottom-2 left-2 bg-emerald-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-md border border-black shadow-[1px_1px_0px_#000000]">
+                Verified Google Review
               </div>
             </div>
           </motion.div>
