@@ -34,7 +34,7 @@ export default function Logo({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt="Welurik Review"
+      alt="W Review"
       className={`transition-transform duration-200 hover:scale-[1.03] select-none ${defaultSizeClasses} ${className}`}
       style={effectiveStyle}
     />
