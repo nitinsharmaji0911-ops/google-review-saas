@@ -157,7 +157,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/login"
-              className="text-[12px] sm:text-[13px] font-bold text-black hover:text-slate-600 transition-colors px-2 py-1"
+              className="text-sm sm:text-[15px] font-black text-black hover:text-slate-600 transition-colors px-2.5 py-1.5"
             >
               Sign In
             </Link>
@@ -255,7 +255,7 @@ export default function LandingPage() {
         HERO SECTION (Optimized Mobile Flow + Desktop Power)
         ========================================================================
       */}
-      <section className="w-full max-w-[1140px] mx-auto px-4 sm:px-8 pt-5 sm:pt-12 pb-10 sm:pb-20 relative z-10">
+      <section className="w-full max-w-[1140px] mx-auto px-4 sm:px-8 pt-12 sm:pt-16 md:pt-20 pb-10 sm:pb-20 relative z-10">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-center">
           
@@ -1027,10 +1027,9 @@ export default function LandingPage() {
         MOBILE STICKY BOTTOM ACTION BAR (High-Converting Mobile UX)
         ========================================================================
       */}
-      <div className="md:hidden fixed bottom-3 left-3 right-3 z-50 flex items-center gap-2.5 pointer-events-none">
-        {/* Floating Price Pill */}
-        <div className="pointer-events-auto bg-white/95 backdrop-blur-md border-2 border-black rounded-2xl p-2.5 px-3 shadow-[3px_3px_0px_#000000] flex flex-col justify-center shrink-0">
-          <div className="flex items-center gap-1.5">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-lg border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] line-through text-slate-400 font-bold">₹4,999</span>
             <span className="text-sm font-black text-black">₹1,999</span>
             <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-full">
@@ -1038,11 +1037,10 @@ export default function LandingPage() {
             </span>
           </div>
           <span className="text-[10px] font-bold text-slate-500 truncate">
-            Lifetime License
+            Lifetime License • One-time
           </span>
         </div>
 
-        {/* Large Floating Get Access Button */}
         <motion.div
           animate={{
             scale: [1, 1.05, 0.98, 1.03, 1],
@@ -1054,11 +1052,11 @@ export default function LandingPage() {
             ease: "easeInOut",
           }}
           whileTap={{ scale: 0.94 }}
-          className="pointer-events-auto flex-1 min-w-0"
+          className="shrink-0"
         >
           <Link
             href="/signup"
-            className="w-full py-3.5 px-4 bg-[#15803D] hover:bg-[#166534] text-white text-sm font-black rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] flex items-center justify-center gap-1.5 text-center transition-all whitespace-nowrap"
+            className="px-6 py-3 bg-[#15803D] hover:bg-[#166534] text-white text-sm font-black rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 text-center transition-all whitespace-nowrap"
           >
             Get Access <ArrowRight className="w-4 h-4 shrink-0" />
           </Link>

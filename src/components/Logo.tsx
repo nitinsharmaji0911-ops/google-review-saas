@@ -16,8 +16,8 @@ export default function Logo({
   height,
   width,
 }: LogoProps) {
-  // Crisp W Review logo mark (no elurik, no underline, cache-busted)
-  const src = "/w-review-v3.png";
+  // Crisp W Review logo mark (no elurik, no underline, cache-busted v4)
+  const src = "/w-review-v4.png";
 
   const effectiveStyle: React.CSSProperties = {
     display: "block",
