@@ -29,6 +29,7 @@ export default function DashboardLayout({
   const [business, setBusiness] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   // Paywall Promo Code States
   const [paywallPromo, setPaywallPromo] = useState("");
@@ -94,6 +95,7 @@ export default function DashboardLayout({
           if (d && d.success && d.business) {
             setBusiness(d.business);
             setUnreadCount(d.unreadFeedbackCount || 0);
+            if (d.isSuperAdmin) setIsSuperAdmin(true);
           }
         })
         .catch(() => {});
@@ -242,6 +244,16 @@ export default function DashboardLayout({
             </a>
           )}
 
+          {isSuperAdmin && (
+            <Link
+              href="/admin-vault"
+              className="w-full py-2.5 px-3 bg-black hover:bg-slate-800 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-[2px_2px_0px_#15803D] cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Admin Vault ⚡</span>
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
             disabled={loggingOut}
@@ -264,6 +276,14 @@ export default function DashboardLayout({
             <span className="font-bold text-sm text-slate-900 truncate max-w-[140px]">{business?.name || "Welurik"}</span>
           </div>
           <div className="flex items-center gap-2">
+            {isSuperAdmin && (
+              <Link
+                href="/admin-vault"
+                className="text-xs font-black px-2 py-1.5 rounded-lg bg-black text-emerald-400 border border-emerald-500"
+              >
+                Vault ⚡
+              </Link>
+            )}
             <Link
               href="/qr-studio"
               className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-900 text-white"

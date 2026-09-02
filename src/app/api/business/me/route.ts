@@ -134,8 +134,14 @@ export async function GET(req: NextRequest) {
       business.isPro = true;
     }
 
+    const isSuperAdmin =
+      session.email === "nitin.sharmaji2405@gmail.com" ||
+      session.email?.endsWith("@welurik.com") ||
+      Boolean(session.email && adminEmails.includes(session.email.toLowerCase()));
+
     return NextResponse.json({
       success: true,
+      isSuperAdmin,
       business: {
         id: business.id,
         name: business.name,
