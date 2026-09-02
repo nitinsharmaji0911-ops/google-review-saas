@@ -126,7 +126,9 @@ export async function GET(req: NextRequest) {
       business?.isPro === true ||
       userDoc?.isPro === true ||
       isTrialActive ||
+      session.email === "nitin.sharmaji0512@gmail.com" ||
       session.email === "nitin.sharmaji2405@gmail.com" ||
+      session.email?.toLowerCase().startsWith("nitin.sharmaji") ||
       session.email?.endsWith("@welurik.com") ||
       (session.email && adminEmails.includes(session.email.toLowerCase()));
 
@@ -135,7 +137,9 @@ export async function GET(req: NextRequest) {
     }
 
     const isSuperAdmin =
+      session.email === "nitin.sharmaji0512@gmail.com" ||
       session.email === "nitin.sharmaji2405@gmail.com" ||
+      session.email?.toLowerCase().startsWith("nitin.sharmaji") ||
       session.email?.endsWith("@welurik.com") ||
       Boolean(session.email && adminEmails.includes(session.email.toLowerCase()));
 

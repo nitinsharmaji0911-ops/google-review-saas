@@ -34,7 +34,9 @@ export default function LoginPage() {
             sessionStorage.removeItem("welurik_dashboard_cache");
           } catch {}
         }
-        router.push(data.redirect || "/dashboard");
+        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        const fromRoute = params?.get("from");
+        window.location.href = fromRoute || data.redirect || "/dashboard";
       } else {
         setError(data.error || "Invalid email or password");
       }

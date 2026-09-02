@@ -55,7 +55,9 @@ export default function GoogleAuthButton({
                 sessionStorage.removeItem("welurik_dashboard_cache");
               } catch {}
             }
-            router.push(data.redirect || "/dashboard");
+            const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+            const fromRoute = params?.get("from");
+            window.location.href = fromRoute || data.redirect || "/dashboard";
           } else {
             onError?.(data.error || "Failed to establish session from Google sign-in.");
             setLoading(false);
@@ -110,7 +112,9 @@ export default function GoogleAuthButton({
                 sessionStorage.removeItem("welurik_dashboard_cache");
               } catch {}
             }
-            window.location.href = data.redirect || "/dashboard";
+            const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+            const fromRoute = params?.get("from");
+            window.location.href = fromRoute || data.redirect || "/dashboard";
             return;
           } else {
             throw new Error(data.error || "Server could not establish session.");

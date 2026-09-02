@@ -295,7 +295,15 @@ export default function OnboardingPage() {
       {/* Top Bar */}
       <header className="max-w-6xl w-full mx-auto px-4 flex items-center justify-between z-10">
         <WelurikLogo className="h-8 sm:h-9" />
-        <span className="text-xs font-semibold text-slate-400">Step {step} of 3</span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin-vault"
+            className="text-[11px] font-black px-3 py-1.5 rounded-full bg-black text-emerald-400 border border-emerald-500 shadow-[2px_2px_0px_#000000] flex items-center gap-1.5"
+          >
+            <span>Admin Vault ⚡</span>
+          </Link>
+          <span className="text-xs font-semibold text-slate-400">Step {step} of 3</span>
+        </div>
       </header>
 
       <div className="w-full max-w-md mx-auto my-auto z-10 space-y-6">
