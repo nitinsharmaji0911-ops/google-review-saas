@@ -3,12 +3,9 @@
  * Provides 100% serverless cloud persistence directly over HTTPS with zero dependency on local files
  */
 
-const DEFAULT_PUBLIC_KEY = typeof Buffer !== "undefined"
-  ? Buffer.from("QUl6YVN5QjdubnJHVlNVeFZUbUt3NHQ2cVhyQlZ4QUdieGFyVnZF", "base64").toString("utf-8")
-  : "";
-
+const HARDCODED_KEY = "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "saas-64015";
-const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || DEFAULT_PUBLIC_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || HARDCODED_KEY;
 const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
 function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
@@ -94,12 +91,16 @@ export const FirestoreREST = {
   async getDocument(collection: string, docId: string): Promise<any | null> {
     try {
       const url = `${BASE_URL}/${collection}/${encodeURIComponent(docId)}?key=${API_KEY}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: "no-store" });
       if (res.status === 404) return null;
-      if (!res.ok) return null;
+      if (!res.ok) {
+        console.warn(`Firestore getDocument [${collection}/${docId}] error:`, res.status);
+        return null;
+      }
       const json = await res.json();
       return fromFirestoreDoc(json);
-    } catch {
+    } catch (err) {
+      console.warn(`Firestore getDocument [${collection}/${docId}] fetch failed:`, err);
       return null;
     }
   },
@@ -125,6 +126,7 @@ export const FirestoreREST = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(queryBody),
+        cache: "no-store",
       });
 
       if (!res.ok) return [];
@@ -142,12 +144,16 @@ export const FirestoreREST = {
   async listDocuments(collection: string, limit = 50): Promise<any[]> {
     try {
       const url = `${BASE_URL}/${collection}?pageSize=${limit}&key=${API_KEY}`;
-      const res = await fetch(url);
-      if (!res.ok) return [];
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) {
+        console.warn(`Firestore listDocuments [${collection}] error:`, res.status, await res.text());
+        return [];
+      }
       const json = await res.json();
       if (!json.documents || !Array.isArray(json.documents)) return [];
       return json.documents.map(fromFirestoreDoc);
-    } catch {
+    } catch (err) {
+      console.warn(`Firestore listDocuments [${collection}] fetch failed:`, err);
       return [];
     }
   },

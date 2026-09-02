@@ -84,7 +84,7 @@ export default function AdminVaultPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/admin/users");
+      const res = await fetch("/api/admin/users", { cache: "no-store" });
       if (res.status === 401 || res.status === 403) {
         setError("Unauthorized: This private vault is restricted to the platform owner.");
         setLoading(false);
