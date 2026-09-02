@@ -124,6 +124,35 @@ export async function POST(req: NextRequest) {
 
     const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
 
+    // Record login activity in Firestore for Super Admin audit log
+    try {
+      const loginTime = new Date().toISOString();
+      const userAgent = req.headers.get("user-agent") || "unknown";
+
+      if (user?.id || userId) {
+        const uId = user?.id || userId;
+        FirestoreREST.setDocument("users", uId, {
+          ...(user || {}),
+          id: uId,
+          email: normalizedEmail,
+          lastLoginAt: loginTime,
+          loginCount: ((user?.loginCount) || 0) + 1,
+          lastLoginProvider: "google",
+        }).catch(() => {});
+      }
+
+      const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      FirestoreREST.setDocument("login_logs", logId, {
+        id: logId,
+        userId: user?.id || userId,
+        email: normalizedEmail,
+        businessSlug: businessSlug || "",
+        provider: "Google OAuth",
+        timestamp: loginTime,
+        userAgent: userAgent.substring(0, 150),
+      }).catch(() => {});
+    } catch {}
+
     const res = NextResponse.json({
       success: true,
       redirect: redirectPath,

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE_NAME = "review_saas_session";
-const PROTECTED_ROUTES = ["/dashboard", "/settings", "/qr-studio", "/feedback", "/onboarding"];
+const PROTECTED_ROUTES = ["/dashboard", "/settings", "/qr-studio", "/feedback", "/onboarding", "/admin-vault", "/admin"];
 
 async function verifyMiddlewareSession(sessionCookie: string): Promise<boolean> {
   try {
@@ -81,5 +81,7 @@ export const config = {
     "/qr-studio/:path*",
     "/feedback/:path*",
     "/onboarding/:path*",
+    "/admin-vault/:path*",
+    "/admin/:path*",
   ],
 };

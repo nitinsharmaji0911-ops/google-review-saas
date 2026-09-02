@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { FirestoreDB } from "@/lib/firestore-db";
+import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
 import { createSessionPayload, SESSION_COOKIE_NAME, hashPassword } from "@/lib/auth";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
@@ -82,6 +82,22 @@ export async function POST(req: NextRequest) {
       userId,
       email: normalizedEmail,
     });
+
+    // Record registration activity in Firestore for Super Admin audit log
+    try {
+      const now = new Date().toISOString();
+      const userAgent = req.headers.get("user-agent") || "unknown";
+      const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      FirestoreREST.setDocument("login_logs", logId, {
+        id: logId,
+        userId,
+        email: normalizedEmail,
+        businessSlug: "",
+        provider: "New Account Registration",
+        timestamp: now,
+        userAgent: userAgent.substring(0, 150),
+      }).catch(() => {});
+    } catch {}
 
     const res = NextResponse.json({ success: true, redirect: "/onboarding" });
     res.cookies.set(SESSION_COOKIE_NAME, payload, {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { FirestoreDB } from "@/lib/firestore-db";
+import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
 import { createSessionPayload, SESSION_COOKIE_NAME, verifyPassword } from "@/lib/auth";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
@@ -96,6 +96,33 @@ export async function POST(req: NextRequest) {
     });
 
     const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
+
+    // Record login activity in Firestore for Super Admin audit log
+    try {
+      const loginTime = new Date().toISOString();
+      const userAgent = req.headers.get("user-agent") || "unknown";
+
+      if (user.id) {
+        FirestoreREST.setDocument("users", user.id, {
+          ...user,
+          lastLoginAt: loginTime,
+          loginCount: (user.loginCount || 0) + 1,
+          lastLoginProvider: "credentials",
+        }).catch(() => {});
+      }
+
+      const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      FirestoreREST.setDocument("login_logs", logId, {
+        id: logId,
+        userId: user.id,
+        email: user.email,
+        businessSlug: businessSlug || "",
+        provider: "Email & Password",
+        timestamp: loginTime,
+        userAgent: userAgent.substring(0, 150),
+      }).catch(() => {});
+    } catch {}
+
     const res = NextResponse.json({
       success: true,
       redirect: redirectPath,
