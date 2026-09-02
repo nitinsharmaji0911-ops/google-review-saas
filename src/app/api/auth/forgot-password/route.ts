@@ -60,6 +60,19 @@ export async function POST(req: NextRequest) {
         console.warn("Reset token creation note:", tokenErr);
       }
 
+      // Also persist in Firestore for resilience
+      try {
+        const { FirestoreREST } = await import("@/lib/firestore-rest");
+        await FirestoreREST.setDocument("reset_tokens", tokenHash, {
+          tokenHash,
+          userId: user.id,
+          email: normalizedEmail,
+          expiresAt: expiresAt.toISOString(),
+          usedAt: null,
+          createdAt: new Date().toISOString(),
+        });
+      } catch {}
+
       // Build secure reset URL
       const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "review.welurik.com";
       const proto = req.headers.get("x-forwarded-proto") || "https";

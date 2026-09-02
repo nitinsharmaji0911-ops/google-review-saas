@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      // 1. Try Google OAuth tokeninfo first
+      // 1. Try Google OAuth tokeninfo
       const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
       if (googleRes.ok) {
         const tokenInfo = await googleRes.json();
@@ -31,19 +31,24 @@ export async function POST(req: NextRequest) {
           verifiedName = tokenInfo.name || verifiedName;
           verifiedPicture = tokenInfo.picture || verifiedPicture;
         }
-      } else {
-        // 2. Fallback: Parse & validate Firebase Auth JWT token
-        const parts = idToken.split(".");
-        if (parts.length === 3) {
-          const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf-8"));
-          const isFirebase = typeof payload.iss === "string" && payload.iss.includes("securetoken.google.com");
-          const isGoogle = typeof payload.iss === "string" && payload.iss.includes("accounts.google.com");
-          const isNotExpired = payload.exp && (payload.exp * 1000 > Date.now());
+      }
 
-          if ((isFirebase || isGoogle) && isNotExpired && payload.email) {
-            email = payload.email;
-            verifiedName = payload.name || verifiedName;
-            verifiedPicture = payload.picture || verifiedPicture;
+      // 2. If not standard Google OAuth, verify via Google Firebase Identity Toolkit
+      if (!email) {
+        const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
+        const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (fbRes.ok) {
+          const fbData = await fbRes.json();
+          const userRec = fbData.users?.[0];
+          if (userRec?.email) {
+            email = userRec.email;
+            verifiedName = userRec.displayName || verifiedName;
+            verifiedPicture = userRec.photoUrl || verifiedPicture;
           }
         }
       }

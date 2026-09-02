@@ -66,6 +66,15 @@ export async function POST(req: NextRequest) {
     const userEmail = session.email;
     const businessSlug = clientSlug || session.businessSlug;
 
+    // Enforce 1 promo code per account
+    const existingRedemption = await FirestoreREST.getDocument("promo_redemptions", `${userId}_${cleanCode}`);
+    if (existingRedemption) {
+      return NextResponse.json(
+        { success: false, error: "This promo code has already been redeemed on your account." },
+        { status: 400 }
+      );
+    }
+
     // 7 Days from now for trial, or 365 days for 100% codes
     const isFullPass = cleanCode.includes("100") || cleanCode === "VIP" || cleanCode === "LAUNCH";
     const durationDays = isFullPass ? 365 : 7;
@@ -147,6 +156,14 @@ export async function POST(req: NextRequest) {
         });
       }
     } catch {}
+
+    // Record promo redemption to prevent reuse
+    await FirestoreREST.setDocument("promo_redemptions", `${userId}_${cleanCode}`, {
+      userId,
+      email: userEmail,
+      code: cleanCode,
+      redeemedAt: new Date().toISOString(),
+    }).catch(() => {});
 
     const res = NextResponse.json({
       success: true,

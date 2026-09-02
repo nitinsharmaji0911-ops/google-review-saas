@@ -31,36 +31,27 @@ export async function POST(req: Request) {
       );
     }
 
-    const key_secret =
-      process.env.RAZORPAY_KEY_SECRET ||
-      (typeof Buffer !== "undefined" ? Buffer.from("bnBPbmtQcDlNV3JpdXZObTFlRFRtZFJq", "base64").toString("utf-8") : "");
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
-    // Allow mock only for development/test simulation
-    const isMock =
-      (razorpay_order_id.startsWith("order_") &&
-        razorpay_signature &&
-        (razorpay_signature.startsWith("mock_") || razorpay_signature.startsWith("test_"))) ||
-      (razorpay_payment_id && razorpay_payment_id.startsWith("pay_test_"));
+    if (!razorpay_signature) {
+      return NextResponse.json({ error: "Missing payment signature" }, { status: 400 });
+    }
 
-    if (!isMock) {
-      if (!razorpay_signature) {
-        return NextResponse.json({ error: "Missing payment signature" }, { status: 400 });
-      }
+    if (!key_secret) {
+      return NextResponse.json({ error: "Payment gateway configuration error" }, { status: 500 });
+    }
 
-      if (key_secret) {
-        const isValid = verifyRazorpaySignature({
-          orderId: razorpay_order_id,
-          paymentId: razorpay_payment_id,
-          signature: razorpay_signature,
-        });
+    const isValid = verifyRazorpaySignature({
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      signature: razorpay_signature,
+    });
 
-        if (!isValid) {
-          return NextResponse.json(
-            { error: "Invalid payment signature verification failed" },
-            { status: 400 }
-          );
-        }
-      }
+    if (!isValid) {
+      return NextResponse.json(
+        { error: "Invalid payment signature verification failed" },
+        { status: 400 }
+      );
     }
 
     // Update database records safely

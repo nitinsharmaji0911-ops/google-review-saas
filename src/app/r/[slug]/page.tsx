@@ -264,7 +264,7 @@ export default function CustomerReviewPage() {
           className="text-center mb-5 space-y-1"
         >
           <span className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
-            Review & Feedback
+            Google Review
           </span>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             {business.name}
@@ -337,29 +337,6 @@ export default function CustomerReviewPage() {
                   {rating === 1 && "⭐ 1 Star • Needs Improvement"}
                 </p>
               </div>
-
-              {/* Private Grievance Option if rating <= 3 */}
-              {rating <= 3 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-3 bg-amber-50/90 border border-amber-200 rounded-2xl text-left space-y-1"
-                >
-                  <div className="flex items-center gap-1.5 text-amber-800 font-bold text-xs">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>Have a private concern?</span>
-                  </div>
-                  <p className="text-[11px] text-amber-700 leading-snug">
-                    Send feedback directly to the manager to get your issue resolved quickly.
-                  </p>
-                  <Link
-                    href={`/r/${slug}/feedback`}
-                    className="inline-block text-[11px] font-bold text-amber-900 underline hover:text-black pt-0.5"
-                  >
-                    Send Private Message to Owner ➔
-                  </Link>
-                </motion.div>
-              )}
 
               {/* Quick Tags / Topics */}
               {allTopics.length > 0 && (

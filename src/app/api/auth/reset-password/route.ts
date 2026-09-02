@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
+import { FirestoreREST } from "@/lib/firestore-rest";
 import { hashPassword } from "@/lib/auth";
 import crypto from "crypto";
 
@@ -12,6 +13,8 @@ export async function GET(req: NextRequest) {
     }
 
     const tokenHash = crypto.createHash("sha256").update(code).digest("hex");
+
+    // 1. Check in Prisma
     try {
       const resetRecord = await prisma.resetToken.findUnique({
         where: { tokenHash },
@@ -20,24 +23,42 @@ export async function GET(req: NextRequest) {
 
       if (resetRecord) {
         if (resetRecord.usedAt !== null || new Date() > resetRecord.expiresAt) {
-          return NextResponse.json({ valid: false, error: "Link expired or used" });
+          return NextResponse.json({ valid: false, error: "Link expired or already used" }, { status: 400 });
         }
         return NextResponse.json({ valid: true, email: resetRecord.user?.email });
       }
     } catch {}
 
-    // Fallback: If code is a Firebase Auth oobCode, client handles validation
-    return NextResponse.json({ valid: true });
+    // 2. Check in Firestore
+    try {
+      const fsToken = await FirestoreREST.getDocument("reset_tokens", tokenHash);
+      if (fsToken) {
+        if (fsToken.usedAt || (fsToken.expiresAt && new Date(fsToken.expiresAt).getTime() < Date.now())) {
+          return NextResponse.json({ valid: false, error: "Link expired or already used" }, { status: 400 });
+        }
+        return NextResponse.json({ valid: true, email: fsToken.email });
+      }
+    } catch {}
+
+    return NextResponse.json({ valid: false, error: "Invalid reset link" }, { status: 400 });
   } catch {
-    return NextResponse.json({ valid: false }, { status: 500 });
+    return NextResponse.json({ valid: false, error: "Validation failed" }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { token, code, newPassword, uid, email } = body;
+    const { token, code, newPassword } = body;
     const resetCode = token || code;
+
+    // STRICT SECURITY: A valid reset token is MANDATORY. No unverified email updates permitted!
+    if (!resetCode || typeof resetCode !== "string") {
+      return NextResponse.json(
+        { success: false, error: "A valid password reset token is required." },
+        { status: 400 }
+      );
+    }
 
     if (!newPassword || typeof newPassword !== "string" || newPassword.length < 6) {
       return NextResponse.json(
@@ -46,82 +67,113 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let userIdToUpdate: string | null = uid || null;
+    const tokenHash = crypto.createHash("sha256").update(resetCode).digest("hex");
+    let userIdToUpdate: string | null = null;
+    let userEmail: string | null = null;
     let tokenRecordId: string | null = null;
+    let isFsToken = false;
 
-    // 1. Look up token in database if resetCode is provided
-    if (resetCode) {
-      const tokenHash = crypto.createHash("sha256").update(resetCode).digest("hex");
+    // 1. Verify token in Prisma
+    try {
+      const resetRecord = await prisma.resetToken.findUnique({
+        where: { tokenHash },
+        include: { user: true },
+      });
+
+      if (resetRecord) {
+        if (resetRecord.usedAt !== null) {
+          return NextResponse.json(
+            { success: false, error: "This password reset link has already been used. Please request a new one." },
+            { status: 400 }
+          );
+        }
+
+        if (new Date() > resetRecord.expiresAt) {
+          return NextResponse.json(
+            { success: false, error: "This password reset link has expired. Please request a new one." },
+            { status: 400 }
+          );
+        }
+
+        userIdToUpdate = resetRecord.userId;
+        userEmail = resetRecord.user?.email || null;
+        tokenRecordId = resetRecord.id;
+      }
+    } catch {}
+
+    // 2. Verify token in Firestore fallback
+    if (!userIdToUpdate) {
       try {
-        const resetRecord = await prisma.resetToken.findUnique({
-          where: { tokenHash },
-          include: { user: true },
-        });
-
-        if (resetRecord) {
-          if (resetRecord.usedAt !== null) {
+        const fsToken = await FirestoreREST.getDocument("reset_tokens", tokenHash);
+        if (fsToken) {
+          if (fsToken.usedAt) {
             return NextResponse.json(
               { success: false, error: "This password reset link has already been used. Please request a new one." },
               { status: 400 }
             );
           }
 
-          if (new Date() > resetRecord.expiresAt) {
+          if (fsToken.expiresAt && new Date(fsToken.expiresAt).getTime() < Date.now()) {
             return NextResponse.json(
               { success: false, error: "This password reset link has expired. Please request a new one." },
               { status: 400 }
             );
           }
 
-          userIdToUpdate = resetRecord.userId;
-          tokenRecordId = resetRecord.id;
+          userIdToUpdate = fsToken.userId;
+          userEmail = fsToken.email || null;
+          isFsToken = true;
         }
       } catch {}
     }
 
-    // 2. If email is provided (from Firebase verifyPasswordResetCode)
-    if (!userIdToUpdate && email) {
-      try {
-        const userByEmail = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
-        if (userByEmail) {
-          userIdToUpdate = userByEmail.id;
-        }
-      } catch {}
-
-      if (!userIdToUpdate) {
-        const fsUser = await FirestoreDB.getUserByEmail(email.toLowerCase().trim());
-        if (fsUser) {
-          userIdToUpdate = fsUser.id;
-        }
-      }
+    // STRICT REJECTION: If token wasn't found or validated, abort!
+    if (!userIdToUpdate) {
+      return NextResponse.json(
+        { success: false, error: "Invalid or expired password reset link. Please request a new one." },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = hashPassword(newPassword);
 
-    // 3. Update password in database if matched
-    if (userIdToUpdate) {
-      try {
-        await prisma.user.update({
-          where: { id: userIdToUpdate },
-          data: { password: hashedPassword },
-        });
+    // 3. Update password in Prisma
+    try {
+      await prisma.user.update({
+        where: { id: userIdToUpdate },
+        data: { password: hashedPassword },
+      });
 
-        if (tokenRecordId) {
-          await prisma.resetToken.update({
-            where: { id: tokenRecordId },
-            data: { usedAt: new Date() },
-          });
-        }
-      } catch (dbErr) {
-        console.warn("Prisma user password update note:", dbErr);
+      if (tokenRecordId) {
+        await prisma.resetToken.update({
+          where: { id: tokenRecordId },
+          data: { usedAt: new Date() },
+        });
+      }
+    } catch (dbErr) {
+      console.warn("Prisma user password update note:", dbErr);
+    }
+
+    // 4. Update password in Firestore
+    try {
+      let fsUser = userEmail ? await FirestoreDB.getUserByEmail(userEmail) : null;
+      const targetDocId = fsUser?.id || userIdToUpdate;
+      if (fsUser) {
+        await FirestoreREST.setDocument("users", targetDocId, {
+          ...fsUser,
+          password: hashedPassword,
+          updatedAt: new Date().toISOString(),
+        });
       }
 
-      try {
-        const { firestore } = await import("@/lib/firebase").then((m) => m.getFirebaseAdmin());
-        if (firestore) {
-          await firestore.collection("users").doc(userIdToUpdate).update({ password: hashedPassword });
-        }
-      } catch {}
+      // Mark token as used in Firestore
+      await FirestoreREST.setDocument("reset_tokens", tokenHash, {
+        tokenHash,
+        userId: userIdToUpdate,
+        usedAt: new Date().toISOString(),
+      });
+    } catch (fsErr) {
+      console.warn("Firestore password update note:", fsErr);
     }
 
     return NextResponse.json({

@@ -1,21 +1,15 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
-const FALLBACK_KEY_ID = typeof Buffer !== "undefined"
-  ? Buffer.from("cnpwX2xpdmVfU0kwSVBHZzdZbzYySHo=", "base64").toString("utf-8")
-  : "";
-const FALLBACK_SECRET = typeof Buffer !== "undefined"
-  ? Buffer.from("bnBPbmtQcDlNV3JpdXZObTFlRFRtZFJq", "base64").toString("utf-8")
-  : "";
-
 export const getRazorpayInstance = () => {
   const key_id =
-    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
     process.env.RAZORPAY_KEY_ID ||
-    FALLBACK_KEY_ID;
-  const key_secret =
-    process.env.RAZORPAY_KEY_SECRET ||
-    FALLBACK_SECRET;
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!key_id || !key_secret) {
+    throw new Error("Razorpay credentials are not configured in environment variables.");
+  }
 
   return new Razorpay({
     key_id,
@@ -32,21 +26,23 @@ export const verifyRazorpaySignature = ({
   paymentId: string;
   signature: string;
 }): boolean => {
-  const key_secret =
-    process.env.RAZORPAY_KEY_SECRET ||
-    FALLBACK_SECRET;
-
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
   if (!key_secret || !signature) return false;
 
-  const generatedSignature = crypto
-    .createHmac("sha256", key_secret)
-    .update(`${orderId}|${paymentId}`)
-    .digest("hex");
+  try {
+    const generatedSignature = crypto
+      .createHmac("sha256", key_secret)
+      .update(`${orderId}|${paymentId}`)
+      .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, "utf-8"),
-    Buffer.from(signature, "utf-8")
-  );
+    const sigBuf = Buffer.from(signature, "utf-8");
+    const genBuf = Buffer.from(generatedSignature, "utf-8");
+
+    if (sigBuf.length !== genBuf.length) return false;
+    return crypto.timingSafeEqual(genBuf, sigBuf);
+  } catch {
+    return false;
+  }
 };
 
 export const verifyWebhookSignature = (
@@ -56,13 +52,18 @@ export const verifyWebhookSignature = (
 ): boolean => {
   if (!webhookSecret || !webhookSignature) return false;
 
-  const expectedSignature = crypto
-    .createHmac("sha256", webhookSecret)
-    .update(bodyString)
-    .digest("hex");
+  try {
+    const expectedSignature = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(bodyString)
+      .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(expectedSignature, "utf-8"),
-    Buffer.from(webhookSignature, "utf-8")
-  );
+    const sigBuf = Buffer.from(webhookSignature, "utf-8");
+    const genBuf = Buffer.from(expectedSignature, "utf-8");
+
+    if (sigBuf.length !== genBuf.length) return false;
+    return crypto.timingSafeEqual(genBuf, sigBuf);
+  } catch {
+    return false;
+  }
 };

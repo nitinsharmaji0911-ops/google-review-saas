@@ -124,7 +124,15 @@ export default function DashboardLayout({
     }
   };
 
-  const navItems = [
+  interface NavItem {
+    label: string;
+    href: string;
+    icon: React.ElementType;
+    badge?: string;
+    count?: number;
+  }
+
+  const navItems: NavItem[] = [
     {
       label: "Overview",
       href: "/dashboard",
@@ -140,12 +148,6 @@ export default function DashboardLayout({
       label: "Keywords & Topics",
       href: "/settings",
       icon: SlidersHorizontal,
-    },
-    {
-      label: "Private Feedback",
-      href: "/feedback",
-      icon: MessageSquare,
-      count: unreadCount > 0 ? unreadCount : undefined,
     },
   ];
 
@@ -309,7 +311,6 @@ export default function DashboardLayout({
         {/* Unpaid Account Paywall Guard */}
         {business &&
         business.isPro !== true &&
-        (typeof window === "undefined" || sessionStorage.getItem("welurik_pro_activated") !== "true") &&
         pathname !== "/onboarding" ? (
           <div className="min-h-[80vh] flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-[32px] p-7 sm:p-8 text-center border border-slate-200/80 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-5">
