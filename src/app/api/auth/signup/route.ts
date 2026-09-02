@@ -64,18 +64,15 @@ export async function POST(req: NextRequest) {
       console.warn("Prisma user create fallback:", dbErr);
     }
 
-    // 2. Also record in Firestore
-    if (!userId) {
+    // 2. Always record in Firestore
+    try {
       const fsUser = await FirestoreDB.createUser({
         email: normalizedEmail,
         password: hashedPassword,
       });
-      userId = fsUser.id;
-    } else {
-      FirestoreDB.createUser({
-        email: normalizedEmail,
-        password: hashedPassword,
-      }).catch(() => {});
+      if (!userId) userId = fsUser.id;
+    } catch (fsErr) {
+      console.warn("Firestore user create note:", fsErr);
     }
 
     const payload = createSessionPayload({
@@ -88,7 +85,7 @@ export async function POST(req: NextRequest) {
       const now = new Date().toISOString();
       const userAgent = req.headers.get("user-agent") || "unknown";
       const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      FirestoreREST.setDocument("login_logs", logId, {
+      await FirestoreREST.setDocument("login_logs", logId, {
         id: logId,
         userId,
         email: normalizedEmail,
@@ -96,7 +93,7 @@ export async function POST(req: NextRequest) {
         provider: "New Account Registration",
         timestamp: now,
         userAgent: userAgent.substring(0, 150),
-      }).catch(() => {});
+      });
     } catch {}
 
     const res = NextResponse.json({ success: true, redirect: "/onboarding" });

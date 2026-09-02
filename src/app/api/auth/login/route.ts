@@ -107,16 +107,16 @@ export async function POST(req: NextRequest) {
       const userAgent = req.headers.get("user-agent") || "unknown";
 
       if (user.id) {
-        FirestoreREST.setDocument("users", user.id, {
+        await FirestoreREST.setDocument("users", user.id, {
           ...user,
           lastLoginAt: loginTime,
           loginCount: (user.loginCount || 0) + 1,
           lastLoginProvider: "credentials",
-        }).catch(() => {});
+        });
       }
 
       const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      FirestoreREST.setDocument("login_logs", logId, {
+      await FirestoreREST.setDocument("login_logs", logId, {
         id: logId,
         userId: user.id,
         email: user.email,
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
         provider: "Email & Password",
         timestamp: loginTime,
         userAgent: userAgent.substring(0, 150),
-      }).catch(() => {});
+      });
     } catch {}
 
     const res = NextResponse.json({
