@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,77 +18,56 @@ import {
   X,
   Copy,
   Check,
-  Play
+  Play,
+  Pause,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
 
-  const slides = [
-    {
-      stepNumber: "1",
-      stepTitle: "scan & rate",
-      header: "Step 1: Scan Table Standee",
-      content: {
-        greeting: "Hi Sarah!",
-        sub: "How was your experience with us today?",
-        rating: 5,
-        badgeText: "5 Stars • Excellent",
-        actionText: "Continue to Quick Tags",
-      },
-    },
-    {
-      stepNumber: "2",
-      stepTitle: "pick tags",
-      header: "Step 2: Tap What You Loved",
-      content: {
-        title: "Select your highlights:",
-        tags: [
-          { name: "☕ Specialty Latte", selected: true },
-          { name: "🥐 Warm Croissant", selected: true },
-          { name: "⚡ Fast Free Wi-Fi", selected: true },
-          { name: "😊 Friendly Staff", selected: true },
-          { name: "🎵 Chill Ambience", selected: false },
-        ],
-        actionText: "Generate Review with AI ⚡",
-      },
-    },
-    {
-      stepNumber: "3",
-      stepTitle: "ai magic",
-      header: "Step 3: 30-Second AI Generation",
-      content: {
-        review: "Had a wonderful morning at The Coffee House! The Specialty Latte was rich and delicious, and the warm croissants were fresh out of the oven. Super fast Wi-Fi and friendly staff make this my favorite spot in town!",
-        actionText: "Copy & Open Google Review",
-        copied: true,
-      },
-    },
-    {
-      stepNumber: "4",
-      stepTitle: "google 5★",
-      header: "Step 4: Live on Google Maps",
-      content: {
-        reviewerName: "Sarah Jenkins",
-        reviewerRole: "Local Guide • 42 reviews",
-        timeAgo: "2 minutes ago",
-        reviewSnippet: "The Coffee House is easily our favorite spot in town! Incredible Specialty Latte, warm fresh croissants, and awesome staff. 10/10 recommend!",
-        rankingBadge: "🏆 Ranked #1 in Google Maps Local Pack",
-      },
-    },
-  ];
-
-  // Auto-play slideshow every 3.5 seconds
+  // Guarantee seamless video autoplay across all mobile and desktop browsers
   useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, [isPaused, slides.length]);
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => setIsPlaying(true))
+        .catch(() => {
+          video.muted = true;
+          video.play().catch(() => setIsPlaying(false));
+        });
+    }
+  }, []);
+
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  };
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -360,189 +339,63 @@ export default function LandingPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-              className="w-full max-w-[280px] xs:max-w-[300px] sm:max-w-[320px] bg-white rounded-[40px] sm:rounded-[46px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_#000000] transition-all"
+              className="w-full max-w-[280px] xs:max-w-[300px] sm:max-w-[320px] bg-black p-2 sm:p-2.5 rounded-[42px] sm:rounded-[48px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_#000000] transition-all group"
             >
-              {/* Dynamic Island */}
-              <div className="pt-3 pb-1 text-center">
-                <div className="w-[76px] sm:w-[84px] h-[15px] sm:h-[18px] bg-black rounded-full mx-auto" />
-              </div>
-
-              {/* Inside Screen */}
-              <div className="p-3 sm:p-4 min-h-[420px] sm:min-h-[460px] flex flex-col justify-between text-left">
+              {/* Inside Screen Container with 9:16 Aspect Ratio */}
+              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[34px] sm:rounded-[38px] bg-slate-950 flex items-center justify-center">
                 
-                {/* Header */}
-                <div className="flex items-center justify-between pb-2 border-b-2 border-black/10">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[9px] font-black">
-                      W
-                    </div>
-                    <span className="text-[10.5px] sm:text-[11px] font-black text-black tracking-tight truncate max-w-[145px]">
-                      {slides[currentSlide].header}
-                    </span>
+                {/* Dynamic Island */}
+                <div className="absolute top-2 sm:top-2.5 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+                  <div className="w-[74px] sm:w-[82px] h-[16px] sm:h-[18px] bg-black rounded-full flex items-center justify-between px-2.5 shadow-md border border-white/10">
+                    <div className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-700/60" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
-                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-black/10">
-                    {currentSlide + 1}/4
-                  </span>
                 </div>
 
-                {/* Slides with AnimatePresence Smooth Transition */}
-                <div className="my-auto py-1 overflow-hidden relative min-h-[300px] flex flex-col justify-center">
-                  <AnimatePresence mode="wait">
-                    {currentSlide === 0 && (
-                      <motion.div
-                        key="slide-0"
-                        initial={{ opacity: 0, x: 18 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -18 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="space-y-2.5"
-                      >
-                        <div className="bg-[#ECFDF5] p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1">
-                          <p className="text-[10.5px] font-black text-black">Hi Sarah! 👋</p>
-                          <p className="text-[9.5px] text-slate-600">How was your visit today?</p>
-                        </div>
+                {/* Autoplayable Video */}
+                <video
+                  ref={videoRef}
+                  src="/video/welurik-demo.mp4"
+                  poster="/video/welurik-demo-poster.jpg"
+                  autoPlay
+                  muted={isMuted}
+                  loop
+                  playsInline
+                  preload="auto"
+                  onClick={togglePlay}
+                  className="w-full h-full object-cover object-center cursor-pointer"
+                />
 
-                        <div className="bg-white p-3 rounded-2xl border-2 border-black shadow-[3px_3px_0px_#000000] space-y-2 text-center">
-                          <div className="flex justify-center gap-1 text-amber-400">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star key={s} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400 text-amber-400" />
-                            ))}
-                          </div>
-                          <span className="text-[9.5px] font-bold text-[#15803D] bg-[#dcfce7] border border-black px-2 py-0.5 rounded-full inline-block">
-                            5 Stars • Excellent
-                          </span>
-                          <motion.button 
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setCurrentSlide(1)}
-                            className="w-full py-2 bg-black hover:bg-neutral-800 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-                          >
-                            Next: Pick Highlights <ArrowRight className="w-3 h-3" />
-                          </motion.button>
-                        </div>
-                      </motion.div>
+                {/* Play / Pause Overlay when Paused */}
+                {!isPlaying && (
+                  <div 
+                    onClick={togglePlay}
+                    className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center cursor-pointer z-20 transition-opacity"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-lg border-2 border-black hover:scale-105 transition-transform">
+                      <Play className="w-5 h-5 fill-black ml-0.5" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Floating Bottom Overlays */}
+                <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-auto">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[10px] font-bold border border-white/20 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Live Review Demo</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={toggleMute}
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/75 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/90 hover:scale-105 transition-all border border-white/20 shadow-md cursor-pointer"
+                    title={isMuted ? "Unmute Sound" : "Mute Sound"}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-3.5 h-3.5 text-slate-300" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
                     )}
-
-                    {currentSlide === 1 && (
-                      <motion.div
-                        key="slide-1"
-                        initial={{ opacity: 0, x: 18 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -18 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="space-y-2.5"
-                      >
-                        <p className="text-[10.5px] font-black text-black">What did you enjoy most?</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {[
-                            { name: "☕ Specialty Latte", sel: true },
-                            { name: "🥐 Warm Croissant", sel: true },
-                            { name: "⚡ Fast Free Wi-Fi", sel: true },
-                            { name: "😊 Friendly Staff", sel: true },
-                          ].map((t, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[9px] font-bold px-2 py-1 rounded-xl border-2 border-black flex items-center gap-1 bg-[#dcfce7] text-[#15803D] shadow-[1px_1px_0px_#000000]"
-                            >
-                              {t.name} <Check className="w-2.5 h-2.5 text-[#15803D]" />
-                            </span>
-                          ))}
-                        </div>
-
-                        <motion.button 
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setCurrentSlide(2)}
-                          className="w-full py-2 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-[2px_2px_0px_#000000] cursor-pointer"
-                        >
-                          <Sparkles className="w-3 h-3" /> Generate Review with AI
-                        </motion.button>
-                      </motion.div>
-                    )}
-
-                    {currentSlide === 2 && (
-                      <motion.div
-                        key="slide-2"
-                        initial={{ opacity: 0, x: 18 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -18 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="space-y-2.5"
-                      >
-                        <div className="bg-[#ECFDF5] border-2 border-black rounded-2xl p-2.5 space-y-1.5 shadow-[2px_2px_0px_#000000]">
-                          <span className="text-[9px] font-black text-black flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-[#15803D]" /> AI Review Generated:
-                          </span>
-                          <p className="text-[9px] text-slate-800 leading-relaxed italic bg-white p-2 rounded-xl border border-black/20">
-                            "Wonderful morning at The Coffee House! The Specialty Latte was delicious, and the croissants were fresh out of the oven. 10/10 recommend!"
-                          </p>
-                        </div>
-
-                        <motion.button 
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setCurrentSlide(3)}
-                          className="w-full py-2 bg-[#15803D] hover:bg-[#166534] text-white border-2 border-black rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-[2px_2px_0px_#000000] cursor-pointer"
-                        >
-                          <Copy className="w-3 h-3" /> Copy & Open Google Maps
-                        </motion.button>
-                      </motion.div>
-                    )}
-
-                    {currentSlide === 3 && (
-                      <motion.div
-                        key="slide-3"
-                        initial={{ opacity: 0, x: 18 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -18 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="space-y-2.5"
-                      >
-                        <div className="bg-white border-2 border-black rounded-2xl p-3 space-y-2 shadow-[3px_3px_0px_#000000]">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">
-                              S
-                            </div>
-                            <div>
-                              <p className="text-[9.5px] font-black text-black">Sarah Jenkins</p>
-                              <div className="flex text-amber-400 gap-0.5">
-                                {[1, 2, 3, 4, 5].map((s) => (
-                                  <Star key={s} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-[9px] text-slate-700 leading-snug">
-                            "The Coffee House is easily our favorite spot! Incredible Specialty Latte and awesome staff. 10/10!"
-                          </p>
-                        </div>
-
-                        <div className="bg-[#dcfce7] border-2 border-black rounded-xl p-2 text-center shadow-[2px_2px_0px_#000000]">
-                          <p className="text-[9px] font-black text-[#15803D]">
-                            🎉 Ranked #1 In Local Map Pack
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Step Pills */}
-                <div className="pt-2 border-t-2 border-black/10 flex items-center gap-1">
-                  {slides.map((s, idx) => (
-                    <motion.button
-                      key={idx}
-                      whileTap={{ scale: 0.92 }}
-                      type="button"
-                      onClick={() => setCurrentSlide(idx)}
-                      className={`flex-1 py-1 px-0.5 rounded-lg text-[8px] sm:text-[8.5px] font-black transition-colors text-center border cursor-pointer ${
-                        currentSlide === idx
-                          ? "bg-black text-white border-black"
-                          : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
-                      }`}
-                    >
-                      {s.stepTitle}
-                    </motion.button>
-                  ))}
+                  </button>
                 </div>
 
               </div>

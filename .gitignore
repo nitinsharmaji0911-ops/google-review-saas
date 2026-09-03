@@ -30,6 +30,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# raw local video sources (>100MB)
+/video/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
