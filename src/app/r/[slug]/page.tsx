@@ -165,9 +165,10 @@ export default function CustomerReviewPage() {
   const handleCopyAndOpenGoogle = async () => {
     if (!business) return;
 
+    const rawUrl = business.googleReviewUrl?.trim() || "";
     const targetUrl =
-      business.googleReviewUrl && business.googleReviewUrl.trim().length > 0
-        ? business.googleReviewUrl.trim()
+      rawUrl.length > 0
+        ? (rawUrl.startsWith("http://") || rawUrl.startsWith("https://") ? rawUrl : `https://${rawUrl}`)
         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + (business.location ? " " + business.location : ""))}`;
 
     // 1. Copy review text to clipboard
@@ -251,7 +252,9 @@ export default function CustomerReviewPage() {
     );
   }
 
-  const allTopics = business.topics || [];
+  const allTopics = (business.topics || []).filter((topic) =>
+    rating >= 4 ? topic.type !== "issue" : true
+  );
 
   return (
     <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
@@ -336,6 +339,31 @@ export default function CustomerReviewPage() {
                   {rating === 2 && "⭐ 2 Stars • Fair"}
                   {rating === 1 && "⭐ 1 Star • Needs Improvement"}
                 </p>
+
+                {/* Optional Customer Choice: Private Note to Management (Never forced) */}
+                {rating <= 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-3 bg-amber-50/90 border border-amber-200/80 rounded-2xl text-left space-y-1 mt-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        Have a concern?
+                      </span>
+                      <Link
+                        href={`/r/${slug}/feedback`}
+                        className="text-[10px] font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded-lg transition-colors inline-flex items-center gap-0.5 shrink-0"
+                      >
+                        Message Owner Privately ➔
+                      </Link>
+                    </div>
+                    <p className="text-[10.5px] text-amber-800/80 leading-relaxed">
+                      You can send a direct note to management, or proceed below to generate and post your review on Google.
+                    </p>
+                  </motion.div>
+                )}
               </div>
 
               {/* Quick Tags / Topics */}
@@ -565,7 +593,9 @@ export default function CustomerReviewPage() {
                 <a
                   href={
                     business.googleReviewUrl && business.googleReviewUrl.trim().length > 0
-                      ? business.googleReviewUrl.trim()
+                      ? (business.googleReviewUrl.trim().startsWith("http://") || business.googleReviewUrl.trim().startsWith("https://")
+                          ? business.googleReviewUrl.trim()
+                          : `https://${business.googleReviewUrl.trim()}`)
                       : "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4"
                   }
                   className="block text-center text-xs font-bold text-[#15803D] hover:underline pt-1 animate-pulse"

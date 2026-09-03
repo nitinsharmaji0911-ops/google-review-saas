@@ -50,18 +50,31 @@ body {
 
 /* Print specific styles for Standees */
 @media print {
+  @page {
+    margin: 8mm;
+    size: auto;
+  }
+  body {
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   body * {
     visibility: hidden;
   }
   #printable-standee, #printable-standee * {
     visibility: visible;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   #printable-standee {
     position: absolute;
-    left: 0;
+    left: 50%;
     top: 0;
-    width: 100%;
-    margin: 0;
+    transform: translateX(-50%);
+    width: 380px;
+    max-width: 100%;
+    margin: 0 auto;
     padding: 0;
     box-shadow: none !important;
     border: none !important;

@@ -31,6 +31,41 @@ export const CATEGORIES: CategoryConfig[] = [
     sampleBusinessName: "Urban Spice Bistro"
   },
   {
+    id: "snacks",
+    name: "Indian Snacks, Chaat & Fast Food",
+    emoji: "🥟",
+    description: "Indian snacks, samosas, dosas, chole bhature, pav bhaji, chaat & sweets",
+    defaultServices: [
+      "Crispy Samosa & Kachori",
+      "Special Chole Bhature",
+      "Masala Dosa & South Indian",
+      "Pav Bhaji & Vada Pav",
+      "Pani Puri & Dahi Chaat",
+      "Fresh Jalebi & Gulab Jamun",
+      "Traditional Mithai & Sweets",
+      "Kulhad Chai & Lassi"
+    ],
+    positiveTopics: [
+      "Crispy & Piping Hot",
+      "Authentic Desi Flavors",
+      "Fresh Chutneys & Sambhar",
+      "Spotless Hygiene & Cleanliness",
+      "Fast Counter Service",
+      "Generous Portion & Fillings",
+      "Pure Ghee / Quality Oil",
+      "Pocket-Friendly & Great Value"
+    ],
+    issueTopics: [
+      "Food Served Cold / Soggy",
+      "Too Oily / Greasy",
+      "Chutney / Sambhar Quality",
+      "Long Waiting Time in Rush Hours",
+      "Table / Counter Cleanliness",
+      "Spice Level Too High"
+    ],
+    sampleBusinessName: "Shree Krishna Sweets & Snacks"
+  },
+  {
     id: "salon",
     name: "Salon & Spa",
     emoji: "💇‍♀️",

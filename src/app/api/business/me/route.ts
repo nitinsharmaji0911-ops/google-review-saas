@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
+import { FirestoreREST } from "@/lib/firestore-rest";
+import { getCategoryById } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -146,6 +148,40 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const catConfig = getCategoryById(business.category || "cafe");
+
+    // Clean and normalize services
+    let safeServices: any[] = [];
+    if (Array.isArray(business.services) && business.services.length > 0) {
+      safeServices = business.services
+        .map((s: any, idx: number) => {
+          const sName = typeof s === "string" ? s.trim() : (s?.name || "").trim();
+          return sName ? { id: s?.id || `srv_${idx}`, name: sName } : null;
+        })
+        .filter(Boolean);
+    }
+    if (safeServices.length === 0) {
+      safeServices = catConfig.defaultServices.map((name, idx) => ({ id: `srv_${idx}`, name }));
+    }
+
+    // Clean and normalize topics
+    let safeTopics: any[] = [];
+    if (Array.isArray(business.topics) && business.topics.length > 0) {
+      safeTopics = business.topics
+        .map((t: any, idx: number) => {
+          const tName = typeof t === "string" ? t.trim() : (t?.name || "").trim();
+          const tType = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
+          return tName ? { id: t?.id || `top_${idx}`, name: tName, type: tType } : null;
+        })
+        .filter(Boolean);
+    }
+    if (safeTopics.length === 0) {
+      safeTopics = [
+        ...catConfig.positiveTopics.map((name, idx) => ({ id: `top_pos_${idx}`, name, type: "positive" })),
+        ...catConfig.issueTopics.map((name, idx) => ({ id: `top_iss_${idx}`, name, type: "issue" })),
+      ];
+    }
+
     const isSuperAdmin = isFounderSuperAdmin;
 
     return NextResponse.json({
@@ -167,8 +203,8 @@ export async function GET(req: NextRequest) {
         planName: business.planName || (isTrialActive ? "7-Day VIP Free Trial" : "lifetime"),
         monthlyAiQuota: business.monthlyAiQuota || 10000,
         aiCallsThisMonth: business.aiCallsThisMonth || 0,
-        services: business.services || [],
-        topics: business.topics || [],
+        services: safeServices,
+        topics: safeTopics,
       },
       metrics: {
         totalScans,
@@ -200,14 +236,45 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json();
     const { name, category, location, description, googleReviewUrl, brandColor, phone, services, topics } = body;
 
-    if (!name && !googleReviewUrl) {
-      return NextResponse.json({ success: false, error: "Name and Google Review URL are required" }, { status: 400 });
+    // Fetch existing business first to lock slug and preserve assets
+    let existingBusiness: any = null;
+    if (session.businessSlug) {
+      existingBusiness = await FirestoreDB.getBusinessBySlug(session.businessSlug).catch(() => null);
+    }
+    if (!existingBusiness && session.email) {
+      const userDoc = await FirestoreDB.getUserByEmail(session.email).catch(() => null);
+      if (userDoc?.businessSlug) {
+        existingBusiness = await FirestoreDB.getBusinessBySlug(userDoc.businessSlug).catch(() => null);
+      }
+    }
+    if (!existingBusiness) {
+      existingBusiness = await FirestoreDB.getBusinessByUserId(session.userId).catch(() => null);
     }
 
-    const slug = name ? name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : `biz-${Date.now().toString(36)}`;
+    const effectiveSlug = existingBusiness?.slug || session.businessSlug || (name ? name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : `biz-${Date.now().toString(36)}`);
+
+    // Sanitize services and topics
+    const cleanServices = Array.isArray(services)
+      ? services
+          .map((s: any, idx: number) => {
+            const sName = (typeof s === "string" ? s : s?.name || "").trim();
+            return sName ? { id: s?.id || `srv_${idx}`, name: sName } : null;
+          })
+          .filter(Boolean)
+      : (existingBusiness?.services || []);
+
+    const cleanTopics = Array.isArray(topics)
+      ? topics
+          .map((t: any, idx: number) => {
+            const tName = (typeof t === "string" ? t : t?.name || "").trim();
+            const tType = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
+            return tName ? { id: t?.id || `top_${idx}`, name: tName, type: tType } : null;
+          })
+          .filter(Boolean)
+      : (existingBusiness?.topics || []);
 
     // Update or create in Prisma
     let updatedBusiness: any = null;
@@ -234,7 +301,7 @@ export async function PUT(req: NextRequest) {
           data: {
             userId: session.userId,
             name: name || "My Business",
-            slug,
+            slug: effectiveSlug,
             category: category || "cafe",
             location: location || "",
             description: description || "",
@@ -248,50 +315,66 @@ export async function PUT(req: NextRequest) {
       // Update services if provided
       if (Array.isArray(services) && updatedBusiness) {
         await prisma.businessService.deleteMany({ where: { businessId: updatedBusiness.id } });
-        for (const s of services) {
-          const sName = typeof s === "string" ? s.trim() : s.name?.trim();
-          if (sName) {
-            await prisma.businessService.create({
-              data: { businessId: updatedBusiness.id, name: sName },
-            });
-          }
+        for (const s of cleanServices) {
+          await prisma.businessService.create({
+            data: { businessId: updatedBusiness.id, name: s.name },
+          });
         }
       }
 
       // Update topics if provided
       if (Array.isArray(topics) && updatedBusiness) {
         await prisma.businessTopic.deleteMany({ where: { businessId: updatedBusiness.id } });
-        for (const t of topics) {
-          const tName = typeof t === "string" ? t.trim() : t.name?.trim();
-          const tType = typeof t === "object" && t.type ? t.type : "positive";
-          if (tName) {
-            await prisma.businessTopic.create({
-              data: { businessId: updatedBusiness.id, name: tName, type: tType },
-            });
-          }
+        for (const t of cleanTopics) {
+          await prisma.businessTopic.create({
+            data: { businessId: updatedBusiness.id, name: t.name, type: t.type },
+          });
         }
       }
     } catch (dbErr) {
       console.warn("Prisma business update note:", dbErr);
     }
 
-    // Sync with Firestore
+    // Sync with Firestore (preserving slug and existing metadata)
     const fsData = {
+      ...(existingBusiness || {}),
       userId: session.userId,
-      name: name || "My Business",
-      slug: updatedBusiness?.slug || slug,
-      category: category || "cafe",
-      location: location || "",
-      description: description || "",
-      googleReviewUrl: googleReviewUrl || "",
-      brandColor: brandColor || "#16A34A",
-      phone: phone || "",
-      services: Array.isArray(services) ? services.map((s, idx) => ({ id: `s_${idx}`, name: typeof s === "string" ? s : s.name })) : [],
-      topics: Array.isArray(topics) ? topics.map((t, idx) => ({ id: `t_${idx}`, name: typeof t === "string" ? t : t.name, type: typeof t === "object" ? t.type : "positive" })) : [],
+      name: name || existingBusiness?.name || "My Business",
+      slug: effectiveSlug,
+      category: category || existingBusiness?.category || "cafe",
+      location: location !== undefined ? location : existingBusiness?.location || "",
+      description: description !== undefined ? description : existingBusiness?.description || "",
+      googleReviewUrl: googleReviewUrl !== undefined ? googleReviewUrl : existingBusiness?.googleReviewUrl || "",
+      brandColor: brandColor || existingBusiness?.brandColor || "#16A34A",
+      phone: phone !== undefined ? phone : existingBusiness?.phone || "",
+      services: cleanServices,
+      topics: cleanTopics,
     };
     await FirestoreDB.saveBusiness(fsData).catch(() => {});
 
-    return NextResponse.json({ success: true, business: updatedBusiness || fsData });
+    // Ensure user document in Firestore is linked
+    if (session.email) {
+      try {
+        const user = await FirestoreDB.getUserByEmail(session.email);
+        if (user) {
+          await FirestoreREST.setDocument("users", user.id, {
+            ...user,
+            businessSlug: effectiveSlug,
+            businessName: fsData.name,
+          });
+        }
+      } catch {}
+    }
+
+    return NextResponse.json({
+      success: true,
+      business: {
+        ...(updatedBusiness || {}),
+        ...fsData,
+        services: cleanServices,
+        topics: cleanTopics,
+      },
+    });
   } catch (error: any) {
     console.error("PUT /api/business/me error:", error);
     return NextResponse.json({ success: false, error: "Failed to save business profile" }, { status: 500 });

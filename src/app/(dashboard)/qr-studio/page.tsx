@@ -71,8 +71,9 @@ export default function QRStudioPage() {
   };
 
   const handleCopyLink = () => {
+    if (!business?.slug) return;
     const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
-    const reviewUrl = `${origin}/r/${business?.slug || ""}`;
+    const reviewUrl = `${origin}/r/${business.slug}`;
     navigator.clipboard.writeText(reviewUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);

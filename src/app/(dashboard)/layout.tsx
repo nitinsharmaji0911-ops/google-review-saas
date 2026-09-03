@@ -27,6 +27,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [business, setBusiness] = useState<any>(null);
+  const [loadingBusiness, setLoadingBusiness] = useState<boolean>(true);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loggingOut, setLoggingOut] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -104,7 +105,10 @@ export default function DashboardLayout({
             }
           }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+          setLoadingBusiness(false);
+        });
     };
 
     fetchBusiness();
@@ -154,6 +158,12 @@ export default function DashboardLayout({
       label: "Keywords & Topics",
       href: "/settings",
       icon: SlidersHorizontal,
+    },
+    {
+      label: "Private Feedback",
+      href: "/feedback",
+      icon: MessageSquare,
+      count: unreadCount > 0 ? unreadCount : undefined,
     },
   ];
 
@@ -297,7 +307,14 @@ export default function DashboardLayout({
         </header>
 
         {/* Unpaid Account Paywall Guard */}
-        {business &&
+        {loadingBusiness && !business && pathname !== "/onboarding" ? (
+          <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center gap-2.5 text-slate-400">
+              <div className="w-6 h-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-medium text-slate-500">Loading workspace...</p>
+            </div>
+          </div>
+        ) : business &&
         business.isPro !== true &&
         pathname !== "/onboarding" ? (
           <div className="min-h-[80vh] flex items-center justify-center p-4">

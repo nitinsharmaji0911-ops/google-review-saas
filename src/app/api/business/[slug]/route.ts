@@ -45,11 +45,22 @@ export async function PUT(
 
     // Format services and topics for Firestore
     const formattedServices = Array.isArray(services)
-      ? services.map((s, idx) => (typeof s === "string" ? { id: `srv_${idx}`, name: s.trim() } : s))
+      ? services
+          .map((s, idx) => {
+            const name = (typeof s === "string" ? s : s?.name || "").trim();
+            return name ? { id: s?.id || `srv_${idx}`, name } : null;
+          })
+          .filter(Boolean)
       : existing?.services || [];
 
     const formattedTopics = Array.isArray(topics)
-      ? topics.map((t, idx) => (typeof t === "string" ? { id: `top_${idx}`, name: t.trim(), type: "positive" } : t))
+      ? topics
+          .map((t, idx) => {
+            const name = (typeof t === "string" ? t : t?.name || "").trim();
+            const type = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
+            return name ? { id: t?.id || `top_${idx}`, name, type } : null;
+          })
+          .filter(Boolean)
       : existing?.topics || [];
 
     const updated = await FirestoreDB.saveBusiness({

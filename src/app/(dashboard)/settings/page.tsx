@@ -10,7 +10,9 @@ import {
   Store,
   Sparkles,
   Link as LinkIcon,
-  AlertCircle
+  AlertCircle,
+  MessageSquare,
+  RotateCcw
 } from "lucide-react";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
 
@@ -62,22 +64,51 @@ export default function SettingsPage() {
         const data = await res.json();
         if (data.success && data.business) {
           const b = data.business;
+          const currentCategory = b.category || "cafe";
+          const catConfig = getCategoryById(currentCategory);
+
           setName(b.name || "");
-          setCategory(b.category || "cafe");
+          setCategory(currentCategory);
           setLocation(b.location || "");
           setDescription(b.description || "");
           setGoogleReviewUrl(b.googleReviewUrl || "");
           setBrandColor(b.brandColor || "#0f172a");
           setPhone(b.phone || "");
 
-          if (b.services) setServices(b.services.map((s: any) => s.name));
-          if (b.topics) {
-            setPositiveTopics(b.topics.filter((t: any) => t.type === "positive").map((t: any) => t.name));
-            setIssueTopics(b.topics.filter((t: any) => t.type === "issue").map((t: any) => t.name));
+          // Parse Services safely whether strings or objects
+          const loadedServices: string[] = Array.isArray(b.services)
+            ? b.services
+                .map((s: any) => (typeof s === "string" ? s : s?.name || "").trim())
+                .filter(Boolean)
+            : [];
+
+          setServices(loadedServices.length > 0 ? loadedServices : [...catConfig.defaultServices]);
+
+          // Parse Topics safely
+          const loadedPositive: string[] = [];
+          const loadedIssues: string[] = [];
+
+          if (Array.isArray(b.topics)) {
+            b.topics.forEach((t: any) => {
+              const tName = (typeof t === "string" ? t : t?.name || "").trim();
+              if (!tName) return;
+              if (typeof t === "object" && t?.type === "issue") {
+                loadedIssues.push(tName);
+              } else {
+                loadedPositive.push(tName);
+              }
+            });
           }
+
+          setPositiveTopics(
+            loadedPositive.length > 0 ? loadedPositive : [...catConfig.positiveTopics]
+          );
+          setIssueTopics(
+            loadedIssues.length > 0 ? loadedIssues : [...catConfig.issueTopics]
+          );
         }
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load settings data:", err);
       } finally {
         setLoading(false);
       }
@@ -95,10 +126,18 @@ export default function SettingsPage() {
     }
   };
 
+  const handleResetDefaults = () => {
+    const cat = getCategoryById(category);
+    setServices([...cat.defaultServices]);
+    setPositiveTopics([...cat.positiveTopics]);
+    setIssueTopics([...cat.issueTopics]);
+  };
+
   const handleAddService = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newService.trim() && !services.includes(newService.trim())) {
-      setServices([...services, newService.trim()]);
+    const trimmed = newService.trim();
+    if (trimmed && !services.some((s) => (typeof s === "string" ? s : (s as any)?.name)?.toLowerCase() === trimmed.toLowerCase())) {
+      setServices([...services, trimmed]);
       setNewService("");
     }
   };
@@ -109,8 +148,9 @@ export default function SettingsPage() {
 
   const handleAddPositiveTopic = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPositiveTopic.trim() && !positiveTopics.includes(newPositiveTopic.trim())) {
-      setPositiveTopics([...positiveTopics, newPositiveTopic.trim()]);
+    const trimmed = newPositiveTopic.trim();
+    if (trimmed && !positiveTopics.some((t) => (typeof t === "string" ? t : (t as any)?.name)?.toLowerCase() === trimmed.toLowerCase())) {
+      setPositiveTopics([...positiveTopics, trimmed]);
       setNewPositiveTopic("");
     }
   };
@@ -119,15 +159,39 @@ export default function SettingsPage() {
     setPositiveTopics(positiveTopics.filter((_, i) => i !== index));
   };
 
+  const handleAddIssueTopic = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newIssueTopic.trim();
+    if (trimmed && !issueTopics.some((t) => (typeof t === "string" ? t : (t as any)?.name)?.toLowerCase() === trimmed.toLowerCase())) {
+      setIssueTopics([...issueTopics, trimmed]);
+      setNewIssueTopic("");
+    }
+  };
+
+  const handleRemoveIssueTopic = (index: number) => {
+    setIssueTopics(issueTopics.filter((_, i) => i !== index));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setSaveSuccess(false);
+    setSaveError("");
 
     try {
+      const cleanServices = services
+        .map((s) => (typeof s === "string" ? s : (s as any)?.name || "").trim())
+        .filter(Boolean);
+
       const allTopics = [
-        ...positiveTopics.map((name) => ({ name, type: "positive" })),
-        ...issueTopics.map((name) => ({ name, type: "issue" })),
+        ...positiveTopics
+          .map((name) => (typeof name === "string" ? name : (name as any)?.name || "").trim())
+          .filter(Boolean)
+          .map((name) => ({ name, type: "positive" })),
+        ...issueTopics
+          .map((name) => (typeof name === "string" ? name : (name as any)?.name || "").trim())
+          .filter(Boolean)
+          .map((name) => ({ name, type: "issue" })),
       ];
 
       const res = await fetch("/api/business/me", {
@@ -141,18 +205,19 @@ export default function SettingsPage() {
           googleReviewUrl,
           brandColor,
           phone,
-          services,
+          services: cleanServices,
           topics: allTopics,
         }),
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setSaveSuccess(true);
         setSaveError("");
         if (typeof window !== "undefined") {
           try {
             sessionStorage.removeItem("welurik_dashboard_cache");
+            window.dispatchEvent(new Event("refresh_business"));
           } catch {}
         }
         setTimeout(() => setSaveSuccess(false), 3000);
@@ -307,6 +372,21 @@ export default function SettingsPage() {
         </div>
 
         {/* Keywords & Experience Topics Manager */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900">Keywords & Experience Topics Manager</h2>
+            <p className="text-xs text-slate-400">Manage industry praise tags, services, and private feedback concern tags.</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleResetDefaults}
+            className="text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 px-3 py-1.5 rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+            Reload Category Defaults
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Positive Experience Topics */}
           <div className="bg-white p-6 rounded-[28px] border border-slate-200/80 shadow-xs space-y-4">
@@ -318,21 +398,29 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-wrap gap-1.5 min-h-[80px] p-3 bg-slate-50/70 border border-slate-200/60 rounded-2xl">
-              {positiveTopics.map((t, idx) => (
-                <span
-                  key={idx}
-                  className="text-xs bg-white text-slate-900 font-medium px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5"
-                >
-                  {t}
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePositiveTopic(idx)}
-                    className="text-slate-400 hover:text-rose-500 transition-colors"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+              {positiveTopics.length === 0 ? (
+                <span className="text-xs text-slate-400 italic">No praise tags added yet. Click &quot;Reload Category Defaults&quot; or add below.</span>
+              ) : (
+                positiveTopics.map((t, idx) => {
+                  const label = (typeof t === "string" ? t : (t as any)?.name || "").trim();
+                  if (!label) return null;
+                  return (
+                    <span
+                      key={`${label}-${idx}`}
+                      className="text-xs bg-white text-slate-900 font-medium px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5"
+                    >
+                      {label}
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePositiveTopic(idx)}
+                        className="text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -346,7 +434,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={handleAddPositiveTopic}
-                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1"
+                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" /> Add
               </button>
@@ -363,21 +451,29 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-wrap gap-1.5 min-h-[80px] p-3 bg-slate-50/70 border border-slate-200/60 rounded-2xl">
-              {services.map((s, idx) => (
-                <span
-                  key={idx}
-                  className="text-xs bg-white text-slate-900 font-medium px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5"
-                >
-                  {s}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveService(idx)}
-                    className="text-slate-400 hover:text-rose-500 transition-colors"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+              {services.length === 0 ? (
+                <span className="text-xs text-slate-400 italic">No services added yet. Click &quot;Reload Category Defaults&quot; or add below.</span>
+              ) : (
+                services.map((s, idx) => {
+                  const label = (typeof s === "string" ? s : (s as any)?.name || "").trim();
+                  if (!label) return null;
+                  return (
+                    <span
+                      key={`${label}-${idx}`}
+                      className="text-xs bg-white text-slate-900 font-medium px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5"
+                    >
+                      {label}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveService(idx)}
+                        className="text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -391,9 +487,64 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={handleAddService}
-                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1"
+                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" /> Add
+              </button>
+            </div>
+          </div>
+
+          {/* Private Feedback Concern Tags (Optional Grievances) */}
+          <div className="bg-white p-6 rounded-[28px] border border-slate-200/80 shadow-xs space-y-4 md:col-span-2">
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-amber-600" /> Private Feedback Concern Tags
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Optional tags presented when customers want to message management about an issue privately.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 min-h-[60px] p-3 bg-slate-50/70 border border-slate-200/60 rounded-2xl">
+              {issueTopics.length === 0 ? (
+                <span className="text-xs text-slate-400 italic">No issue tags added yet. Customers can still type freeform messages.</span>
+              ) : (
+                issueTopics.map((t, idx) => {
+                  const label = (typeof t === "string" ? t : (t as any)?.name || "").trim();
+                  if (!label) return null;
+                  return (
+                    <span
+                      key={`${label}-${idx}`}
+                      className="text-xs bg-white text-slate-900 font-medium px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs flex items-center gap-1.5"
+                    >
+                      {label}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveIssueTopic(idx)}
+                        className="text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="flex gap-2 max-w-md">
+              <input
+                type="text"
+                value={newIssueTopic}
+                onChange={(e) => setNewIssueTopic(e.target.value)}
+                placeholder="e.g. Seating Wait Time"
+                className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+              />
+              <button
+                type="button"
+                onClick={handleAddIssueTopic}
+                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Tag
               </button>
             </div>
           </div>
