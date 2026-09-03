@@ -3,6 +3,7 @@ import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
 import { prisma } from "@/lib/prisma";
 import { getCategoryById } from "@/lib/categories";
 import { getSession } from "@/lib/auth";
+import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
 
 // GET business by slug (Powered by Firebase Firestore)
 export async function GET(
@@ -32,10 +33,7 @@ export async function GET(
     let safeServices: any[] = [];
     if (Array.isArray(business.services) && business.services.length > 0) {
       safeServices = business.services
-        .map((s: any, idx: number) => {
-          const sName = typeof s === "string" ? s.trim() : (s?.name || "").trim();
-          return sName ? { id: s?.id || `srv_${idx}`, name: sName } : null;
-        })
+        .map((s: any) => parseServiceItem(s))
         .filter(Boolean);
     }
     if (safeServices.length === 0) {
@@ -46,11 +44,7 @@ export async function GET(
     let safeTopics: any[] = [];
     if (Array.isArray(business.topics) && business.topics.length > 0) {
       safeTopics = business.topics
-        .map((t: any, idx: number) => {
-          const tName = typeof t === "string" ? t.trim() : (t?.name || "").trim();
-          const tType = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
-          return tName ? { id: t?.id || `top_${idx}`, name: tName, type: tType } : null;
-        })
+        .map((t: any) => parseTopicItem(t))
         .filter(Boolean);
     }
     if (safeTopics.length === 0) {

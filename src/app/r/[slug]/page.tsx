@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import Link from "next/link";
+import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
 
 interface Topic {
   id: string;
@@ -253,24 +254,15 @@ export default function CustomerReviewPage() {
   }
 
   const allTopics = (business.topics || [])
-    .map((t: any) => {
-      const name = (typeof t === "string" ? t : t?.name || "").trim();
-      const type = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
-      const id = typeof t === "object" ? t?.id || name : name;
-      return name ? { id, name, type } : null;
-    })
-    .filter(Boolean) as { id: string; name: string; type: string }[];
+    .map((t: any) => parseTopicItem(t))
+    .filter(Boolean) as { id: string; name: string; type: "positive" | "issue" }[];
 
   const filteredTopics = allTopics.filter((topic) =>
     rating >= 4 ? topic.type !== "issue" : true
   );
 
   const allServices = (business.services || [])
-    .map((s: any) => {
-      const name = (typeof s === "string" ? s : s?.name || "").trim();
-      const id = typeof s === "object" ? s?.id || name : name;
-      return name ? { id, name } : null;
-    })
+    .map((s: any) => parseServiceItem(s))
     .filter(Boolean) as { id: string; name: string }[];
 
   return (

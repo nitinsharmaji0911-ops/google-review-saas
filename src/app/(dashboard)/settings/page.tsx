@@ -15,6 +15,7 @@ import {
   RotateCcw
 } from "lucide-react";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
+import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -75,11 +76,11 @@ export default function SettingsPage() {
           setBrandColor(b.brandColor || "#0f172a");
           setPhone(b.phone || "");
 
-          // Parse Services safely whether strings or objects
+          // Parse Services safely whether strings, JSON strings, or objects
           const loadedServices: string[] = Array.isArray(b.services)
             ? b.services
-                .map((s: any) => (typeof s === "string" ? s : s?.name || "").trim())
-                .filter(Boolean)
+                .map((s: any) => parseServiceItem(s)?.name)
+                .filter((name: any): name is string => Boolean(name && !name.startsWith("{")))
             : [];
 
           setServices(loadedServices.length > 0 ? loadedServices : [...catConfig.defaultServices]);
@@ -90,12 +91,12 @@ export default function SettingsPage() {
 
           if (Array.isArray(b.topics)) {
             b.topics.forEach((t: any) => {
-              const tName = (typeof t === "string" ? t : t?.name || "").trim();
-              if (!tName) return;
-              if (typeof t === "object" && t?.type === "issue") {
-                loadedIssues.push(tName);
+              const parsed = parseTopicItem(t);
+              if (!parsed || !parsed.name || parsed.name.startsWith("{")) return;
+              if (parsed.type === "issue") {
+                loadedIssues.push(parsed.name);
               } else {
-                loadedPositive.push(tName);
+                loadedPositive.push(parsed.name);
               }
             });
           }
@@ -180,17 +181,17 @@ export default function SettingsPage() {
 
     try {
       const cleanServices = services
-        .map((s) => (typeof s === "string" ? s : (s as any)?.name || "").trim())
-        .filter(Boolean);
+        .map((s) => parseServiceItem(s)?.name)
+        .filter((name): name is string => Boolean(name && !name.startsWith("{")));
 
       const allTopics = [
         ...positiveTopics
-          .map((name) => (typeof name === "string" ? name : (name as any)?.name || "").trim())
-          .filter(Boolean)
+          .map((t) => parseTopicItem(t, "positive")?.name)
+          .filter((name): name is string => Boolean(name && !name.startsWith("{")))
           .map((name) => ({ name, type: "positive" })),
         ...issueTopics
-          .map((name) => (typeof name === "string" ? name : (name as any)?.name || "").trim())
-          .filter(Boolean)
+          .map((t) => parseTopicItem(t, "issue")?.name)
+          .filter((name): name is string => Boolean(name && !name.startsWith("{")))
           .map((name) => ({ name, type: "issue" })),
       ];
 

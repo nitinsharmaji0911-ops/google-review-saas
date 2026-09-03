@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { FirestoreREST } from "@/lib/firestore-rest";
 import { getCategoryById } from "@/lib/categories";
+import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
 
 export const dynamic = "force-dynamic";
 
@@ -154,10 +155,7 @@ export async function GET(req: NextRequest) {
     let safeServices: any[] = [];
     if (Array.isArray(business.services) && business.services.length > 0) {
       safeServices = business.services
-        .map((s: any, idx: number) => {
-          const sName = typeof s === "string" ? s.trim() : (s?.name || "").trim();
-          return sName ? { id: s?.id || `srv_${idx}`, name: sName } : null;
-        })
+        .map((s: any) => parseServiceItem(s))
         .filter(Boolean);
     }
     if (safeServices.length === 0) {
@@ -168,11 +166,7 @@ export async function GET(req: NextRequest) {
     let safeTopics: any[] = [];
     if (Array.isArray(business.topics) && business.topics.length > 0) {
       safeTopics = business.topics
-        .map((t: any, idx: number) => {
-          const tName = typeof t === "string" ? t.trim() : (t?.name || "").trim();
-          const tType = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
-          return tName ? { id: t?.id || `top_${idx}`, name: tName, type: tType } : null;
-        })
+        .map((t: any) => parseTopicItem(t))
         .filter(Boolean);
     }
     if (safeTopics.length === 0) {
@@ -259,22 +253,15 @@ export async function PUT(req: NextRequest) {
     // Sanitize services and topics
     const cleanServices = Array.isArray(services)
       ? services
-          .map((s: any, idx: number) => {
-            const sName = (typeof s === "string" ? s : s?.name || "").trim();
-            return sName ? { id: s?.id || `srv_${idx}`, name: sName } : null;
-          })
+          .map((s: any) => parseServiceItem(s))
           .filter(Boolean)
-      : (existingBusiness?.services || []);
+      : (existingBusiness?.services || []).map((s: any) => parseServiceItem(s)).filter(Boolean);
 
     const cleanTopics = Array.isArray(topics)
       ? topics
-          .map((t: any, idx: number) => {
-            const tName = (typeof t === "string" ? t : t?.name || "").trim();
-            const tType = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
-            return tName ? { id: t?.id || `top_${idx}`, name: tName, type: tType } : null;
-          })
+          .map((t: any) => parseTopicItem(t))
           .filter(Boolean)
-      : (existingBusiness?.topics || []);
+      : (existingBusiness?.topics || []).map((t: any) => parseTopicItem(t)).filter(Boolean);
 
     // Update or create in Prisma
     let updatedBusiness: any = null;
