@@ -34,6 +34,7 @@ export default function QRStudioPage() {
           if (data.business.category === "salon") setHeadline("Loved your new look?");
           else if (data.business.category === "restaurant") setHeadline("How was your meal today?");
           else if (data.business.category === "cafe") setHeadline("Enjoyed your coffee & food?");
+          else if (data.business.category === "snacks") setHeadline("Loved the taste & snacks today?");
 
           const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
           const reviewUrl = `${origin}/r/${data.business.slug}`;
