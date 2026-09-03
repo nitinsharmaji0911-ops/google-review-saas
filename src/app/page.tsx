@@ -31,46 +31,56 @@ export default function LandingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const isMutedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [browserBlockedAudio, setBrowserBlockedAudio] = useState(false);
 
-  useEffect(() => {
-    isMutedRef.current = isMuted;
-  }, [isMuted]);
-
-  // Autoplay video automatically when 70% of the screen is visible (start unmuted)
+  // Play video with audio directly when 70% of the screen is visible
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // Start unmuted as requested
-    video.muted = isMutedRef.current;
+    // Strictly ensure unmuted audio from the start
+    video.muted = false;
+    video.volume = 1.0;
+
+    const playWithAudio = () => {
+      if (!video) return;
+      video.muted = false;
+      video.volume = 1.0;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+            setIsMuted(false);
+          })
+          .catch(() => {
+            // If browser requires a user gesture before starting audio,
+            // play with sound on the very first scroll or touch
+            const triggerOnInteraction = () => {
+              if (video) {
+                video.muted = false;
+                video.volume = 1.0;
+                video.play().then(() => {
+                  setIsPlaying(true);
+                  setIsMuted(false);
+                }).catch(() => {});
+              }
+            };
+
+            window.addEventListener("scroll", triggerOnInteraction, { once: true, passive: true });
+            window.addEventListener("pointerdown", triggerOnInteraction, { once: true });
+            window.addEventListener("touchstart", triggerOnInteraction, { once: true });
+            window.addEventListener("wheel", triggerOnInteraction, { once: true, passive: true });
+          });
+      }
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-            video.muted = isMutedRef.current;
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise
-                .then(() => {
-                  setIsPlaying(true);
-                  if (!isMutedRef.current) {
-                    setBrowserBlockedAudio(false);
-                  }
-                })
-                .catch(() => {
-                  // If browser autoplay policy prevents audio before user interaction:
-                  // Play muted, mark browserBlockedAudio, then automatically unmute on first user tap/gesture
-                  video.muted = true;
-                  setIsMuted(true);
-                  setBrowserBlockedAudio(true);
-                  video.play().then(() => setIsPlaying(true)).catch(() => {});
-                });
-            }
+            playWithAudio();
           } else if (entry.intersectionRatio < 0.7) {
             video.pause();
             setIsPlaying(false);
@@ -84,23 +94,8 @@ export default function LandingPage() {
 
     observer.observe(container);
 
-    const handleFirstGesture = () => {
-      if (video) {
-        video.muted = false;
-        setIsMuted(false);
-        setBrowserBlockedAudio(false);
-        video.play().catch(() => {});
-      }
-    };
-    window.addEventListener("pointerdown", handleFirstGesture, { once: true });
-    window.addEventListener("touchstart", handleFirstGesture, { once: true });
-    window.addEventListener("click", handleFirstGesture, { once: true });
-
     return () => {
       observer.disconnect();
-      window.removeEventListener("pointerdown", handleFirstGesture);
-      window.removeEventListener("touchstart", handleFirstGesture);
-      window.removeEventListener("click", handleFirstGesture);
     };
   }, []);
 
@@ -108,6 +103,7 @@ export default function LandingPage() {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
+      video.muted = isMuted;
       video.play();
       setIsPlaying(true);
     } else {
@@ -123,9 +119,6 @@ export default function LandingPage() {
     const newMuted = !video.muted;
     video.muted = newMuted;
     setIsMuted(newMuted);
-    if (!newMuted) {
-      setBrowserBlockedAudio(false);
-    }
   };
 
   const toggleFaq = (index: number) => {
@@ -411,13 +404,11 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Autoplayable Video */}
+                {/* 70% Visibility Video Player with Audio */}
                 <video
                   ref={videoRef}
                   src="/video/welurik-demo.mp4"
                   poster="/video/welurik-demo-poster.jpg"
-                  autoPlay
-                  muted={isMuted}
                   loop
                   playsInline
                   preload="auto"
@@ -435,30 +426,6 @@ export default function LandingPage() {
                       <Play className="w-5 h-5 fill-black ml-0.5" />
                     </div>
                   </div>
-                )}
-
-                {/* Browser Autoplay Policy Fallback: Tap to Unmute */}
-                {browserBlockedAudio && isMuted && isPlaying && (
-                  <motion.button
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const video = videoRef.current;
-                      if (video) {
-                        video.muted = false;
-                        setIsMuted(false);
-                        setBrowserBlockedAudio(false);
-                        video.play().catch(() => {});
-                      }
-                    }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 px-3.5 py-2 rounded-full bg-emerald-600 text-white font-black text-[11px] shadow-2xl border-2 border-white flex items-center gap-1.5 hover:bg-emerald-700 transition-all cursor-pointer animate-pulse whitespace-nowrap"
-                  >
-                    <Volume2 className="w-3.5 h-3.5 shrink-0 text-white" />
-                    <span>Tap for Sound 🔊</span>
-                  </motion.button>
                 )}
 
                 {/* Floating Bottom Mute/Unmute Control (Defaults to Unmuted, option to mute) */}
