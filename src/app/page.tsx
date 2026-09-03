@@ -29,107 +29,21 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const isMutedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    isMutedRef.current = isMuted;
-  }, [isMuted]);
-
-  // STRICT 70% VISIBILITY AUTOPLAY WITH SOUND RULE:
-  // - Video is unmuted from the start (Sound On)
-  // - Plays automatically with full audio when 70% or more is visible
-  // - Automatically pauses when less than 70% is visible
-  // - Customer can click the sound button to mute if they want
-  useEffect(() => {
-    const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
-
-    // Start unmuted strictly
-    video.muted = false;
-    video.volume = 1.0;
-
-    const playWithAudio = () => {
-      if (!video) return;
-      video.muted = isMutedRef.current;
-      video.volume = 1.0;
-
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(() => {
-            // If browser blocks unmuted autoplay without gesture,
-            // immediately play muted so video NEVER stays paused,
-            // and unmutes on the very first touch/scroll gesture.
-            video.muted = true;
-            video.play().then(() => {
-              setIsPlaying(true);
-            }).catch(() => {});
-          });
-      }
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-            playWithAudio();
-          } else {
-            video.pause();
-            setIsPlaying(false);
-          }
-        });
-      },
-      {
-        threshold: [0, 0.7],
-      }
-    );
-
-    observer.observe(container);
-
-    // Any user interaction immediately ensures audio is completely unmuted and active
-    const ensureUnmuted = () => {
-      if (video && !isMutedRef.current) {
-        video.muted = false;
-        video.volume = 1.0;
-        setIsMuted(false);
-      }
-    };
-
-    window.addEventListener("pointerdown", ensureUnmuted);
-    window.addEventListener("touchstart", ensureUnmuted);
-    window.addEventListener("scroll", ensureUnmuted, { passive: true });
-    window.addEventListener("wheel", ensureUnmuted, { passive: true });
-    window.addEventListener("mousemove", ensureUnmuted);
-    window.addEventListener("click", ensureUnmuted);
-    window.addEventListener("keydown", ensureUnmuted);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("pointerdown", ensureUnmuted);
-      window.removeEventListener("touchstart", ensureUnmuted);
-      window.removeEventListener("scroll", ensureUnmuted);
-      window.removeEventListener("wheel", ensureUnmuted);
-      window.removeEventListener("mousemove", ensureUnmuted);
-      window.removeEventListener("click", ensureUnmuted);
-      window.removeEventListener("keydown", ensureUnmuted);
-    };
-  }, []);
-
+  // Video starts PAUSED - Plays with full unmuted sound when user clicks Play
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
       video.muted = isMuted;
       video.volume = 1.0;
-      video.play();
-      setIsPlaying(true);
+      video.play().then(() => {
+        setIsPlaying(true);
+      }).catch((err) => {
+        console.error("Play error:", err);
+      });
     } else {
       video.pause();
       setIsPlaying(false);
@@ -418,7 +332,7 @@ export default function LandingPage() {
               className="w-full max-w-[280px] xs:max-w-[300px] sm:max-w-[320px] bg-black p-2 sm:p-2.5 rounded-[42px] sm:rounded-[48px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_#000000] transition-all group"
             >
               {/* Inside Screen Container with 9:16 Aspect Ratio */}
-              <div ref={containerRef} className="relative aspect-[9/16] w-full overflow-hidden rounded-[34px] sm:rounded-[38px] bg-slate-950 flex items-center justify-center">
+              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[34px] sm:rounded-[38px] bg-slate-950 flex items-center justify-center">
                 
                 {/* Dynamic Island */}
                 <div className="absolute top-2 sm:top-2.5 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
@@ -428,12 +342,11 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Strict 70% Visibility Video Player */}
+                {/* Video Player - Paused by Default */}
                 <video
                   ref={videoRef}
                   src="/video/welurik-demo.mp4"
                   poster="/video/welurik-demo-poster.jpg"
-                  muted
                   loop
                   playsInline
                   preload="auto"
@@ -441,15 +354,22 @@ export default function LandingPage() {
                   className="w-full h-full object-cover object-center cursor-pointer"
                 />
 
-                {/* Play / Pause Overlay when Paused */}
+                {/* Play Button Overlay when Paused */}
                 {!isPlaying && (
                   <div 
                     onClick={togglePlay}
-                    className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center cursor-pointer z-20 transition-opacity"
+                    className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer z-20 transition-opacity group/play"
                   >
-                    <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-lg border-2 border-black hover:scale-105 transition-transform">
-                      <Play className="w-5 h-5 fill-black ml-0.5" />
-                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-2xl border-2 border-black"
+                    >
+                      <Play className="w-6 h-6 fill-black ml-0.5" />
+                    </motion.div>
+                    <span className="mt-2.5 text-[11px] font-black text-white bg-black/80 px-3 py-1 rounded-full border border-white/20 shadow-md">
+                      Watch Live Demo 🔊
+                    </span>
                   </div>
                 )}
 
