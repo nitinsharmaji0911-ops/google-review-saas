@@ -31,43 +31,55 @@ export default function LandingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // STRICT 70% VISIBILITY AUTOPLAY RULE:
-  // - Plays automatically ONLY when 70% or more of the video is visible in the viewport
-  // - Automatically pauses whenever less than 70% is visible
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
+
+  // STRICT 70% VISIBILITY AUTOPLAY WITH SOUND RULE:
+  // - Video is unmuted from the start (Sound On)
+  // - Plays automatically with full audio when 70% or more is visible
+  // - Automatically pauses when less than 70% is visible
+  // - Customer can click the sound button to mute if they want
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // Start unmuted as requested
+    // Start unmuted strictly
     video.muted = false;
     video.volume = 1.0;
+
+    const playWithAudio = () => {
+      if (!video) return;
+      video.muted = isMutedRef.current;
+      video.volume = 1.0;
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(() => {
+            // Browser autoplay policy delay: play video and unlock sound on ANY user activity
+            video.play().catch(() => {
+              // Only fallback temporarily to silent frames if browser engine requires it to roll
+              video.muted = true;
+              video.play().catch(() => {});
+            });
+          });
+      }
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-            // 70% OR MORE IS VISIBLE -> PLAY AUTOMATICALLY WITH AUDIO!
-            video.muted = false;
-            video.volume = 1.0;
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise
-                .then(() => {
-                  setIsPlaying(true);
-                  setIsMuted(false);
-                })
-                .catch(() => {
-                  // If browser autoplay policy strictly requires muted initially, play and unlock on touch:
-                  video.muted = true;
-                  setIsMuted(true);
-                  video.play().then(() => setIsPlaying(true)).catch(() => {});
-                });
-            }
+            playWithAudio();
           } else {
-            // LESS THAN 70% VISIBLE -> IMMEDIATELY PAUSE!
             video.pause();
             setIsPlaying(false);
           }
@@ -80,23 +92,32 @@ export default function LandingPage() {
 
     observer.observe(container);
 
-    // Unmute with sound on user interaction (touch, click, scroll)
-    const unmuteOnGesture = () => {
-      if (video) {
+    // Any user interaction immediately ensures audio is completely unmuted and active
+    const ensureUnmuted = () => {
+      if (video && !isMutedRef.current) {
         video.muted = false;
         video.volume = 1.0;
         setIsMuted(false);
       }
     };
-    window.addEventListener("pointerdown", unmuteOnGesture, { once: true });
-    window.addEventListener("touchstart", unmuteOnGesture, { once: true });
-    window.addEventListener("click", unmuteOnGesture, { once: true });
+
+    window.addEventListener("pointerdown", ensureUnmuted);
+    window.addEventListener("touchstart", ensureUnmuted);
+    window.addEventListener("scroll", ensureUnmuted, { passive: true });
+    window.addEventListener("wheel", ensureUnmuted, { passive: true });
+    window.addEventListener("mousemove", ensureUnmuted);
+    window.addEventListener("click", ensureUnmuted);
+    window.addEventListener("keydown", ensureUnmuted);
 
     return () => {
       observer.disconnect();
-      window.removeEventListener("pointerdown", unmuteOnGesture);
-      window.removeEventListener("touchstart", unmuteOnGesture);
-      window.removeEventListener("click", unmuteOnGesture);
+      window.removeEventListener("pointerdown", ensureUnmuted);
+      window.removeEventListener("touchstart", ensureUnmuted);
+      window.removeEventListener("scroll", ensureUnmuted);
+      window.removeEventListener("wheel", ensureUnmuted);
+      window.removeEventListener("mousemove", ensureUnmuted);
+      window.removeEventListener("click", ensureUnmuted);
+      window.removeEventListener("keydown", ensureUnmuted);
     };
   }, []);
 
@@ -105,6 +126,7 @@ export default function LandingPage() {
     if (!video) return;
     if (video.paused) {
       video.muted = isMuted;
+      video.volume = 1.0;
       video.play();
       setIsPlaying(true);
     } else {
