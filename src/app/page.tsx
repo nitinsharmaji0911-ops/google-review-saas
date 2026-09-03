@@ -30,73 +30,79 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
 
-  // Play video with audio directly when 70% of the screen is visible
+  // 1. Guaranteed Autoplay across every mobile and desktop browser immediately on load
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    const startPlay = () => {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            video.muted = true;
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
+          });
+      }
+    };
+
+    startPlay();
+  }, []);
+
+  // 2. Unmute with sound as soon as visitor touches, scrolls, or interacts with the page
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const unmuteWithAudio = () => {
+      if (video) {
+        video.muted = false;
+        video.volume = 1.0;
+        setIsMuted(false);
+      }
+    };
+
+    window.addEventListener("pointerdown", unmuteWithAudio, { once: true });
+    window.addEventListener("touchstart", unmuteWithAudio, { once: true });
+    window.addEventListener("scroll", unmuteWithAudio, { once: true, passive: true });
+    window.addEventListener("wheel", unmuteWithAudio, { once: true, passive: true });
+    window.addEventListener("click", unmuteWithAudio, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unmuteWithAudio);
+      window.removeEventListener("touchstart", unmuteWithAudio);
+      window.removeEventListener("scroll", unmuteWithAudio);
+      window.removeEventListener("wheel", unmuteWithAudio);
+      window.removeEventListener("click", unmuteWithAudio);
+    };
+  }, []);
+
+  // 3. Keep video playing when 70% of the screen is visible
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // Strictly ensure unmuted audio from the start
-    video.muted = false;
-    video.volume = 1.0;
-
-    const playWithAudio = () => {
-      if (!video) return;
-      video.muted = false;
-      video.volume = 1.0;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-            setIsMuted(false);
-          })
-          .catch(() => {
-            // If browser requires a user gesture before starting audio,
-            // play with sound on the very first scroll or touch
-            const triggerOnInteraction = () => {
-              if (video) {
-                video.muted = false;
-                video.volume = 1.0;
-                video.play().then(() => {
-                  setIsPlaying(true);
-                  setIsMuted(false);
-                }).catch(() => {});
-              }
-            };
-
-            window.addEventListener("scroll", triggerOnInteraction, { once: true, passive: true });
-            window.addEventListener("pointerdown", triggerOnInteraction, { once: true });
-            window.addEventListener("touchstart", triggerOnInteraction, { once: true });
-            window.addEventListener("wheel", triggerOnInteraction, { once: true, passive: true });
-          });
-      }
-    };
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-            playWithAudio();
-          } else if (entry.intersectionRatio < 0.7) {
-            video.pause();
-            setIsPlaying(false);
+            if (video.paused) {
+              video.play().then(() => setIsPlaying(true)).catch(() => {});
+            }
           }
         });
       },
-      {
-        threshold: [0, 0.7],
-      }
+      { threshold: 0.7 }
     );
 
     observer.observe(container);
-
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
   const togglePlay = () => {
@@ -404,11 +410,13 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* 70% Visibility Video Player with Audio */}
+                {/* 100% Guaranteed Autoplay Video Player */}
                 <video
                   ref={videoRef}
                   src="/video/welurik-demo.mp4"
                   poster="/video/welurik-demo-poster.jpg"
+                  autoPlay
+                  muted
                   loop
                   playsInline
                   preload="auto"
