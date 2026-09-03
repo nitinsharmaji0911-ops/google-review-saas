@@ -30,79 +30,74 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  // 1. Guaranteed Autoplay across every mobile and desktop browser immediately on load
+  // STRICT 70% VISIBILITY AUTOPLAY RULE:
+  // - Plays automatically ONLY when 70% or more of the video is visible in the viewport
+  // - Automatically pauses whenever less than 70% is visible
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    const container = containerRef.current;
+    if (!video || !container) return;
 
-    video.muted = true;
-    const startPlay = () => {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => setIsPlaying(true))
-          .catch(() => {
-            video.muted = true;
-            video.play().then(() => setIsPlaying(true)).catch(() => {});
-          });
+    // Start unmuted as requested
+    video.muted = false;
+    video.volume = 1.0;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+            // 70% OR MORE IS VISIBLE -> PLAY AUTOMATICALLY WITH AUDIO!
+            video.muted = false;
+            video.volume = 1.0;
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  setIsPlaying(true);
+                  setIsMuted(false);
+                })
+                .catch(() => {
+                  // If browser autoplay policy strictly requires muted initially, play and unlock on touch:
+                  video.muted = true;
+                  setIsMuted(true);
+                  video.play().then(() => setIsPlaying(true)).catch(() => {});
+                });
+            }
+          } else {
+            // LESS THAN 70% VISIBLE -> IMMEDIATELY PAUSE!
+            video.pause();
+            setIsPlaying(false);
+          }
+        });
+      },
+      {
+        threshold: [0, 0.7],
       }
-    };
+    );
 
-    startPlay();
-  }, []);
+    observer.observe(container);
 
-  // 2. Unmute with sound as soon as visitor touches, scrolls, or interacts with the page
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const unmuteWithAudio = () => {
+    // Unmute with sound on user interaction (touch, click, scroll)
+    const unmuteOnGesture = () => {
       if (video) {
         video.muted = false;
         video.volume = 1.0;
         setIsMuted(false);
       }
     };
-
-    window.addEventListener("pointerdown", unmuteWithAudio, { once: true });
-    window.addEventListener("touchstart", unmuteWithAudio, { once: true });
-    window.addEventListener("scroll", unmuteWithAudio, { once: true, passive: true });
-    window.addEventListener("wheel", unmuteWithAudio, { once: true, passive: true });
-    window.addEventListener("click", unmuteWithAudio, { once: true });
+    window.addEventListener("pointerdown", unmuteOnGesture, { once: true });
+    window.addEventListener("touchstart", unmuteOnGesture, { once: true });
+    window.addEventListener("click", unmuteOnGesture, { once: true });
 
     return () => {
-      window.removeEventListener("pointerdown", unmuteWithAudio);
-      window.removeEventListener("touchstart", unmuteWithAudio);
-      window.removeEventListener("scroll", unmuteWithAudio);
-      window.removeEventListener("wheel", unmuteWithAudio);
-      window.removeEventListener("click", unmuteWithAudio);
+      observer.disconnect();
+      window.removeEventListener("pointerdown", unmuteOnGesture);
+      window.removeEventListener("touchstart", unmuteOnGesture);
+      window.removeEventListener("click", unmuteOnGesture);
     };
-  }, []);
-
-  // 3. Keep video playing when 70% of the screen is visible
-  useEffect(() => {
-    const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-            if (video.paused) {
-              video.play().then(() => setIsPlaying(true)).catch(() => {});
-            }
-          }
-        });
-      },
-      { threshold: 0.7 }
-    );
-
-    observer.observe(container);
-    return () => observer.disconnect();
   }, []);
 
   const togglePlay = () => {
@@ -410,13 +405,11 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* 100% Guaranteed Autoplay Video Player */}
+                {/* Strict 70% Visibility Video Player */}
                 <video
                   ref={videoRef}
                   src="/video/welurik-demo.mp4"
                   poster="/video/welurik-demo-poster.jpg"
-                  autoPlay
-                  muted
                   loop
                   playsInline
                   preload="auto"
