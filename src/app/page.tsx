@@ -33,6 +33,7 @@ export default function LandingPage() {
   const [isMuted, setIsMuted] = useState(false);
   const isMutedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [browserBlockedAudio, setBrowserBlockedAudio] = useState(false);
 
   useEffect(() => {
     isMutedRef.current = isMuted;
@@ -57,12 +58,16 @@ export default function LandingPage() {
               playPromise
                 .then(() => {
                   setIsPlaying(true);
+                  if (!isMutedRef.current) {
+                    setBrowserBlockedAudio(false);
+                  }
                 })
                 .catch(() => {
                   // If browser autoplay policy prevents audio before user interaction:
-                  // Play muted, then automatically unmute on first user tap/gesture
+                  // Play muted, mark browserBlockedAudio, then automatically unmute on first user tap/gesture
                   video.muted = true;
                   setIsMuted(true);
+                  setBrowserBlockedAudio(true);
                   video.play().then(() => setIsPlaying(true)).catch(() => {});
                 });
             }
@@ -80,18 +85,22 @@ export default function LandingPage() {
     observer.observe(container);
 
     const handleFirstGesture = () => {
-      if (video && video.muted && !isMutedRef.current) {
+      if (video) {
         video.muted = false;
         setIsMuted(false);
+        setBrowserBlockedAudio(false);
+        video.play().catch(() => {});
       }
     };
     window.addEventListener("pointerdown", handleFirstGesture, { once: true });
-    window.addEventListener("keydown", handleFirstGesture, { once: true });
+    window.addEventListener("touchstart", handleFirstGesture, { once: true });
+    window.addEventListener("click", handleFirstGesture, { once: true });
 
     return () => {
       observer.disconnect();
       window.removeEventListener("pointerdown", handleFirstGesture);
-      window.removeEventListener("keydown", handleFirstGesture);
+      window.removeEventListener("touchstart", handleFirstGesture);
+      window.removeEventListener("click", handleFirstGesture);
     };
   }, []);
 
@@ -111,8 +120,12 @@ export default function LandingPage() {
     e.stopPropagation();
     const video = videoRef.current;
     if (!video) return;
-    video.muted = !video.muted;
-    setIsMuted(video.muted);
+    const newMuted = !video.muted;
+    video.muted = newMuted;
+    setIsMuted(newMuted);
+    if (!newMuted) {
+      setBrowserBlockedAudio(false);
+    }
   };
 
   const toggleFaq = (index: number) => {
@@ -422,6 +435,30 @@ export default function LandingPage() {
                       <Play className="w-5 h-5 fill-black ml-0.5" />
                     </div>
                   </div>
+                )}
+
+                {/* Browser Autoplay Policy Fallback: Tap to Unmute */}
+                {browserBlockedAudio && isMuted && isPlaying && (
+                  <motion.button
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const video = videoRef.current;
+                      if (video) {
+                        video.muted = false;
+                        setIsMuted(false);
+                        setBrowserBlockedAudio(false);
+                        video.play().catch(() => {});
+                      }
+                    }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 px-3.5 py-2 rounded-full bg-emerald-600 text-white font-black text-[11px] shadow-2xl border-2 border-white flex items-center gap-1.5 hover:bg-emerald-700 transition-all cursor-pointer animate-pulse whitespace-nowrap"
+                  >
+                    <Volume2 className="w-3.5 h-3.5 shrink-0 text-white" />
+                    <span>Tap for Sound 🔊</span>
+                  </motion.button>
                 )}
 
                 {/* Floating Bottom Mute/Unmute Control (Defaults to Unmuted, option to mute) */}
