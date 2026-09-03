@@ -29,24 +29,70 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  // Guarantee seamless video autoplay across all mobile and desktop browsers
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
+
+  // Autoplay video automatically when 70% of the screen is visible (start unmuted)
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    const container = containerRef.current;
+    if (!video || !container) return;
 
-    video.muted = true;
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => setIsPlaying(true))
-        .catch(() => {
-          video.muted = true;
-          video.play().catch(() => setIsPlaying(false));
+    // Start unmuted as requested
+    video.muted = isMutedRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+            video.muted = isMutedRef.current;
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  setIsPlaying(true);
+                })
+                .catch(() => {
+                  // If browser autoplay policy prevents audio before user interaction:
+                  // Play muted, then automatically unmute on first user tap/gesture
+                  video.muted = true;
+                  setIsMuted(true);
+                  video.play().then(() => setIsPlaying(true)).catch(() => {});
+                });
+            }
+          } else if (entry.intersectionRatio < 0.7) {
+            video.pause();
+            setIsPlaying(false);
+          }
         });
-    }
+      },
+      {
+        threshold: [0, 0.7],
+      }
+    );
+
+    observer.observe(container);
+
+    const handleFirstGesture = () => {
+      if (video && video.muted && !isMutedRef.current) {
+        video.muted = false;
+        setIsMuted(false);
+      }
+    };
+    window.addEventListener("pointerdown", handleFirstGesture, { once: true });
+    window.addEventListener("keydown", handleFirstGesture, { once: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("pointerdown", handleFirstGesture);
+      window.removeEventListener("keydown", handleFirstGesture);
+    };
   }, []);
 
   const togglePlay = () => {
@@ -342,7 +388,7 @@ export default function LandingPage() {
               className="w-full max-w-[280px] xs:max-w-[300px] sm:max-w-[320px] bg-black p-2 sm:p-2.5 rounded-[42px] sm:rounded-[48px] border-[3px] sm:border-[3.5px] border-black relative z-10 select-none shadow-[6px_6px_0px_#000000] sm:shadow-[8px_8px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_#000000] transition-all group"
             >
               {/* Inside Screen Container with 9:16 Aspect Ratio */}
-              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[34px] sm:rounded-[38px] bg-slate-950 flex items-center justify-center">
+              <div ref={containerRef} className="relative aspect-[9/16] w-full overflow-hidden rounded-[34px] sm:rounded-[38px] bg-slate-950 flex items-center justify-center">
                 
                 {/* Dynamic Island */}
                 <div className="absolute top-2 sm:top-2.5 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
@@ -378,22 +424,24 @@ export default function LandingPage() {
                   </div>
                 )}
 
-                {/* Floating Bottom Overlays */}
-                <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-auto">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[10px] font-bold border border-white/20 shadow-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Live Review Demo</span>
-                  </div>
+                {/* Floating Bottom Mute/Unmute Control (Defaults to Unmuted, option to mute) */}
+                <div className="absolute bottom-3 right-3 z-20 pointer-events-auto">
                   <button
                     type="button"
                     onClick={toggleMute}
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/75 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/90 hover:scale-105 transition-all border border-white/20 shadow-md cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-full bg-black/80 backdrop-blur-md text-white flex items-center gap-1.5 hover:bg-black hover:scale-105 transition-all border border-white/20 shadow-md cursor-pointer text-[11px] font-bold"
                     title={isMuted ? "Unmute Sound" : "Mute Sound"}
                   >
                     {isMuted ? (
-                      <VolumeX className="w-3.5 h-3.5 text-slate-300" />
+                      <>
+                        <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                        <span>Mute</span>
+                      </>
                     ) : (
-                      <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <>
+                        <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Sound On</span>
+                      </>
                     )}
                   </button>
                 </div>
