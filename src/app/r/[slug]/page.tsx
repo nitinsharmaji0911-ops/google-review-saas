@@ -252,9 +252,26 @@ export default function CustomerReviewPage() {
     );
   }
 
-  const allTopics = (business.topics || []).filter((topic) =>
+  const allTopics = (business.topics || [])
+    .map((t: any) => {
+      const name = (typeof t === "string" ? t : t?.name || "").trim();
+      const type = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
+      const id = typeof t === "object" ? t?.id || name : name;
+      return name ? { id, name, type } : null;
+    })
+    .filter(Boolean) as { id: string; name: string; type: string }[];
+
+  const filteredTopics = allTopics.filter((topic) =>
     rating >= 4 ? topic.type !== "issue" : true
   );
+
+  const allServices = (business.services || [])
+    .map((s: any) => {
+      const name = (typeof s === "string" ? s : s?.name || "").trim();
+      const id = typeof s === "object" ? s?.id || name : name;
+      return name ? { id, name } : null;
+    })
+    .filter(Boolean) as { id: string; name: string }[];
 
   return (
     <div className="min-h-screen bg-[#ECFDF5] neo-canvas-bg text-slate-900 flex flex-col justify-between items-center py-8 px-4 font-sans selection:bg-slate-900 selection:text-white">
@@ -367,13 +384,13 @@ export default function CustomerReviewPage() {
               </div>
 
               {/* Quick Tags / Topics */}
-              {allTopics.length > 0 && (
+              {filteredTopics.length > 0 && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-2.5">
                     Add Quick Tags
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {allTopics.map((topic) => {
+                    {filteredTopics.map((topic) => {
                       const isSelected = selectedTopics.includes(topic.name);
                       return (
                         <motion.button
@@ -392,7 +409,7 @@ export default function CustomerReviewPage() {
                           }`}
                         >
                           {isSelected && <CheckCircle2 className="w-3.5 h-3.5" />}
-                          {topic.name}
+                          <span>{topic.name}</span>
                         </motion.button>
                       );
                     })}
@@ -401,13 +418,13 @@ export default function CustomerReviewPage() {
               )}
 
               {/* Specific Services / Items */}
-              {business.services && business.services.length > 0 && (
+              {allServices.length > 0 && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-2.5">
                     Items / Services (Optional)
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {business.services.map((service) => {
+                    {allServices.map((service) => {
                       const isSelected = selectedServices.includes(service.name);
                       return (
                         <motion.button
@@ -426,7 +443,7 @@ export default function CustomerReviewPage() {
                           }`}
                         >
                           {isSelected && <CheckCircle2 className="w-3 h-3" />}
-                          {service.name}
+                          <span>{service.name}</span>
                         </motion.button>
                       );
                     })}

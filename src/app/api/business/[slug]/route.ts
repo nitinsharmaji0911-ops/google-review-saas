@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
+import { prisma } from "@/lib/prisma";
+import { getCategoryById } from "@/lib/categories";
 import { getSession } from "@/lib/auth";
 
 // GET business by slug (Powered by Firebase Firestore)
@@ -9,14 +11,64 @@ export async function GET(
 ) {
   try {
     const slug = params.slug;
-    const business = await FirestoreDB.getBusinessBySlug(slug);
+    let business = await FirestoreDB.getBusinessBySlug(slug);
+
+    if (!business) {
+      try {
+        business = await prisma.business.findUnique({
+          where: { slug },
+          include: { services: true, topics: true },
+        });
+      } catch {}
+    }
 
     if (!business) {
       return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
     }
 
+    const catConfig = getCategoryById(business.category || "cafe");
+
+    // Clean and normalize services
+    let safeServices: any[] = [];
+    if (Array.isArray(business.services) && business.services.length > 0) {
+      safeServices = business.services
+        .map((s: any, idx: number) => {
+          const sName = typeof s === "string" ? s.trim() : (s?.name || "").trim();
+          return sName ? { id: s?.id || `srv_${idx}`, name: sName } : null;
+        })
+        .filter(Boolean);
+    }
+    if (safeServices.length === 0) {
+      safeServices = catConfig.defaultServices.map((name, idx) => ({ id: `srv_${idx}`, name }));
+    }
+
+    // Clean and normalize topics
+    let safeTopics: any[] = [];
+    if (Array.isArray(business.topics) && business.topics.length > 0) {
+      safeTopics = business.topics
+        .map((t: any, idx: number) => {
+          const tName = typeof t === "string" ? t.trim() : (t?.name || "").trim();
+          const tType = typeof t === "object" && t?.type === "issue" ? "issue" : "positive";
+          return tName ? { id: t?.id || `top_${idx}`, name: tName, type: tType } : null;
+        })
+        .filter(Boolean);
+    }
+    if (safeTopics.length === 0) {
+      safeTopics = [
+        ...catConfig.positiveTopics.map((name, idx) => ({ id: `top_pos_${idx}`, name, type: "positive" })),
+        ...catConfig.issueTopics.map((name, idx) => ({ id: `top_iss_${idx}`, name, type: "issue" })),
+      ];
+    }
+
     const { phone: _, ...publicBusiness } = business;
-    return NextResponse.json({ success: true, business: publicBusiness });
+    return NextResponse.json({
+      success: true,
+      business: {
+        ...publicBusiness,
+        services: safeServices,
+        topics: safeTopics,
+      },
+    });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
