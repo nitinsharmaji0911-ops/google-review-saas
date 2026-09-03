@@ -84,7 +84,7 @@ export default function SignupPage() {
             Claim Your Business License
           </h1>
           <p className="text-xs sm:text-[13px] text-slate-600 font-medium">
-            One-time ₹1,999 • Lifetime Access • Zero Monthly Fees
+            One-time ₹1,999 only • Lifetime Access • Zero Monthly Fees
           </p>
         </div>
 

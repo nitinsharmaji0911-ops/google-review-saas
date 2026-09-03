@@ -557,7 +557,7 @@ export default function OnboardingPage() {
                   <div className="text-right">
                     <div className="flex items-center gap-1.5 justify-end">
                       <span className="text-xs text-slate-400 line-through font-medium">₹4,999</span>
-                      <span className="text-xl font-black text-slate-950">₹1,999</span>
+                      <span className="text-xl font-black text-slate-950">₹1,999 only</span>
                     </div>
                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100/60 px-1.5 py-0.5 rounded">SAVE 60%</span>
                   </div>
@@ -592,7 +592,7 @@ export default function OnboardingPage() {
 
                 <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs font-bold text-slate-900">
                   <span className="text-slate-500 font-semibold">Total Payable:</span>
-                  <span className="text-base font-black text-slate-950">₹1,999</span>
+                  <span className="text-base font-black text-slate-950">₹1,999 only</span>
                 </div>
               </div>
 
@@ -683,7 +683,7 @@ export default function OnboardingPage() {
                   ) : (
                     <>
                       <Lock className="w-3.5 h-3.5" />
-                      Pay ₹1,999 & Unlock Dashboard
+                      Pay ₹1,999 only & Unlock Dashboard
                     </>
                   )}
                 </button>

@@ -20,7 +20,7 @@ interface CheckoutButtonProps {
 export function CheckoutButton({
   planType = "lifetime",
   className = "",
-  buttonText = "Get Lifetime Access — ₹1,999",
+  buttonText = "Get Lifetime Access — ₹1,999 only",
   showIcon = true,
 }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);

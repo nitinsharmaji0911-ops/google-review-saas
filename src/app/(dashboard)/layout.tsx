@@ -311,7 +311,7 @@ export default function DashboardLayout({
                 </div>
                 <h2 className="text-2xl font-black text-slate-950 tracking-tight">Activate Your Workspace</h2>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Complete your one-time payment of <strong>₹1,999</strong> to unlock your analytics dashboard, QR standee studio, and start getting 5-star Google reviews.
+                  Complete your one-time payment of <strong>₹1,999 only</strong> to unlock your analytics dashboard, QR standee studio, and start getting 5-star Google reviews.
                 </p>
               </div>
 
@@ -325,7 +325,7 @@ export default function DashboardLayout({
                   <div className="text-right">
                     <div className="flex items-center gap-1.5 justify-end">
                       <span className="text-xs text-slate-400 line-through font-medium">₹4,999</span>
-                      <span className="text-xl font-black text-slate-950">₹1,999</span>
+                      <span className="text-xl font-black text-slate-950">₹1,999 only</span>
                     </div>
                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100/60 px-1.5 py-0.5 rounded">SAVE 60%</span>
                   </div>
@@ -352,7 +352,7 @@ export default function DashboardLayout({
 
                 <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs font-bold text-slate-900">
                   <span className="text-slate-500 font-semibold">Total Payable:</span>
-                  <span className="text-base font-black text-slate-950">₹1,999</span>
+                  <span className="text-base font-black text-slate-950">₹1,999 only</span>
                 </div>
               </div>
 
@@ -415,7 +415,7 @@ export default function DashboardLayout({
 
               <CheckoutButton
                 planType="lifetime"
-                buttonText="Pay ₹1,999 with UPI / Card & Unlock"
+                buttonText="Pay ₹1,999 only with UPI / Card & Unlock"
                 className="w-full py-4 text-xs font-black rounded-xl"
               />
 

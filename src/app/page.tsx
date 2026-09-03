@@ -151,7 +151,7 @@ export default function LandingPage() {
     },
     {
       q: "Is there any monthly subscription fee?",
-      a: "No. The license is a one-time payment of ₹1,999 for lifetime access for your business. No monthly charges, no recurring fees.",
+      a: "No. The license is a one-time payment of ₹1,999 only for lifetime access for your business. No monthly charges, no recurring fees.",
     },
   ];
 
@@ -280,7 +280,7 @@ export default function LandingPage() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border-2 border-black rounded-full shadow-[2px_2px_0px_#000000]"
                 >
-                  Get Lifetime Access (₹1,999)
+                  Get Lifetime Access (₹1,999 only)
                 </Link>
               </div>
             </motion.div>
@@ -355,7 +355,7 @@ export default function LandingPage() {
                   href="/signup"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full text-sm sm:text-[15px] font-black border-2 border-black shadow-[3px_3px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
                 >
-                  Get Lifetime Access (₹1,999) <ArrowRight className="w-4 h-4" />
+                  Get Lifetime Access (₹1,999 only) <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
 
@@ -804,7 +804,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-center gap-2.5 flex-wrap">
             <span className="text-base sm:text-xl line-through text-slate-400 font-bold">₹4,999</span>
             <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
-              ₹1,999 Lifetime License
+              ₹1,999 only Lifetime License
             </h2>
           </div>
           <p className="text-xs font-medium text-slate-600">
@@ -839,7 +839,7 @@ export default function LandingPage() {
               href="/signup"
               className="w-full py-4 bg-[#15803D] hover:bg-[#166534] text-white rounded-full font-black text-sm flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_#000000] transition-shadow text-center cursor-pointer"
             >
-              Claim Lifetime Access for ₹1,999 <ArrowRight className="w-4 h-4" />
+              Claim Lifetime Access for ₹1,999 only <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
           <p className="text-center text-[10.5px] text-slate-500 font-semibold">Instant activation via UPI, QR & Cards</p>
@@ -934,7 +934,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="w-full sm:w-auto px-8 py-4 bg-[#15803D] hover:bg-[#166534] text-white font-black rounded-full text-sm sm:text-base border-2 border-black shadow-[4px_4px_0px_#000000] transition-shadow text-center inline-flex items-center justify-center gap-2"
               >
-                Get Started for ₹1,999 (Lifetime) <ArrowRight className="w-4 h-4" />
+                Get Started for ₹1,999 only (Lifetime) <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>
           </div>
@@ -966,7 +966,7 @@ export default function LandingPage() {
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] line-through text-slate-400 font-bold">₹4,999</span>
-            <span className="text-sm font-black text-black">₹1,999</span>
+            <span className="text-sm font-black text-black">₹1,999 only</span>
           </div>
           <span className="text-[10px] font-bold text-slate-500 truncate">
             Lifetime License • One-time
