@@ -64,12 +64,13 @@ export default function LandingPage() {
             setIsPlaying(true);
           })
           .catch(() => {
-            // Browser autoplay policy delay: play video and unlock sound on ANY user activity
-            video.play().catch(() => {
-              // Only fallback temporarily to silent frames if browser engine requires it to roll
-              video.muted = true;
-              video.play().catch(() => {});
-            });
+            // If browser blocks unmuted autoplay without gesture,
+            // immediately play muted so video NEVER stays paused,
+            // and unmutes on the very first touch/scroll gesture.
+            video.muted = true;
+            video.play().then(() => {
+              setIsPlaying(true);
+            }).catch(() => {});
           });
       }
     };
@@ -432,6 +433,7 @@ export default function LandingPage() {
                   ref={videoRef}
                   src="/video/welurik-demo.mp4"
                   poster="/video/welurik-demo-poster.jpg"
+                  muted
                   loop
                   playsInline
                   preload="auto"
