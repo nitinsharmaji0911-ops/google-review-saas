@@ -230,7 +230,7 @@ export default function OnboardingPage() {
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         name: "Welurik Review",
-        description: "₹1,999 Lifetime License Activation",
+        description: "₹1,999 only Lifetime License Activation",
         order_id: orderData.orderId,
         image: "/favicon.png",
         handler: async function (response: any) {

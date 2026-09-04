@@ -698,7 +698,7 @@ export default function LandingPage() {
 
       {/* 
         ========================================================================
-        PRICING CARD (₹1,999 Lifetime License)
+        PRICING CARD (₹1,999 only Lifetime License)
         ========================================================================
       */}
       <motion.section
