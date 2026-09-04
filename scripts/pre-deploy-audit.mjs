@@ -115,7 +115,9 @@ try {
     "src/app/(dashboard)/layout.tsx",
     "src/app/(dashboard)/onboarding/page.tsx",
     "src/app/(auth)/login/page.tsx",
-    "src/app/(auth)/signup/page.tsx"
+    "src/app/(auth)/signup/page.tsx",
+    "src/app/checkout/success/page.tsx",
+    "src/app/terms/page.tsx"
   ];
 
   let violations = [];

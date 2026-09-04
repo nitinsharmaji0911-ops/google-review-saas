@@ -87,24 +87,27 @@ export async function POST(req: NextRequest) {
       activatedAt: new Date().toISOString(),
     };
 
-    // 1. Look up existing business
+    // 1. Look up existing business belonging to this authenticated user
     let business: any = null;
     if (userId) {
       business = await FirestoreDB.getBusinessByUserId(userId);
     }
-    if (!business && businessSlug) {
-      business = await FirestoreDB.getBusinessBySlug(businessSlug);
-    }
-    if (!business && clientId) {
-      business = await FirestoreREST.getDocument("businesses", clientId);
+    if (!business && session.businessSlug) {
+      const candidate = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+      if (candidate && (!candidate.userId || candidate.userId === userId)) {
+        business = candidate;
+      }
     }
     if (!business && userEmail) {
       const defaultSlug = userEmail.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      business = await FirestoreDB.getBusinessBySlug(defaultSlug);
+      const candidate = await FirestoreDB.getBusinessBySlug(defaultSlug);
+      if (candidate && (!candidate.userId || candidate.userId === userId)) {
+        business = candidate;
+      }
     }
 
-    const targetSlug = business?.slug || businessSlug || (userEmail ? userEmail.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business");
-    const finalReviewUrl = clientGoogleUrl || business?.googleReviewUrl || "";
+    const targetSlug = business?.slug || session.businessSlug || (userEmail ? userEmail.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-") : "my-business");
+    const finalReviewUrl = business?.googleReviewUrl || clientGoogleUrl || "";
 
     // 2. Save/update business in Firestore
     const finalBusinessDoc = {

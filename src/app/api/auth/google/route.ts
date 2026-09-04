@@ -27,9 +27,14 @@ export async function POST(req: NextRequest) {
       if (googleRes.ok) {
         const tokenInfo = await googleRes.json();
         if (tokenInfo?.email) {
-          email = tokenInfo.email;
-          verifiedName = tokenInfo.name || verifiedName;
-          verifiedPicture = tokenInfo.picture || verifiedPicture;
+          const expectedAud = process.env.GOOGLE_CLIENT_ID;
+          if (expectedAud && tokenInfo.aud && tokenInfo.aud !== expectedAud) {
+            console.warn("Google ID token audience mismatch:", tokenInfo.aud);
+          } else {
+            email = tokenInfo.email;
+            verifiedName = tokenInfo.name || verifiedName;
+            verifiedPicture = tokenInfo.picture || verifiedPicture;
+          }
         }
       }
 
@@ -102,10 +107,13 @@ export async function POST(req: NextRequest) {
       business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
     }
 
-    // Check if a business exists under the email prefix slug
+    // Check if a business exists under the email prefix slug belonging to this user
     if (!business) {
       const emailSlug = normalizedEmail.split("@")[0].toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      business = await FirestoreDB.getBusinessBySlug(emailSlug);
+      const candidate = await FirestoreDB.getBusinessBySlug(emailSlug);
+      if (candidate && (!candidate.userId || candidate.userId === userId)) {
+        business = candidate;
+      }
     }
 
     const businessSlug = business?.slug || user?.businessSlug || "";

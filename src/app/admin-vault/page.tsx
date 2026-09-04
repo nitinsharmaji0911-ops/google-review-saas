@@ -185,7 +185,7 @@ export default function AdminVaultPage() {
       u.loginCount || 1,
       `"${u.lastLoginProvider || ""}"`,
       u.isPro ? "YES" : "NO",
-      `"${u.planName}"`,
+      `"${u.planName || ""}"`,
       `"${u.business?.name || ""}"`,
       `"${u.business?.category || ""}"`,
       `"${u.business?.location || ""}"`,
@@ -226,15 +226,15 @@ export default function AdminVaultPage() {
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
-      u.email.toLowerCase().includes(q) ||
-      u.business?.name.toLowerCase().includes(q) ||
-      u.business?.location.toLowerCase().includes(q) ||
-      u.business?.category.toLowerCase().includes(q);
+      u.email?.toLowerCase().includes(q) ||
+      (u.business?.name && u.business.name.toLowerCase().includes(q)) ||
+      (u.business?.location && u.business.location.toLowerCase().includes(q)) ||
+      (u.business?.category && u.business.category.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
 
     if (planFilter === "pro") return u.isPro;
-    if (planFilter === "trial") return u.planName.toLowerCase().includes("trial");
+    if (planFilter === "trial") return (u.planName || "").toLowerCase().includes("trial");
     if (planFilter === "unpaid") return !u.isPro;
 
     return true;

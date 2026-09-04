@@ -190,9 +190,29 @@ export async function POST(req: Request) {
       console.warn("Firestore business Pro update note:", fsBizErr);
     }
 
+    // Persist immutable order record in Firestore
+    try {
+      await FirestoreREST.setDocument("orders", razorpay_order_id, {
+        id: razorpay_order_id,
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        amount: 199900,
+        currency: "INR",
+        status: "paid",
+        planType: "lifetime",
+        planName: "Lifetime License",
+        userId: userId || "guest",
+        userEmail: userEmail || "",
+        businessSlug: fsBusiness?.slug || businessSlug || "",
+        createdAt: activationTime,
+      });
+    } catch (orderSaveErr) {
+      console.warn("Firestore order record note:", orderSaveErr);
+    }
+
     const res = NextResponse.json({
       success: true,
-      message: "Payment successfully verified! Your ₹1,999 Lifetime License is now active.",
+      message: "Payment successfully verified! Your ₹1,999 only Lifetime License is now active.",
       orderId,
       paymentId: razorpay_payment_id,
       isPro: true,

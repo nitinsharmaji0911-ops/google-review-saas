@@ -117,8 +117,8 @@ export async function PATCH(req: NextRequest) {
       console.warn("Prisma feedback update note:", dbErr);
     }
 
-    // Update in Firestore
-    await FirestoreDB.updateFeedbackStatus(id, status).catch(() => {});
+    // Update in Firestore with business tenant verification
+    await FirestoreDB.updateFeedbackStatus(id, status, business.slug || business.id).catch(() => {});
 
     return NextResponse.json({ success: true, status });
   } catch (error: any) {

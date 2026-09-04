@@ -194,17 +194,28 @@ export const FirestoreDB = {
     return inMemoryStore.feedback.filter((f) => f.businessSlug === slug);
   },
 
-  async updateFeedbackStatus(id: string, status: string) {
+  async updateFeedbackStatus(id: string, status: string, businessSlug?: string) {
     if (!id || !status) return false;
-    // Use Admin SDK update (PATCH) — never setDocument which replaces the entire document
     const { firestore } = getFirebaseAdmin();
     if (firestore) {
       try {
-        await firestore.collection("feedback").doc(id).update({ status });
+        const docRef = firestore.collection("feedback").doc(id);
+        if (businessSlug) {
+          const snap = await docRef.get();
+          if (snap.exists && snap.data()?.businessSlug && snap.data()?.businessSlug !== businessSlug) {
+            return false;
+          }
+        }
+        await docRef.update({ status });
       } catch {}
     }
     const local = inMemoryStore.feedback.find((f) => f.id === id);
-    if (local) local.status = status;
+    if (local) {
+      if (businessSlug && local.businessSlug && local.businessSlug !== businessSlug) {
+        return false;
+      }
+      local.status = status;
+    }
     return true;
   },
 

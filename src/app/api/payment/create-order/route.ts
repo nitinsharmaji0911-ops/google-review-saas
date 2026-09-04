@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     // Official Pricing: ₹1,999 Lifetime License (199900 Paise)
     const amountInPaise = 199900;
-    const planLabel = "₹1,999 Lifetime License";
+    const planLabel = "₹1,999 only Lifetime License";
     const planType = "lifetime";
 
     const key_id =

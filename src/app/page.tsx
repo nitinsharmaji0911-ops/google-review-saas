@@ -351,6 +351,8 @@ export default function LandingPage() {
                   playsInline
                   preload="auto"
                   onClick={togglePlay}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
                   className="w-full h-full object-cover object-center cursor-pointer"
                 />
 

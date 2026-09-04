@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
           <section className="space-y-2">
             <h2 className="text-base sm:text-lg font-bold text-slate-950">3. Lifetime License Scope</h2>
             <p>
-              A Lifetime License granted under the ₹1,999 deal provides perpetual software access for one business entity, including future platform updates, QR Standee generation, and a generous monthly quota of AI generations.
+              A Lifetime License granted under the ₹1,999 only deal provides perpetual software access for one business entity, including future platform updates, QR Standee generation, and a generous monthly quota of AI generations.
             </p>
           </section>
 

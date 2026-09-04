@@ -52,25 +52,21 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const cached = sessionStorage.getItem("welurik_dashboard_cache");
-        if (cached) return JSON.parse(cached);
-      } catch {}
-    }
-    return null;
-  });
-  const [loading, setLoading] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return !sessionStorage.getItem("welurik_dashboard_cache");
-    }
-    return true;
-  });
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   useEffect(() => {
     let isMounted = true;
+
+    // Fast hydration from session cache without causing SSR mismatch
+    try {
+      const cached = sessionStorage.getItem("welurik_dashboard_cache");
+      if (cached && isMounted) {
+        setData(JSON.parse(cached));
+        setLoading(false);
+      }
+    } catch {}
 
     async function loadDashboard() {
       try {

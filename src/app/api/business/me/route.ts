@@ -8,6 +8,19 @@ import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
 
 export const dynamic = "force-dynamic";
 
+function safeParseArray(raw: any): any[] {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [raw];
+    } catch {
+      return raw ? [raw] : [];
+    }
+  }
+  return [];
+}
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
@@ -209,8 +222,8 @@ export async function GET(req: NextRequest) {
       recentReviews: reviewSessions.map((r: any) => ({
         id: r.id,
         rating: r.rating,
-        selectedTopics: typeof r.selectedTopics === "string" ? JSON.parse(r.selectedTopics || "[]") : (r.selectedTopics || []),
-        selectedServices: typeof r.selectedServices === "string" ? JSON.parse(r.selectedServices || "[]") : (r.selectedServices || []),
+        selectedTopics: safeParseArray(r.selectedTopics),
+        selectedServices: safeParseArray(r.selectedServices),
         generatedReview: r.generatedReview || "",
         status: r.status,
         createdAt: new Date(r.createdAt || Date.now()).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),

@@ -58,8 +58,12 @@ function fromFirestoreDoc(doc: any): any {
       result[key] = valObj.doubleValue;
     } else if (valObj.booleanValue !== undefined) {
       result[key] = valObj.booleanValue;
-    } else if (valObj.arrayValue?.values) {
-      result[key] = valObj.arrayValue.values.map((v: any) => v.stringValue || Object.values(v)[0]);
+    } else if (valObj.arrayValue !== undefined) {
+      if (valObj.arrayValue.values && Array.isArray(valObj.arrayValue.values)) {
+        result[key] = valObj.arrayValue.values.map((v: any) => v.stringValue ?? Object.values(v)[0]);
+      } else {
+        result[key] = [];
+      }
     } else if (valObj.nullValue !== undefined) {
       result[key] = null;
     }
@@ -106,9 +110,9 @@ export const FirestoreREST = {
     }
   },
 
-  async queryDocuments(collection: string, field: string, value: string): Promise<any[]> {
+  async queryDocuments(collection: string, field: string, value: string, limit = 100): Promise<any[]> {
     try {
-      const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents:runQuery?key=${FIRESTORE_API_KEY}`;
+      const url = `${BASE_URL}:runQuery?key=${API_KEY}`;
       const queryBody = {
         structuredQuery: {
           from: [{ collectionId: collection }],
@@ -119,7 +123,7 @@ export const FirestoreREST = {
               value: { stringValue: value },
             },
           },
-          limit: 10,
+          limit: limit,
         },
       };
 
