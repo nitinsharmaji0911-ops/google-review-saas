@@ -1,14 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSession, createSessionPayload, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { FirestoreREST } from "@/lib/firestore-rest";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest | Request) {
   try {
+    const rl = await checkRateLimit(req, "payment_verify", { limit: 15, windowSeconds: 60 });
+    if (!rl.success) {
+      return rateLimitExceededResponse(rl.limit, rl.resetAt);
+    }
+
     let session = null;
     try {
       session = await getSession();

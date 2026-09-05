@@ -63,7 +63,15 @@ export async function checkRateLimit(
     }
   }
 
-  // 2. Resilient local fallback
+  // 2. Resilient local fallback (with automatic expired entry pruning)
+  if (localRateLimitMap.size > 2000) {
+    localRateLimitMap.forEach((v, k) => {
+      if (now > v.resetAt) {
+        localRateLimitMap.delete(k);
+      }
+    });
+  }
+
   const record = localRateLimitMap.get(key);
   if (!record || now > record.resetAt) {
     localRateLimitMap.set(key, { count: 1, resetAt: now + windowMs });

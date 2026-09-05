@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateReview } from "@/lib/ai-generator";
+import { generateReview, generateSmartTemplateReview } from "@/lib/ai-generator";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     let category = "local service";
     let location = "";
     let businessId: string | null = null;
+    let isQuotaExceeded = false;
 
     if (businessSlug && typeof businessSlug === "string") {
       try {
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
 
           // Enforce AI calls quota
           if (b.aiCallsThisMonth >= b.monthlyAiQuota) {
-            // Graceful fallback to Smart Zero-Cost Rule Engine if monthly Gemini quota exceeded
+            isQuotaExceeded = true;
           } else {
             prisma.business.update({
               where: { id: b.id },
@@ -88,20 +89,34 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Generate review using AI engine (Gemini Flash + NLP fallback)
-    const result = await generateReview({
-      businessName,
-      category,
-      location,
-      selectedTopics: sanitizedTopics,
-      selectedServices: sanitizedServices,
-      customerComment: sanitizedComment,
-      tone: validTone,
-      rating: validRating,
-    });
+    const result = isQuotaExceeded
+      ? {
+          review: generateSmartTemplateReview({
+            businessName,
+            category,
+            location,
+            selectedTopics: sanitizedTopics,
+            selectedServices: sanitizedServices,
+            customerComment: sanitizedComment,
+            tone: validTone,
+            rating: validRating,
+          }),
+          source: "smart_nlp" as const,
+        }
+      : await generateReview({
+          businessName,
+          category,
+          location,
+          selectedTopics: sanitizedTopics,
+          selectedServices: sanitizedServices,
+          customerComment: sanitizedComment,
+          tone: validTone,
+          rating: validRating,
+        });
 
     // 5. Persist review session in Prisma DB
     if (businessId) {
-      prisma.reviewSession.create({
+      await prisma.reviewSession.create({
         data: {
           businessId,
           rating: validRating,
@@ -114,7 +129,7 @@ export async function POST(req: NextRequest) {
         },
       }).catch((e) => console.warn("Error saving review session to Prisma:", e));
 
-      prisma.analyticsEvent.create({
+      await prisma.analyticsEvent.create({
         data: {
           businessId,
           eventType: "review_generated",

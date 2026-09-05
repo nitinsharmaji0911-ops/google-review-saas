@@ -3,6 +3,7 @@ import { getSession, createSessionPayload, SESSION_COOKIE_NAME } from "@/lib/aut
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { FirestoreREST } from "@/lib/firestore-rest";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,11 @@ const VALID_PROMO_CODES = [
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = await checkRateLimit(req, "promo_code", { limit: 5, windowSeconds: 60 });
+    if (!rl.success) {
+      return rateLimitExceededResponse(rl.limit, rl.resetAt);
+    }
+
     const session = await getSession();
     if (!session || !session.userId) {
       return NextResponse.json({ success: false, error: "Authentication required." }, { status: 401 });

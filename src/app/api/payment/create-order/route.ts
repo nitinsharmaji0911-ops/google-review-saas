@@ -1,12 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getRazorpayInstance } from "@/lib/razorpay";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest | Request) {
   try {
+    const rl = await checkRateLimit(req, "payment_create_order", { limit: 10, windowSeconds: 60 });
+    if (!rl.success) {
+      return rateLimitExceededResponse(rl.limit, rl.resetAt);
+    }
+
     const session = await getSession();
     if (!session || !session.userId) {
       return NextResponse.json(
@@ -100,7 +106,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Create order API error:", error);
     return NextResponse.json(
-      { error: error.message || "Internal Server Error during order initialization" },
+      { error: "Failed to initialize payment order. Please try again." },
       { status: 500 }
     );
   }

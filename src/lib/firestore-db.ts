@@ -118,6 +118,10 @@ export const FirestoreDB = {
       }
     } catch {}
 
+    if (existing && existing.userId && data.userId && existing.userId !== data.userId) {
+      throw new Error("Multi-tenant violation: Cannot overwrite business owned by another user.");
+    }
+
     const businessDoc = {
       ...(existing || {}),
       ...data,
@@ -216,6 +220,22 @@ export const FirestoreDB = {
       }
       local.status = status;
     }
+
+    // Also persist via Firestore REST for serverless environments
+    try {
+      const fbDoc = await FirestoreREST.getDocument("feedback", id);
+      if (fbDoc) {
+        if (businessSlug && fbDoc.businessSlug && fbDoc.businessSlug !== businessSlug) {
+          return false;
+        }
+        await FirestoreREST.setDocument("feedback", id, {
+          ...fbDoc,
+          status,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    } catch {}
+
     return true;
   },
 

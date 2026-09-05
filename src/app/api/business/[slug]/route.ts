@@ -54,17 +54,26 @@ export async function GET(
       ];
     }
 
-    const { phone: _, ...publicBusiness } = business;
+    // Strict Sanitization: Return ONLY public fields needed by the customer review funnel
     return NextResponse.json({
       success: true,
       business: {
-        ...publicBusiness,
+        id: business.id || business.slug,
+        name: business.name,
+        slug: business.slug,
+        category: business.category,
+        location: business.location || "",
+        description: business.description || "",
+        googleReviewUrl: business.googleReviewUrl || "",
+        brandColor: business.brandColor || "#16A34A",
+        logoUrl: business.logoUrl || null,
         services: safeServices,
         topics: safeTopics,
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    console.error("GET /api/business/[slug] error:", err);
+    return NextResponse.json({ success: false, error: "Failed to load business details" }, { status: 500 });
   }
 }
 
@@ -139,6 +148,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true, business: updated });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    console.error("PUT /api/business/[slug] error:", err);
+    return NextResponse.json({ success: false, error: "Failed to update business settings" }, { status: 500 });
   }
 }

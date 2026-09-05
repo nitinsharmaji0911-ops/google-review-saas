@@ -191,7 +191,7 @@ export async function GET(req: NextRequest) {
   } catch (err: any) {
     console.error("Admin GET /api/admin/users error:", err);
     return NextResponse.json(
-      { success: false, error: err.message || "Failed to load admin data" },
+      { success: false, error: "Failed to load admin data" },
       { status: 500 }
     );
   }
