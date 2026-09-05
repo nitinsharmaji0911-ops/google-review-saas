@@ -197,14 +197,16 @@ export default function CustomerReviewPage() {
       }
     }
 
-    // 2. Confetti celebration
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.7 },
-      });
-    } catch {}
+    // 2. Confetti celebration only for 4 & 5 star reviews
+    if (rating >= 4) {
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.7 },
+        });
+      } catch {}
+    }
 
     // 3. Track conversion analytics
     fetch("/api/analytics/track", {
@@ -253,13 +255,63 @@ export default function CustomerReviewPage() {
     );
   }
 
+const DEFAULT_NEGATIVE_TOPICS = [
+  { id: "issue_slow", name: "Slow Service", type: "issue" as const },
+  { id: "issue_wait", name: "Long Wait Time", type: "issue" as const },
+  { id: "issue_quality", name: "Subpar Quality", type: "issue" as const },
+  { id: "issue_staff", name: "Staff Behavior", type: "issue" as const },
+  { id: "issue_price", name: "Overpriced", type: "issue" as const },
+  { id: "issue_clean", name: "Cleanliness", type: "issue" as const },
+];
+
+const DEFAULT_POSITIVE_TOPICS = [
+  { id: "pos_service", name: "Great Service", type: "positive" as const },
+  { id: "pos_staff", name: "Friendly Staff", type: "positive" as const },
+  { id: "pos_quality", name: "Top Quality", type: "positive" as const },
+  { id: "pos_clean", name: "Clean & Tidy", type: "positive" as const },
+  { id: "pos_vibe", name: "Great Ambience", type: "positive" as const },
+];
+
+const DEFAULT_MIXED_TOPICS = [
+  { id: "mix_service", name: "Average Service", type: "issue" as const },
+  { id: "mix_wait", name: "Wait Time", type: "issue" as const },
+  { id: "mix_vibe", name: "Decent Ambience", type: "positive" as const },
+  { id: "mix_quality", name: "Fair Quality", type: "positive" as const },
+  { id: "mix_pricing", name: "Slightly Pricey", type: "issue" as const },
+];
+
   const allTopics = (business.topics || [])
     .map((t: any) => parseTopicItem(t))
     .filter(Boolean) as { id: string; name: string; type: "positive" | "issue" }[];
 
-  const filteredTopics = allTopics.filter((topic) =>
-    rating >= 4 ? topic.type !== "issue" : true
-  );
+  const businessIssueTopics = allTopics.filter((t) => t.type === "issue");
+  const businessPositiveTopics = allTopics.filter((t) => t.type !== "issue");
+
+  let activeTopics: { id: string; name: string; type: "positive" | "issue" }[] = [];
+  if (rating <= 2) {
+    activeTopics = businessIssueTopics.length > 0
+      ? [
+          ...businessIssueTopics,
+          ...DEFAULT_NEGATIVE_TOPICS.filter(
+            (d) => !businessIssueTopics.some((b) => b.name.toLowerCase() === d.name.toLowerCase())
+          ),
+        ].slice(0, 6)
+      : DEFAULT_NEGATIVE_TOPICS;
+  } else if (rating === 3) {
+    activeTopics =
+      businessIssueTopics.length > 0 || businessPositiveTopics.length > 0
+        ? [
+            ...businessPositiveTopics.slice(0, 3),
+            ...businessIssueTopics.slice(0, 3),
+            ...DEFAULT_MIXED_TOPICS.filter(
+              (d) => !allTopics.some((a) => a.name.toLowerCase() === d.name.toLowerCase())
+            ),
+          ].slice(0, 6)
+        : DEFAULT_MIXED_TOPICS;
+  } else {
+    activeTopics =
+      businessPositiveTopics.length > 0 ? businessPositiveTopics : DEFAULT_POSITIVE_TOPICS;
+  }
 
   const allServices = (business.services || [])
     .map((s: any) => parseServiceItem(s))
@@ -316,6 +368,11 @@ export default function CustomerReviewPage() {
                       whileHover={{ scale: 1.25 }}
                       whileTap={{ scale: 0.8 }}
                       onClick={() => {
+                        const prevRatingTier = rating <= 2 ? "neg" : rating === 3 ? "mix" : "pos";
+                        const newRatingTier = star <= 2 ? "neg" : star === 3 ? "mix" : "pos";
+                        if (prevRatingTier !== newRatingTier) {
+                          setSelectedTopics([]);
+                        }
                         setRating(star);
                         setToneCache({});
                         if (star === 5) {
@@ -376,13 +433,17 @@ export default function CustomerReviewPage() {
               </div>
 
               {/* Quick Tags / Topics */}
-              {filteredTopics.length > 0 && (
+              {activeTopics.length > 0 && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-2.5">
-                    Add Quick Tags
+                    {rating <= 2
+                      ? "What went wrong? (Optional)"
+                      : rating === 3
+                      ? "What was your experience? (Optional)"
+                      : "Add Quick Tags"}
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {filteredTopics.map((topic) => {
+                    {activeTopics.map((topic) => {
                       const isSelected = selectedTopics.includes(topic.name);
                       return (
                         <motion.button
@@ -455,7 +516,13 @@ export default function CustomerReviewPage() {
                     setCustomerComment(e.target.value);
                     setToneCache({});
                   }}
-                  placeholder="Share anything specific about your experience..."
+                  placeholder={
+                    rating <= 2
+                      ? "Briefly tell us what happened..."
+                      : rating === 3
+                      ? "Share what was good and what could improve..."
+                      : "Share anything specific about your experience..."
+                  }
                   className="w-full text-xs p-3 bg-slate-50 border border-slate-200/80 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-800 placeholder-slate-400 resize-none font-normal transition-all"
                 />
               </div>
@@ -489,7 +556,11 @@ export default function CustomerReviewPage() {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate {rating}-Star Review
+                    {rating <= 2
+                      ? `Generate ${rating}-Star Review`
+                      : rating === 3
+                      ? `Generate 3-Star Review`
+                      : `Generate ${rating}-Star Review`}
                   </>
                 )}
               </motion.button>
@@ -605,7 +676,7 @@ export default function CustomerReviewPage() {
                       ? (business.googleReviewUrl.trim().startsWith("http://") || business.googleReviewUrl.trim().startsWith("https://")
                           ? business.googleReviewUrl.trim()
                           : `https://${business.googleReviewUrl.trim()}`)
-                      : "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4"
+                      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + (business.location ? " " + business.location : ""))}`
                   }
                   className="block text-center text-xs font-bold text-[#15803D] hover:underline pt-1 animate-pulse"
                 >

@@ -35,12 +35,14 @@ export default function PrivateFeedbackPage() {
               : ""
           );
 
-          if (data.business.topics) {
-            const issues = data.business.topics
-              .filter((t: any) => t.type === "issue")
-              .map((t: any) => t.name);
-            setIssueTopics(issues);
-          }
+          const issues = (data.business.topics || [])
+            .filter((t: any) => t.type === "issue")
+            .map((t: any) => t.name);
+          setIssueTopics(
+            issues.length > 0
+              ? issues
+              : ["Slow Service", "Long Wait Time", "Subpar Quality", "Staff Behavior", "High Pricing", "Cleanliness Issue"]
+          );
         }
       } catch {}
     }

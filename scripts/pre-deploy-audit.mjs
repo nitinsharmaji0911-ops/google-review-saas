@@ -190,6 +190,38 @@ try {
 }
 
 // -------------------------------------------------------------
+// CHECK 6: Review Sentiment & Rating Alignment Verification
+// -------------------------------------------------------------
+console.log("\n🔍 Checking Review Generator Rating Alignment...");
+try {
+  const aiGenPath = path.join(rootDir, "src/lib/ai-generator.ts");
+  const aiGenContent = fs.readFileSync(aiGenPath, "utf-8");
+
+  const hasNegativeBranches =
+    aiGenContent.includes("CRITICAL SENTIMENT REQUIREMENT: THIS IS A NEGATIVE") &&
+    aiGenContent.includes("isNegative") &&
+    aiGenContent.includes("CRITICAL_REVIEW_ANGLES");
+  const hasMixedBranches =
+    aiGenContent.includes("MIXED_REVIEW_ANGLES") &&
+    aiGenContent.includes("isMixed");
+  const hasBannedWordsRule = aiGenContent.includes("ABSOLUTELY BANNED WORDS FOR NEGATIVE REVIEWS");
+
+  if (!hasNegativeBranches || !hasMixedBranches || !hasBannedWordsRule) {
+    reportFail(
+      "Review Sentiment Alignment",
+      "ai-generator.ts is missing required negative or mixed review stratification!"
+    );
+  } else {
+    reportPass(
+      "Review Sentiment Alignment",
+      "Rating-stratified prompts and negative review safeguards verified"
+    );
+  }
+} catch (e) {
+  reportFail("Review Sentiment Check", e.message);
+}
+
+// -------------------------------------------------------------
 // SUMMARY & EXIT
 // -------------------------------------------------------------
 console.log("\n===============================================================");
