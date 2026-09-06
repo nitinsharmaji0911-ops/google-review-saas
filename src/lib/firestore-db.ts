@@ -30,6 +30,7 @@ function emailToDocId(email: string) {
 export const FirestoreDB = {
   // --- USERS ---
   async getUserByEmail(email: string) {
+    if (!email || typeof email !== "string") return null;
     const normalized = email.toLowerCase().trim();
     const docId = emailToDocId(normalized);
 
@@ -49,6 +50,9 @@ export const FirestoreDB = {
   },
 
   async createUser(data: { email: string; password?: string }) {
+    if (!data || !data.email || typeof data.email !== "string") {
+      throw new Error("Valid email is required to create user document");
+    }
     const normalized = data.email.toLowerCase().trim();
     const id = emailToDocId(normalized);
     const userDoc = {
@@ -151,7 +155,7 @@ export const FirestoreDB = {
   async createFeedback(data: any) {
     const id = `fb_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const feedbackDoc = {
-      ...data,
+      ...(data || {}),
       id,
       status: "unread",
       createdAt: new Date().toISOString(),
@@ -247,7 +251,7 @@ export const FirestoreDB = {
   async createReviewSession(data: any) {
     const id = `rev_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const reviewDoc = {
-      ...data,
+      ...(data || {}),
       id,
       createdAt: new Date().toISOString(),
     };

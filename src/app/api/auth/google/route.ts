@@ -90,8 +90,10 @@ export async function POST(req: NextRequest) {
         email: normalizedEmail,
         password: hashedPassword,
       });
-      userId = fsUser.id;
-      user = fsUser;
+      if (fsUser) {
+        userId = fsUser.id;
+        user = fsUser;
+      }
     }
 
     // 5. Look up existing business

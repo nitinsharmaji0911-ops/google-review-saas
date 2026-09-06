@@ -133,6 +133,15 @@ export async function sendPasswordResetEmail({
   }
 }
 
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /**
  * Dispatch instant alert email to business owner when a customer leaves private negative feedback
  */
@@ -158,8 +167,15 @@ export async function sendFeedbackNotificationEmail({
   try {
     const { transporter, smtpFrom } = await getMailTransporter();
 
-    const topicsBadges = issueTopics.length > 0
-      ? issueTopics.map(t => `<span style="display:inline-block; padding: 4px 10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:9999px; font-size:12px; margin-right:6px; margin-bottom:6px; font-weight:600;">${t}</span>`).join(" ")
+    const safeBusinessName = escapeHtml(businessName || "Your Business");
+    const safeCustomerName = customerName ? escapeHtml(customerName) : "Anonymous Customer";
+    const safeCustomerPhone = customerPhone ? escapeHtml(customerPhone) : null;
+    const safeCustomerEmail = customerEmail ? escapeHtml(customerEmail) : null;
+    const safeMessage = escapeHtml(message || "");
+    const safeIssues = Array.isArray(issueTopics) ? issueTopics.map(t => escapeHtml(String(t))) : [];
+
+    const topicsBadges = safeIssues.length > 0
+      ? safeIssues.map(t => `<span style="display:inline-block; padding: 4px 10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:9999px; font-size:12px; margin-right:6px; margin-bottom:6px; font-weight:600;">${t}</span>`).join(" ")
       : "<em style='color:#94a3b8; font-size:13px;'>None specified</em>";
 
     const htmlContent = `
@@ -189,20 +205,20 @@ export async function sendFeedbackNotificationEmail({
         <div class="card">
           <div class="logo">W <span style="color:#cbd5e1; font-weight:300;">|</span> Welurik Review</div>
           <div><span class="alert-badge">Private Feedback Alert</span></div>
-          <h1>New Customer Feedback for ${businessName}</h1>
+          <h1>New Customer Feedback for ${safeBusinessName}</h1>
           <p>A customer just submitted private feedback through your review funnel. Because you're using Welurik Review, this feedback was intercepted privately and <strong>was NOT posted to Google Maps</strong>.</p>
           
           <div class="feedback-box">
-            "${message}"
+            "${safeMessage}"
           </div>
 
           <table class="meta-table">
             <tr>
               <td class="label">Customer Name:</td>
-              <td class="value">${customerName || "Anonymous Customer"}</td>
+              <td class="value">${safeCustomerName}</td>
             </tr>
-            ${customerPhone ? `<tr><td class="label">Phone:</td><td class="value"><a href="tel:${customerPhone}" style="color:#2563eb; text-decoration:none;">${customerPhone}</a></td></tr>` : ""}
-            ${customerEmail ? `<tr><td class="label">Email:</td><td class="value"><a href="mailto:${customerEmail}" style="color:#2563eb; text-decoration:none;">${customerEmail}</a></td></tr>` : ""}
+            ${safeCustomerPhone ? `<tr><td class="label">Phone:</td><td class="value"><a href="tel:${encodeURIComponent(customerPhone!)}" style="color:#2563eb; text-decoration:none;">${safeCustomerPhone}</a></td></tr>` : ""}
+            ${safeCustomerEmail ? `<tr><td class="label">Email:</td><td class="value"><a href="mailto:${encodeURIComponent(customerEmail!)}" style="color:#2563eb; text-decoration:none;">${safeCustomerEmail}</a></td></tr>` : ""}
             <tr>
               <td class="label">Issues Highlighted:</td>
               <td class="value">${topicsBadges}</td>

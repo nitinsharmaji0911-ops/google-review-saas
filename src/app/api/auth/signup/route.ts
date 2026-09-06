@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         email: normalizedEmail,
         password: hashedPassword,
       });
-      if (!userId) userId = fsUser.id;
+      if (!userId && fsUser) userId = fsUser.id;
     } catch (fsErr) {
       console.warn("Firestore user create note:", fsErr);
     }
