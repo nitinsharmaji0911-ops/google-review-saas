@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
+import { sendFeedbackNotificationEmail } from "@/lib/email";
 
 // GET authenticated business's feedback inbox
 export async function GET(req: NextRequest) {
@@ -203,6 +204,42 @@ export async function POST(req: NextRequest) {
       });
     } catch {}
     FirestoreDB.trackEvent(businessSlug, "feedback_submitted").catch(() => {});
+
+    // 3. Dispatch Instant Email Alert to Business Owner (via Hostinger SMTP)
+    (async () => {
+      try {
+        let recipientEmail = business.notificationEmail || business.email || business.contactEmail;
+        if (!recipientEmail && business.userId) {
+          try {
+            const owner = await prisma.user.findUnique({ where: { id: business.userId } });
+            if (owner?.email) recipientEmail = owner.email;
+          } catch {}
+          if (!recipientEmail) {
+            try {
+              const { FirestoreREST } = await import("@/lib/firestore-rest");
+              const userDoc = await FirestoreREST.getDocument("users", business.userId);
+              if (userDoc?.email) recipientEmail = userDoc.email;
+            } catch {}
+          }
+        }
+
+        if (recipientEmail) {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://review.welurik.com";
+          await sendFeedbackNotificationEmail({
+            to: recipientEmail,
+            businessName: business.name || "Your Business",
+            customerName: sanitizedName,
+            customerPhone: sanitizedPhone,
+            customerEmail: sanitizedEmail,
+            message: sanitizedMessage,
+            issueTopics: sanitizedTopics,
+            dashboardLink: `${appUrl}/feedback`,
+          });
+        }
+      } catch (mailErr) {
+        console.warn("Feedback email alert dispatch note:", mailErr);
+      }
+    })();
 
     return NextResponse.json({ success: true, feedbackId });
   } catch (err: any) {
