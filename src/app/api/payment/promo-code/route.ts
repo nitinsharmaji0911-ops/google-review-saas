@@ -15,6 +15,7 @@ const VALID_PROMO_CODES = [
   "FREE7",
   "TRIAL7",
   "NITIN7",
+  "MAYANK7",
   "SPECIAL7",
   "FRIEND7",
   "LAUNCH100",
