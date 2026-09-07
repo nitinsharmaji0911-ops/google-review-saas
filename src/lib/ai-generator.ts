@@ -66,17 +66,33 @@ const CRITICAL_REVIEW_ANGLES = [
   },
 ];
 
-// 2. Google Gemini AI Generation with Realistic Rating-Aware Voice
+// 2. Google Gemini AI Generation with Realistic Rating-Aware Voice & 2s Timeout
+let cachedGenAI: GoogleGenerativeAI | null = null;
+function getGenAI(apiKey: string): GoogleGenerativeAI {
+  if (!cachedGenAI) {
+    cachedGenAI = new GoogleGenerativeAI(apiKey);
+  }
+  return cachedGenAI;
+}
+
+function timeoutAfter<T>(promise: Promise<T>, ms: number, message = "Timeout"): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timerPromise = new Promise<T>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timerPromise]).finally(() => clearTimeout(timer));
+}
+
 async function generateWithGemini(
   apiKey: string,
   params: GenerateReviewParams
 ): Promise<string> {
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const genAI = getGenAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-3.5-flash-lite",
     generationConfig: {
-      temperature: 0.95,
-      topP: 0.95,
+      temperature: 0.7,
+      maxOutputTokens: 180,
     },
   });
 
@@ -138,7 +154,12 @@ GENERAL HUMAN WRITING RULES:
 3. Write in natural first person ("I", "We").
 4. Output ONLY the plain review text. No quotes. No intro headers.`;
 
-  const result = await model.generateContent(prompt);
+  // Race with 2,000ms timeout so customers never wait at the counter
+  const result = await timeoutAfter(
+    model.generateContent(prompt),
+    2000,
+    "Gemini call timed out after 2000ms"
+  );
   const text = result.response.text().trim();
   return text.replace(/^["']|["']$/g, "").trim();
 }

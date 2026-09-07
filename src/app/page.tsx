@@ -349,7 +349,7 @@ export default function LandingPage() {
                   poster="/video/welurik-demo-poster.jpg"
                   loop
                   playsInline
-                  preload="auto"
+                  preload="none"
                   onClick={togglePlay}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}

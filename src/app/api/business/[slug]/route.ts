@@ -5,13 +5,39 @@ import { getCategoryById } from "@/lib/categories";
 import { getSession } from "@/lib/auth";
 import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
 
-// GET business by slug (Powered by Firebase Firestore)
+// In-memory LRU/TTL cache for public business metadata (sub-10ms responses)
+interface CachedBusiness {
+  data: any;
+  timestamp: number;
+}
+const businessCache = new Map<string, CachedBusiness>();
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
+
+// GET business by slug (Powered by Firebase Firestore + Edge Caching)
 export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   try {
     const slug = params.slug;
+    if (!slug) {
+      return NextResponse.json({ success: false, error: "Missing slug" }, { status: 400 });
+    }
+
+    // 1. Instant cache hit
+    const cached = businessCache.get(slug);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json(
+        { success: true, business: cached.data },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+            "X-Cache": "HIT",
+          },
+        }
+      );
+    }
+
     let business = await FirestoreDB.getBusinessBySlug(slug);
 
     if (!business) {
@@ -54,23 +80,36 @@ export async function GET(
       ];
     }
 
+    const safeBusiness = {
+      id: business.id || business.slug,
+      name: business.name,
+      slug: business.slug,
+      category: business.category,
+      location: business.location || "",
+      description: business.description || "",
+      googleReviewUrl: business.googleReviewUrl || "",
+      brandColor: business.brandColor || "#16A34A",
+      logoUrl: business.logoUrl || null,
+      services: safeServices,
+      topics: safeTopics,
+    };
+
+    // Store in fast memory cache
+    businessCache.set(slug, { data: safeBusiness, timestamp: Date.now() });
+
     // Strict Sanitization: Return ONLY public fields needed by the customer review funnel
-    return NextResponse.json({
-      success: true,
-      business: {
-        id: business.id || business.slug,
-        name: business.name,
-        slug: business.slug,
-        category: business.category,
-        location: business.location || "",
-        description: business.description || "",
-        googleReviewUrl: business.googleReviewUrl || "",
-        brandColor: business.brandColor || "#16A34A",
-        logoUrl: business.logoUrl || null,
-        services: safeServices,
-        topics: safeTopics,
+    return NextResponse.json(
+      {
+        success: true,
+        business: safeBusiness,
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          "X-Cache": "MISS",
+        },
+      }
+    );
   } catch (err: any) {
     console.error("GET /api/business/[slug] error:", err);
     return NextResponse.json({ success: false, error: "Failed to load business details" }, { status: 500 });
@@ -145,6 +184,9 @@ export async function PUT(
         });
       }
     }
+
+    // Invalidate cached copy on update
+    businessCache.delete(params.slug);
 
     return NextResponse.json({ success: true, business: updated });
   } catch (err: any) {

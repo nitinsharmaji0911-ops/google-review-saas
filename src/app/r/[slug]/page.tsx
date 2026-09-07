@@ -127,6 +127,9 @@ export default function CustomerReviewPage() {
     setIsCopied(false);
     setGenError("");
 
+    // Optimistic transition: switch immediately so perceived customer latency is 0ms
+    setStep("review");
+
     if (step === "review") {
       setIsRegenerating(true);
     } else {
@@ -139,6 +142,9 @@ export default function CustomerReviewPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           businessSlug: slug,
+          businessName: business.name,
+          category: business.category,
+          location: business.location,
           selectedTopics,
           selectedServices,
           customerComment,
@@ -151,7 +157,6 @@ export default function CustomerReviewPage() {
       if (data.success && data.review) {
         setGeneratedReview(data.review);
         setToneCache((prev) => ({ ...prev, [targetTone]: data.review }));
-        setStep("review");
       } else {
         setGenError(data.error || "Could not generate review. Please try again.");
       }
@@ -608,7 +613,7 @@ const DEFAULT_MIXED_TOPICS = [
                   <button
                     key={t.id}
                     type="button"
-                    disabled={isRegenerating}
+                    disabled={isGenerating || isRegenerating}
                     onClick={() => handleGenerate(t.id as any)}
                     className={`py-2 text-xs font-medium rounded-lg transition-all capitalize ${
                       tone === t.id
@@ -622,11 +627,34 @@ const DEFAULT_MIXED_TOPICS = [
               </div>
             </div>
 
+            {/* Inline Generation Error */}
+            {genError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium rounded-xl flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>{genError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleGenerate(tone)}
+                  className="text-xs underline font-bold hover:text-rose-900 shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
             {/* Editable Review Text Box */}
             <div className="relative">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">
+                <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                   Your Review (Tap to edit)
+                  {isGenerating && (
+                    <span className="text-[10px] font-medium text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      <Sparkles className="w-3 h-3 animate-pulse text-emerald-500" />
+                      AI drafting...
+                    </span>
+                  )}
                 </label>
                 {isRegenerating && (
                   <span className="text-[10px] text-slate-400 flex items-center gap-1">
@@ -635,27 +663,46 @@ const DEFAULT_MIXED_TOPICS = [
                   </span>
                 )}
               </div>
-              <textarea
-                rows={4}
-                value={generatedReview}
-                onChange={(e) => setGeneratedReview(e.target.value)}
-                disabled={isRegenerating}
-                className={`w-full text-xs leading-relaxed p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none font-normal transition-opacity ${
-                  isRegenerating ? "opacity-40" : "opacity-100"
-                }`}
-              />
+              {isGenerating ? (
+                <div className="w-full min-h-[104px] p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-center gap-2 animate-pulse">
+                  <div className="h-3 bg-slate-200 rounded-full w-4/5" />
+                  <div className="h-3 bg-slate-200 rounded-full w-full" />
+                  <div className="h-3 bg-slate-200 rounded-full w-3/5" />
+                </div>
+              ) : (
+                <textarea
+                  rows={4}
+                  value={generatedReview}
+                  onChange={(e) => setGeneratedReview(e.target.value)}
+                  disabled={isRegenerating}
+                  placeholder="Type your review here..."
+                  className={`w-full text-xs leading-relaxed p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none font-normal transition-opacity ${
+                    isRegenerating ? "opacity-40" : "opacity-100"
+                  }`}
+                />
+              )}
             </div>
 
             {/* DIRECT GOOGLE POST ACTION BUTTON */}
             <div className="space-y-2.5 pt-1">
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.03, y: -1 }}
-                whileTap={{ scale: 0.96, y: 1 }}
+                whileHover={{ scale: isGenerating ? 1 : 1.03, y: isGenerating ? 0 : -1 }}
+                whileTap={{ scale: isGenerating ? 1 : 0.96, y: isGenerating ? 0 : 1 }}
+                disabled={isGenerating}
                 onClick={handleCopyAndOpenGoogle}
-                className="w-full py-4 px-5 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-shadow bg-[#15803D] hover:bg-[#166534] cursor-pointer"
+                className={`w-full py-4 px-5 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all ${
+                  isGenerating
+                    ? "bg-emerald-700/60 cursor-not-allowed opacity-80"
+                    : "bg-[#15803D] hover:bg-[#166534] cursor-pointer"
+                }`}
               >
-                {isCopied ? (
+                {isGenerating ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    AI is preparing your review...
+                  </>
+                ) : isCopied ? (
                   <>
                     <CheckCircle2 className="w-4 h-4 text-white" />
                     Copied! Redirecting to Google...
