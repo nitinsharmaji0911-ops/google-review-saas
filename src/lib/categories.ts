@@ -130,8 +130,12 @@ export const CATEGORIES: CategoryConfig[] = [
       "Dry-Fit & Breathable Garments",
       "Cricket & Football Apparel",
       "Shorts & Training Gear",
-      "Sports Shoes & Accessories",
-      "Custom Jersey Printing"
+      "Custom Jersey Printing",
+      "Custom Mug Printing",
+      "Custom Gifts & Sublimation",
+      "Customized Mirrors & Frames",
+      "Custom Photo Pillows & Cushions",
+      "Sports Shoes & Accessories"
     ],
     positiveTopics: [
       "Premium Fabric & Stitch Quality",
@@ -139,6 +143,8 @@ export const CATEGORIES: CategoryConfig[] = [
       "Huge Variety & Trendy Designs",
       "Pocket-Friendly & Best Prices",
       "Durable & Colorfast Material",
+      "Vibrant Print Quality & Finishing",
+      "Creative Custom Gift Designs",
       "Helpful & Polite Staff",
       "All Sizes Available",
       "Fast Billing & Great Shopping Experience"

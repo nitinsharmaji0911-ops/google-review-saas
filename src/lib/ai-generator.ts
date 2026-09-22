@@ -35,6 +35,7 @@ const SPORTSWEAR_POSITIVE_ANGLES = [
   { vibe: "Fabric & Material Quality", guidance: "High-grade breathable fabric, comfortable stretch, excellent stitching that doesn't bleed or tear." },
   { vibe: "Gym & Workout Performance", guidance: "Great sweat-wicking activewear and compression fits that feel great during heavy workouts." },
   { vibe: "Sports & Team Jerseys", guidance: "High quality team jerseys, tracksuits, or sportswear with great printing and durability." },
+  { vibe: "Custom Gifts & Sublimation Printing", guidance: "Vibrant photo print on mugs, mirrors, pillows, or personalized gifts with sharp detail and fast delivery." },
   { vibe: "Affordable Pricing & Best Value", guidance: "Super reasonable pricing compared to expensive mall brands with superior comfort and fit." },
   { vibe: "Trendy Designs & Fit Selection", guidance: "Modern aesthetic designs, perfect size fits, and extensive variety for gym and sports." },
   { vibe: "Polite & Helpful Store Staff", guidance: "Courteous shop staff, quick trial assistance, and seamless billing." },
@@ -180,7 +181,7 @@ ${sentimentInstructions}
 
 MANDATORY UNIQUENESS & REAL-HUMAN WRITING RULES:
 1. Every review MUST be completely unique, fresh, and distinct. Vary opening words, sentence structure, and personal angle. Never use repetitive template formulas.
-2. Contextual Accuracy: Match the business type (${params.category}). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear and garments store, write from the perspective of a customer buying activewear, gym clothes, tracksuits, or sports jerseys (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, reasonable rates — NEVER mention food, cafes, or dining).
+2. Contextual Accuracy: Match the business type (${params.category}). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
 3. TALK LIKE A REAL LOCAL CUSTOMER:
    - Use natural contractions ("it's", "wasn't", "didn't", "was really").
    - Mention the selected items or topics naturally without sounding like an advertisement.
@@ -308,6 +309,41 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
   const isSportswear = categoryLower.includes("sport") || categoryLower.includes("garment") || categoryLower.includes("activewear") || categoryLower.includes("jersey") || categoryLower.includes("cloth");
 
   if (isSportswear) {
+    const isCustomGift =
+      primaryTopic.includes("mug") ||
+      primaryTopic.includes("gift") ||
+      primaryTopic.includes("mirror") ||
+      primaryTopic.includes("pillow") ||
+      primaryTopic.includes("print") ||
+      serviceMention.includes("mug") ||
+      serviceMention.includes("gift") ||
+      serviceMention.includes("mirror") ||
+      serviceMention.includes("pillow");
+
+    if (isCustomGift) {
+      const giftShort = [
+        `Crystal clear print quality on the ${primaryTopic}${serviceMention}! Delivered right on time.${commentAddon} 10/10.`,
+        `Loved the customized gift from ${businessName}! The ${primaryTopic} turned out stunning.${commentAddon}`,
+        `Best shop for personalized gifts and printing! Great finishing on ${primaryTopic}.${serviceMention}`,
+        `Super fast delivery and sharp printing. Really impressed with the ${primaryTopic}!`,
+      ];
+
+      const giftNatural = [
+        `Ordered ${primaryTopic} from ${businessName} and the print quality is exceptional. The colors are vibrant, finish is clean, and it made for a perfect gift.${serviceMention}${commentAddon} Highly recommend for custom gifting!`,
+        `Really happy with my custom order at ${businessName}. The ${primaryTopic}${serviceMention} turned out even better than expected, and the team made sure the design was aligned properly.${commentAddon} 10/10 service!`,
+        `Got a personalized gift made here for a special occasion and everybody loved it. Top notch quality on the ${primaryTopic} at very reasonable prices.${serviceMention}${commentAddon} Will definitely order again.`,
+        `Best spot in the area for customized gifts and printing! The staff is creative and helpful, and the ${primaryTopic} was delivered right on time.${serviceMention}${commentAddon} Keep up the great work!`,
+      ];
+
+      const giftDetailed = [
+        `Had an amazing experience ordering from ${businessName}. Needed custom ${primaryTopic} on short notice, and the team delivered top quality with crystal clear printing and great packaging.${serviceMention}${commentAddon} They were super patient with the design customization and the final product looked premium. Definitely my go-to store for custom gifts and personalized items!`,
+      ];
+
+      if (tone === "short") return giftShort[Math.floor(Math.random() * giftShort.length)];
+      if (tone === "detailed") return giftDetailed[Math.floor(Math.random() * giftDetailed.length)];
+      return giftNatural[Math.floor(Math.random() * giftNatural.length)];
+    }
+
     const sportswearShort = [
       `Top quality sportswear and amazing fabric! The ${primaryTopic}${serviceMention} is super comfortable. 10/10.`,
       `Great collection of gym wear and activewear. Really happy with the ${primaryTopic}!`,
