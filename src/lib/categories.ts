@@ -119,6 +119,39 @@ export const CATEGORIES: CategoryConfig[] = [
     sampleBusinessName: "Altus Nutrition"
   },
   {
+    id: "sportswear",
+    name: "Sports Wear, Garments & Activewear",
+    emoji: "👟",
+    description: "Gym wear, sports jerseys, tracksuits, athletic garments, dry-fit t-shirts & sports accessories",
+    defaultServices: [
+      "Gym Wear & Compression T-Shirts",
+      "Tracksuits & Joggers",
+      "Sports Jerseys & Team Kits",
+      "Dry-Fit & Breathable Garments",
+      "Cricket & Football Apparel",
+      "Shorts & Training Gear",
+      "Sports Shoes & Accessories",
+      "Custom Jersey Printing"
+    ],
+    positiveTopics: [
+      "Premium Fabric & Stitch Quality",
+      "Comfortable & Breathable Fit",
+      "Huge Variety & Trendy Designs",
+      "Pocket-Friendly & Best Prices",
+      "Durable & Colorfast Material",
+      "Helpful & Polite Staff",
+      "All Sizes Available",
+      "Fast Billing & Great Shopping Experience"
+    ],
+    issueTopics: [
+      "Specific Size Out of Stock",
+      "Limited Color Variety",
+      "Peak Rush Waiting",
+      "Trial Room Waiting"
+    ],
+    sampleBusinessName: "Aarambh Sports"
+  },
+  {
     id: "hotel",
     name: "Hotel & Resort",
     emoji: "🏨",

@@ -31,6 +31,17 @@ const NUTRITION_POSITIVE_ANGLES = [
   { vibe: "Short & Punchy 5-Star", guidance: "Punchy, 1-2 sentence real review praising authentic supplements and great service." },
 ];
 
+const SPORTSWEAR_POSITIVE_ANGLES = [
+  { vibe: "Fabric & Material Quality", guidance: "High-grade breathable fabric, comfortable stretch, excellent stitching that doesn't bleed or tear." },
+  { vibe: "Gym & Workout Performance", guidance: "Great sweat-wicking activewear and compression fits that feel great during heavy workouts." },
+  { vibe: "Sports & Team Jerseys", guidance: "High quality team jerseys, tracksuits, or sportswear with great printing and durability." },
+  { vibe: "Affordable Pricing & Best Value", guidance: "Super reasonable pricing compared to expensive mall brands with superior comfort and fit." },
+  { vibe: "Trendy Designs & Fit Selection", guidance: "Modern aesthetic designs, perfect size fits, and extensive variety for gym and sports." },
+  { vibe: "Polite & Helpful Store Staff", guidance: "Courteous shop staff, quick trial assistance, and seamless billing." },
+  { vibe: "Local Recommendation", guidance: "Recommended by gym mates or teammates, definitely the best sports wear shop in the area." },
+  { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the cloth quality, fit, and fair prices." },
+];
+
 const CAFE_POSITIVE_ANGLES = [
   { vibe: "Casual Drop-in", guidance: "Casual customer who stopped by. Friendly, relaxed, satisfied tone." },
   { vibe: "Local Favorite", guidance: "Local customer recommending to others in the neighborhood. 5/5 stars." },
@@ -110,10 +121,13 @@ async function generateWithGemini(
 
   const categoryLower = (params.category || "").toLowerCase();
   const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
+  const isSportswear = categoryLower.includes("sport") || categoryLower.includes("garment") || categoryLower.includes("activewear") || categoryLower.includes("jersey") || categoryLower.includes("cloth");
   const isCafe = categoryLower.includes("cafe") || categoryLower.includes("bakery") || categoryLower.includes("coffee");
 
   const positiveAngles = isNutrition
     ? NUTRITION_POSITIVE_ANGLES
+    : isSportswear
+    ? SPORTSWEAR_POSITIVE_ANGLES
     : isCafe
     ? CAFE_POSITIVE_ANGLES
     : GENERAL_POSITIVE_ANGLES;
@@ -166,7 +180,7 @@ ${sentimentInstructions}
 
 MANDATORY UNIQUENESS & REAL-HUMAN WRITING RULES:
 1. Every review MUST be completely unique, fresh, and distinct. Vary opening words, sentence structure, and personal angle. Never use repetitive template formulas.
-2. Contextual Accuracy: Match the business type (${params.category}). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work).
+2. Contextual Accuracy: Match the business type (${params.category}). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear and garments store, write from the perspective of a customer buying activewear, gym clothes, tracksuits, or sports jerseys (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, reasonable rates — NEVER mention food, cafes, or dining).
 3. TALK LIKE A REAL LOCAL CUSTOMER:
    - Use natural contractions ("it's", "wasn't", "didn't", "was really").
    - Mention the selected items or topics naturally without sounding like an advertisement.
@@ -289,6 +303,37 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
     if (tone === "short") return nutritionShort[Math.floor(Math.random() * nutritionShort.length)];
     if (tone === "detailed") return nutritionDetailed[Math.floor(Math.random() * nutritionDetailed.length)];
     return nutritionNatural[Math.floor(Math.random() * nutritionNatural.length)];
+  }
+
+  const isSportswear = categoryLower.includes("sport") || categoryLower.includes("garment") || categoryLower.includes("activewear") || categoryLower.includes("jersey") || categoryLower.includes("cloth");
+
+  if (isSportswear) {
+    const sportswearShort = [
+      `Top quality sportswear and amazing fabric! The ${primaryTopic}${serviceMention} is super comfortable. 10/10.`,
+      `Great collection of gym wear and activewear. Really happy with the ${primaryTopic}!`,
+      `Super breathable material and perfect fit. The ${primaryTopic}${serviceMention} is definitely worth the price.${commentAddon}`,
+      `Best sports wear shop in the area! Got a great deal on ${primaryTopic}.`,
+      `Stitching quality and cloth are premium. Really satisfied with the ${primaryTopic} here.${commentAddon}`,
+      `Great variety of jerseys and gym garments. Polite staff and fast billing!`,
+    ];
+
+    const sportswearNatural = [
+      `Bought activewear from ${businessName} and the cloth quality is top notch. The ${primaryTopic} is lightweight, sweat-wicking, and fits perfectly during intense gym workouts.${serviceMention}${commentAddon} Definitely coming back for more!`,
+      `Really impressed with the sports collection at ${businessName}. Found exactly the ${primaryTopic} I was looking for, and the fabric didn't shrink or fade after washing.${serviceMention}${commentAddon} Highly recommended for athletes and gym-goers!`,
+      `Such a reliable store for sports garments! The team was super helpful with sizes, and the ${primaryTopic} is durable with excellent stitching.${serviceMention}${commentAddon} Best prices compared to mall brands.`,
+      `My friend recommended ${businessName} for gym wear and sports jerseys, and it lived up to expectations. Premium quality ${primaryTopic} at very reasonable rates.${serviceMention}${commentAddon} 10/10 shopping experience.`,
+      `Great collection and very courteous staff at ${businessName}. Picked up some ${primaryTopic} today and the fit is spot on.${serviceMention}${commentAddon} Will definitely recommend to all my fitness buddies.`,
+      `Awesome variety of tracksuits, gym tees, and sports apparel. The ${primaryTopic} is super comfortable for daily training.${serviceMention}${commentAddon} Must visit if you need quality sports wear!`,
+    ];
+
+    const sportswearDetailed = [
+      `Visited ${businessName} to pick up workout clothes and was really impressed with the variety. The ${primaryTopic} has excellent stretch, breathable dry-fit material, and the stitching is rock solid.${serviceMention}${commentAddon} The shop staff was very patient, helping me try different sizes without rushing. Great quality at honest prices — easily a 5-star experience!`,
+      `One of the best sports and gym apparel stores around! Walked in looking for ${primaryTopic} and found great options in both design and fit.${serviceMention}${commentAddon} The fabric feels premium against the skin and holds up great during heavy training. Clean store, polite service, and super reasonable pricing. Highly recommended!`,
+    ];
+
+    if (tone === "short") return sportswearShort[Math.floor(Math.random() * sportswearShort.length)];
+    if (tone === "detailed") return sportswearDetailed[Math.floor(Math.random() * sportswearDetailed.length)];
+    return sportswearNatural[Math.floor(Math.random() * sportswearNatural.length)];
   }
 
   const shortTemplates = [
