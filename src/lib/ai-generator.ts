@@ -17,27 +17,35 @@ export interface GeneratedReviewResult {
 }
 
 // 1. Review Angles Categorized by Star Rating
-const POSITIVE_REVIEW_ANGLES = [
-  {
-    vibe: "Casual Drop-in",
-    guidance: "Casual customer who stopped by. Friendly, relaxed, satisfied tone.",
-  },
-  {
-    vibe: "Local Favorite",
-    guidance: "Local customer recommending to others in the neighborhood. 5/5 stars.",
-  },
-  {
-    vibe: "Work & Ambience",
-    guidance: "Focused on pleasant atmosphere, comfortable seating, friendly staff, good music/wifi.",
-  },
-  {
-    vibe: "Item & Taste Focused",
-    guidance: "Direct appreciation for the taste, cleanliness, and freshness.",
-  },
-  {
-    vibe: "Short & Sweet",
-    guidance: "Punchy, natural, 1-2 sentence real human review.",
-  },
+// 1. Review Angles Categorized by Category & Star Rating
+const NUTRITION_POSITIVE_ANGLES = [
+  { vibe: "Authenticity & Importer Seal Verified", guidance: "Checked scratch code and batch number on the tub, 100% genuine and verified product." },
+  { vibe: "Gym Lifter & Workout Results", guidance: "Lifter/athlete getting great muscle recovery, clean protein mixability, and steady gym progress." },
+  { vibe: "Honest Advice & Guidance", guidance: "Owner gave genuine recommendations for fitness goals rather than pushing expensive products." },
+  { vibe: "Best Value & Fair Pricing", guidance: "Compared prices online and found better or matched deals locally with instant product in hand." },
+  { vibe: "Huge Brand Variety & Flavors", guidance: "Impressed by the wide range of top imported and domestic brands and fresh flavor stock." },
+  { vibe: "Quick Counter Service & Trust", guidance: "Quick, polite, knowledgeable counter service. Dependable and trustworthy store in the city." },
+  { vibe: "Trainer / Friend Recommended", guidance: "Recommended by gym coach or workout buddies and completely satisfied with the quality." },
+  { vibe: "Healthy Fitness Nutrition", guidance: "Grabbed daily health essentials like high protein peanut butter, oats, multivitamins, and fish oil." },
+  { vibe: "Long-Time Regular Customer", guidance: "Has been buying monthly supplement stacks here for a long time with consistent trust." },
+  { vibe: "Short & Punchy 5-Star", guidance: "Punchy, 1-2 sentence real review praising authentic supplements and great service." },
+];
+
+const CAFE_POSITIVE_ANGLES = [
+  { vibe: "Casual Drop-in", guidance: "Casual customer who stopped by. Friendly, relaxed, satisfied tone." },
+  { vibe: "Local Favorite", guidance: "Local customer recommending to others in the neighborhood. 5/5 stars." },
+  { vibe: "Ambience & Vibe", guidance: "Pleasant atmosphere, comfortable seating, friendly staff, good music/vibe." },
+  { vibe: "Taste & Freshness", guidance: "Direct appreciation for the taste, cleanliness, and freshness." },
+  { vibe: "Short & Sweet", guidance: "Punchy, natural, 1-2 sentence real human review." },
+];
+
+const GENERAL_POSITIVE_ANGLES = [
+  { vibe: "Local Favorite & Recommendation", guidance: "Local customer recommending to others in the area. 5/5 stars." },
+  { vibe: "Great Value & Quality", guidance: "Direct appreciation for the quality, fair pricing, and trustworthy service." },
+  { vibe: "Helpful & Attentive Team", guidance: "Warm, polite, and welcoming staff who made the visit smooth." },
+  { vibe: "First-Time Buyer Delight", guidance: "First visit, exceeded expectations with cleanliness, selection, and advice." },
+  { vibe: "Quick & Convenient", guidance: "Fast, efficient service and pleasant experience." },
+  { vibe: "Short & Sweet", guidance: "Punchy, natural, 1-2 sentence real human review." },
 ];
 
 const MIXED_REVIEW_ANGLES = [
@@ -62,7 +70,7 @@ const CRITICAL_REVIEW_ANGLES = [
   },
   {
     vibe: "Quality & Value Issue",
-    guidance: "1-2 star review. Food/service was subpar and not worth the cost or wait time.",
+    guidance: "1-2 star review. Subpar experience and not worth the cost or wait time.",
   },
 ];
 
@@ -91,7 +99,7 @@ async function generateWithGemini(
   const model = genAI.getGenerativeModel({
     model: "gemini-3.5-flash-lite",
     generationConfig: {
-      temperature: 0.7,
+      temperature: 0.85,
       maxOutputTokens: 180,
     },
   });
@@ -100,11 +108,21 @@ async function generateWithGemini(
   const isNegative = rating <= 2;
   const isMixed = rating === 3;
 
+  const categoryLower = (params.category || "").toLowerCase();
+  const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
+  const isCafe = categoryLower.includes("cafe") || categoryLower.includes("bakery") || categoryLower.includes("coffee");
+
+  const positiveAngles = isNutrition
+    ? NUTRITION_POSITIVE_ANGLES
+    : isCafe
+    ? CAFE_POSITIVE_ANGLES
+    : GENERAL_POSITIVE_ANGLES;
+
   const anglesPool = isNegative
     ? CRITICAL_REVIEW_ANGLES
     : isMixed
     ? MIXED_REVIEW_ANGLES
-    : POSITIVE_REVIEW_ANGLES;
+    : positiveAngles;
 
   const randomAngle = anglesPool[Math.floor(Math.random() * anglesPool.length)];
 
@@ -138,21 +156,24 @@ CRITICAL SENTIMENT REQUIREMENT: THIS IS A POSITIVE ${rating}-STAR REVIEW.
   const prompt = `You are a real human customer writing a quick, authentic Google Maps review on your smartphone for "${params.businessName}" (${params.category}${params.location ? `, in ${params.location}` : ""}).
 
 Star Rating: ${rating}/5
-Review Angle: ${randomAngle.vibe}
+Review Angle: ${randomAngle.vibe} (${randomAngle.guidance})
 Customer Selected Notes/Topics: ${params.selectedTopics.length > 0 ? params.selectedTopics.join(", ") : (isNegative ? "Poor experience, slow service" : "Good quality and friendly service")}
-Specific Items Ordered/Used: ${params.selectedServices.length > 0 ? params.selectedServices.join(", ") : "None"}
+Specific Items Mentioned: ${params.selectedServices.length > 0 ? params.selectedServices.join(", ") : "None"}
 Customer Note: ${params.customerComment ? `"${params.customerComment}"` : "None"}
 Target Length: ${toneLength}
 
 ${sentimentInstructions}
 
-GENERAL HUMAN WRITING RULES:
-1. TALK LIKE A REAL PERSON typing on a smartphone:
+MANDATORY UNIQUENESS & REAL-HUMAN WRITING RULES:
+1. Every review MUST be completely unique, fresh, and distinct. Vary opening words, sentence structure, and personal angle. Never use repetitive template formulas.
+2. Contextual Accuracy: Match the business type (${params.category}). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work).
+3. TALK LIKE A REAL LOCAL CUSTOMER:
    - Use natural contractions ("it's", "wasn't", "didn't", "was really").
-2. ABSOLUTELY BANNED CORPORATE/AI JARGON:
-   - Do NOT use: "truly shines", "delightful", "deeply appreciate", "superb", "exceeded every expectation", "sets them apart", "executed to perfection", "I recently visited", "an absolute favorite", "wonderfully work-friendly environment", "nestled in", "epitome of", "testament to".
-3. Write in natural first person ("I", "We").
-4. Output ONLY the plain review text. No quotes. No intro headers.`;
+   - Mention the selected items or topics naturally without sounding like an advertisement.
+4. ABSOLUTELY BANNED CORPORATE/AI JARGON:
+   - Do NOT use: "truly shines", "delightful", "deeply appreciate", "superb", "exceeded every expectation", "sets them apart", "executed to perfection", "I recently visited", "an absolute favorite", "wonderfully work-friendly environment", "nestled in", "epitome of", "testament to", "culinary delight", "chilled here to get some work done".
+5. Write in natural first person ("I", "We").
+6. Output ONLY the plain review text. No quotes. No intro headers.`;
 
   // Race with 2,000ms timeout so customers never wait at the counter
   const result = await timeoutAfter(
@@ -238,6 +259,38 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
   }
 
   // C. POSITIVE REVIEWS (4 & 5 Stars)
+  const categoryLower = (params.category || "").toLowerCase();
+  const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
+
+  if (isNutrition) {
+    const nutritionShort = [
+      `100% genuine supplements and best prices in town! The ${primaryTopic}${serviceMention} is authentic. 10/10.`,
+      `Awesome store! Verified the importer seal on my purchase. The ${primaryTopic} is totally genuine.${commentAddon}`,
+      `Super helpful guidance on supplements. Great collection of ${primaryTopic}${serviceMention}!`,
+      `Best spot in the area for original whey protein and gym essentials. Great ${primaryTopic}!`,
+      `Reliable, authentic, and fast service. Really happy with the ${primaryTopic} here.${commentAddon}`,
+      `Honest advice and genuine products. Verified the batch code myself.${serviceMention} Highly recommend!`,
+    ];
+
+    const nutritionNatural = [
+      `Been getting my workout supplements from ${businessName} and they never disappoint. The ${primaryTopic} is 100% genuine and the team gives honest advice instead of pushing costly products.${serviceMention}${commentAddon} Easily my go-to fitness store.`,
+      `Checked the scratch code and batch number on my ${primaryTopic} and it was completely verified and authentic. Hands down the best prices in town with great stock.${serviceMention}${commentAddon} Definitely coming back!`,
+      `Really good experience shopping at ${businessName}. The owner is knowledgeable and helped me pick the right ${primaryTopic} for my fitness goals.${serviceMention}${commentAddon} 10/10 service!`,
+      `My workout partner recommended ${businessName} for authentic gym supplements, and it lived up to the hype. Top quality ${primaryTopic} with original seals.${serviceMention}${commentAddon} Highly recommend checking them out!`,
+      `Super clean and well-stocked store! Picked up some ${primaryTopic} today and the billing was really quick.${serviceMention}${commentAddon} Great to have an authorized, genuine dealer around.`,
+      `Finding 100% authentic gym supplements can be tricky, but ${businessName} is totally trustworthy. Great quality ${primaryTopic} and super helpful staff.${serviceMention}${commentAddon} Will be back for sure!`,
+    ];
+
+    const nutritionDetailed = [
+      `Dropped by ${businessName} today for my fitness supplement stack. Really impressed with their wide collection of authentic domestic and imported brands. The ${primaryTopic} was sealed with original importer tags and batch verified.${serviceMention}${commentAddon} The staff knows their products well and gave honest, non-pushy recommendations. Easily a 5-star experience for any lifter or athlete!`,
+      `Such a trustworthy supplement store! Came in looking for ${primaryTopic} and was really pleased with the honest guidance and competitive pricing.${serviceMention}${commentAddon} Clean shop, genuine stock, and fast billing. If you're serious about your workouts and want guaranteed authentic supplements, definitely visit ${businessName}.`,
+    ];
+
+    if (tone === "short") return nutritionShort[Math.floor(Math.random() * nutritionShort.length)];
+    if (tone === "detailed") return nutritionDetailed[Math.floor(Math.random() * nutritionDetailed.length)];
+    return nutritionNatural[Math.floor(Math.random() * nutritionNatural.length)];
+  }
+
   const shortTemplates = [
     `Loved the ${primaryTopic} here! Super friendly staff and quick service.${commentAddon} 10/10.`,
     `Really great spot! The ${primaryTopic}${serviceMention} was so good.${commentAddon} Will definitely be back.`,

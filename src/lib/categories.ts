@@ -86,6 +86,39 @@ export const CATEGORIES: CategoryConfig[] = [
     sampleBusinessName: "IronPeak Fitness"
   },
   {
+    id: "nutrition",
+    name: "Supplements & Sports Nutrition",
+    emoji: "⚡",
+    description: "Protein powder, gym supplements, sports nutrition, health food & vitamins",
+    defaultServices: [
+      "Whey Protein (Isolate & Concentrate)",
+      "Creatine Monohydrate & Pre-Workout",
+      "Mass Gainer & Weight Management",
+      "BCAA, EAA & Muscle Recovery",
+      "Multivitamins & Omega 3 Fish Oil",
+      "High Protein Peanut Butter & Healthy Oats",
+      "Authentic Imported & Indian Brands",
+      "Diet & Supplement Guidance"
+    ],
+    positiveTopics: [
+      "100% Genuine & Authentic Products",
+      "Original Seal & Batch Verification",
+      "Best Prices in Sambhaji Nagar",
+      "Knowledgeable & Honest Advice",
+      "Huge Variety of Top Brands",
+      "Friendly & Helpful Staff",
+      "Clean Store & Fast Billing",
+      "Great Taste & Flavor Suggestions"
+    ],
+    issueTopics: [
+      "Specific Flavor Out of Stock",
+      "Peak Rush Waiting",
+      "Limited Stock on Select Brands",
+      "Pricing on Certain Imports"
+    ],
+    sampleBusinessName: "Altus Nutrition"
+  },
+  {
     id: "hotel",
     name: "Hotel & Resort",
     emoji: "🏨",
