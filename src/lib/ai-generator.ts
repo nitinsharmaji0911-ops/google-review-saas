@@ -43,6 +43,16 @@ const SPORTSWEAR_POSITIVE_ANGLES = [
   { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the cloth quality, fit, and fair prices." },
 ];
 
+const GYM_POSITIVE_ANGLES = [
+  { vibe: "Heavy Lifting & Modern Equipment", guidance: "Excellent biomechanics on machines, imported barbells/dumbbells, sturdy squat racks and benches." },
+  { vibe: "Motivating Atmosphere & Energy", guidance: "High energy workout environment, great music, serious lifters and friendly motivating crowd." },
+  { vibe: "Knowledgeable & Attentive Trainers", guidance: "Trainers correct posture, give personalized workout guidance, non-pushy and very supportive." },
+  { vibe: "Spacious & Clean Floor", guidance: "Spacious workout areas, well-maintained machines, clean hygiene, and proper ventilation." },
+  { vibe: "Fitness Transformation & Progress", guidance: "Achieved noticeable strength gains and fitness progress since joining. Highly recommended." },
+  { vibe: "Best Value Membership", guidance: "Affordable fee structure with top quality equipment and dedicated trainers. Great value." },
+  { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the workout vibe, equipment quality, and trainers." },
+];
+
 const CAFE_POSITIVE_ANGLES = [
   { vibe: "Casual Drop-in", guidance: "Casual customer who stopped by. Friendly, relaxed, satisfied tone." },
   { vibe: "Local Favorite", guidance: "Local customer recommending to others in the neighborhood. 5/5 stars." },
@@ -123,12 +133,15 @@ async function generateWithGemini(
   const categoryLower = (params.category || "").toLowerCase();
   const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
   const isSportswear = categoryLower.includes("sport") || categoryLower.includes("garment") || categoryLower.includes("activewear") || categoryLower.includes("jersey") || categoryLower.includes("cloth");
+  const isGym = categoryLower.includes("gym") || categoryLower.includes("fitness") || categoryLower.includes("crossfit") || categoryLower.includes("workout");
   const isCafe = categoryLower.includes("cafe") || categoryLower.includes("bakery") || categoryLower.includes("coffee");
 
   const positiveAngles = isNutrition
     ? NUTRITION_POSITIVE_ANGLES
     : isSportswear
     ? SPORTSWEAR_POSITIVE_ANGLES
+    : isGym
+    ? GYM_POSITIVE_ANGLES
     : isCafe
     ? CAFE_POSITIVE_ANGLES
     : GENERAL_POSITIVE_ANGLES;
@@ -181,7 +194,7 @@ ${sentimentInstructions}
 
 MANDATORY UNIQUENESS & REAL-HUMAN WRITING RULES:
 1. Every review MUST be completely unique, fresh, and distinct. Vary opening words, sentence structure, and personal angle. Never use repetitive template formulas.
-2. Contextual Accuracy: Match the business type (${params.category}). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
+2. Contextual Accuracy: Match the business type (${params.category}). For a gym, fitness center or workout club, write from the perspective of an active member or lifter (talk about machine biomechanics, dumbbells, benches, motivating workout atmosphere, attentive trainers, clean floor, and strength progress — NEVER mention dining, cafes, or retail shopping). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
 3. TALK LIKE A REAL LOCAL CUSTOMER:
    - Use natural contractions ("it's", "wasn't", "didn't", "was really").
    - Mention the selected items or topics naturally without sounding like an advertisement.
@@ -370,6 +383,35 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
     if (tone === "short") return sportswearShort[Math.floor(Math.random() * sportswearShort.length)];
     if (tone === "detailed") return sportswearDetailed[Math.floor(Math.random() * sportswearDetailed.length)];
     return sportswearNatural[Math.floor(Math.random() * sportswearNatural.length)];
+  }
+
+  const isGym = categoryLower.includes("gym") || categoryLower.includes("fitness") || categoryLower.includes("crossfit") || categoryLower.includes("workout");
+
+  if (isGym) {
+    const gymShort = [
+      `Best gym in town! The ${primaryTopic}${serviceMention} is top class. 10/10 workout vibe.`,
+      `Awesome training environment at ${businessName}. Really impressed with the ${primaryTopic}!`,
+      `Great equipment and super motivating vibe. The ${primaryTopic}${serviceMention} is unmatched.${commentAddon}`,
+      `Top notch fitness center! The trainers are helpful and ${primaryTopic} is excellent.`,
+      `Clean gym, modern machines, and great energy. Definitely the best spot for daily workouts.${commentAddon}`,
+    ];
+
+    const gymNatural = [
+      `Working out at ${businessName} has been an incredible experience. The ${primaryTopic} is well maintained and the workout environment keeps you focused throughout your session.${serviceMention}${commentAddon} Easily the best fitness center in the area.`,
+      `Joined ${businessName} recently and totally loving the vibe. The trainers are knowledgeable and the ${primaryTopic}${serviceMention} makes everyday training a pleasure.${commentAddon} Highly recommend to anyone serious about their fitness!`,
+      `Hands down one of the best gyms around. Great collection of machines, spacious floor, and top notch ${primaryTopic}.${serviceMention}${commentAddon} The members and staff are super encouraging. 10/10!`,
+      `Really impressed with the setup at ${businessName}. The ${primaryTopic} is always in top condition and the trainers give great guidance on form.${serviceMention}${commentAddon} Worth every rupee of the membership.`,
+      `Great energy, clean hygiene, and fantastic ${primaryTopic}. Whether you're a beginner or an experienced lifter, ${businessName} has everything you need.${serviceMention}${commentAddon} Keep up the great work!`,
+    ];
+
+    const gymDetailed = [
+      `Been training at ${businessName} for a few months now and the results speak for themselves. The ${primaryTopic} is top tier with heavy duty machines, plenty of free weights, and clean locker areas.${serviceMention}${commentAddon} The trainers are attentive, always ready to spot or guide on correct technique. If you're looking for a serious workout space with positive energy, definitely check out ${businessName}!`,
+      `Superb fitness club! The layout is spacious, ventilation is good, and the ${primaryTopic} is top notch.${serviceMention}${commentAddon} The trainers genuinely care about your fitness goals and don't just push costly personal training packages. Easily a 5-star gym experience for anyone in the area.`,
+    ];
+
+    if (tone === "short") return gymShort[Math.floor(Math.random() * gymShort.length)];
+    if (tone === "detailed") return gymDetailed[Math.floor(Math.random() * gymDetailed.length)];
+    return gymNatural[Math.floor(Math.random() * gymNatural.length)];
   }
 
   const shortTemplates = [
