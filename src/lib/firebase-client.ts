@@ -10,16 +10,13 @@ import {
   ActionCodeSettings,
 } from "firebase/auth";
 
-// Default public Firebase Web configuration (Base64 encoded to protect repository scanning)
-const DEFAULT_FIREBASE_KEY = typeof window !== "undefined" ? atob("QUl6YVN5QjdubnJHVlNVeFZUbUt3NHQ2cVhyQlZ4QUdieGFyVnZF") : "";
-
 const firebaseConfig = {
-  apiKey: "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE",
-  authDomain: "saas-64015.firebaseapp.com",
-  projectId: "saas-64015",
-  storageBucket: "saas-64015.firebasestorage.app",
-  messagingSenderId: "308288452293",
-  appId: "1:308288452293:web:b77eaa4bb8ac1cba5a62ac",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 };
 
 let app: FirebaseApp | undefined;
@@ -30,6 +27,10 @@ let auth: Auth | undefined;
  */
 export function getFirebaseAuth(): Auth | null {
   if (typeof window === "undefined") {
+    return null;
+  }
+
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
     return null;
   }
 
@@ -87,17 +88,19 @@ export async function sendFirebasePasswordReset(
       }
     }
 
-    // 3. Fallback: Direct Google Identity Toolkit REST API
-    const fbApiKey = "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-    await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbApiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requestType: "PASSWORD_RESET",
-        email: normalizedEmail,
-        continueUrl: targetUrl,
-      }),
-    });
+    // 3. Fallback: Direct Google Identity Toolkit REST API (only if API key is provided)
+    const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (fbApiKey) {
+      await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbApiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestType: "PASSWORD_RESET",
+          email: normalizedEmail,
+          continueUrl: targetUrl,
+        }),
+      });
+    }
 
     return { success: true };
   } catch (err: any) {

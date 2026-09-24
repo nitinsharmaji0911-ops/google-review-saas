@@ -83,36 +83,38 @@ export async function POST(req: NextRequest) {
     // 2. If not matched locally, verify with Firebase Authentication (e.g. after Firebase password reset)
     if (!isMatch) {
       try {
-        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-        const fbRes = await fetch(
-          `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${fbKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: normalizedEmail,
-              password,
-              returnSecureToken: true,
-            }),
-          }
-        );
-        const fbData = await fbRes.json().catch(() => ({}));
-        if (fbData && fbData.idToken) {
-          isMatch = true;
-          // Automatically sync local hash so future logins are instant
-          const newHashedPassword = hashPassword(password);
-          if (user.id) {
-            await FirestoreREST.setDocument("users", user.id, {
-              ...user,
-              password: newHashedPassword,
-              updatedAt: new Date().toISOString(),
-            }).catch(() => {});
-            try {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { password: newHashedPassword },
-              });
-            } catch {}
+        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        if (fbKey) {
+          const fbRes = await fetch(
+            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${fbKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: normalizedEmail,
+                password,
+                returnSecureToken: true,
+              }),
+            }
+          );
+          const fbData = await fbRes.json().catch(() => ({}));
+          if (fbData && fbData.idToken) {
+            isMatch = true;
+            // Automatically sync local hash so future logins are instant
+            const newHashedPassword = hashPassword(password);
+            if (user.id) {
+              await FirestoreREST.setDocument("users", user.id, {
+                ...user,
+                password: newHashedPassword,
+                updatedAt: new Date().toISOString(),
+              }).catch(() => {});
+              try {
+                await prisma.user.update({
+                  where: { id: user.id },
+                  data: { password: newHashedPassword },
+                });
+              } catch {}
+            }
           }
         }
       } catch (fbErr) {

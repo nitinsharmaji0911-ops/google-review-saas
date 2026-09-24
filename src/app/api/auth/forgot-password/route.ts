@@ -87,19 +87,21 @@ export async function POST(req: NextRequest) {
         console.error("Email dispatch failed:", emailErr);
       });
 
-      // Dispatch real password reset email via Google Identity Toolkit
-      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-      fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requestType: "PASSWORD_RESET",
-          email: normalizedEmail,
-          continueUrl: `${origin}/reset-password`,
-        }),
-      }).catch((fbErr) => {
-        console.warn("Identity Toolkit reset dispatch note:", fbErr);
-      });
+      // Dispatch real password reset email via Google Identity Toolkit (if configured)
+      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+      if (fbKey) {
+        fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requestType: "PASSWORD_RESET",
+            email: normalizedEmail,
+            continueUrl: `${origin}/reset-password`,
+          }),
+        }).catch((fbErr) => {
+          console.warn("Identity Toolkit reset dispatch note:", fbErr);
+        });
+      }
     }
 
     // STRICT SECURITY: Never leak resetLink or emailPreviewUrl in API response!

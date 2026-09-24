@@ -67,13 +67,36 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: "salon",
-    name: "Salon & Spa",
+    name: "Salon & Beauty Parlour",
     emoji: "💇‍♀️",
-    description: "Hair salons, beauty parlours, nail studios, spas",
-    defaultServices: ["Hair Styling & Cut", "Hair Spa & Treatment", "Hair Coloring", "Facial & Skincare", "Manicure / Pedicure", "Beard Grooming"],
-    positiveTopics: ["Expert Stylist", "Attention to Detail", "Relaxing Experience", "Spotless Hygiene", "Polite & Gentle Staff", "Premium Products", "Great Transformation", "Punctual Appointment"],
-    issueTopics: ["Long Wait Despite Appointment", "Service Outcome", "Pricing Clarity", "Staff Attitude", "Hygiene"],
-    sampleBusinessName: "Luxe & Glow Salon"
+    description: "Hair salons, beauty parlours, beauticians, nail studios & makeup artists",
+    defaultServices: [
+      "Bridal & Party Makeup",
+      "Hydra Facial & Skin Glow",
+      "Hair Spa & Keratin Treatment",
+      "Hair Cut & Styling",
+      "Waxing & Painless Threading",
+      "Manicure & Pedicure",
+      "Bleach & D-Tan Treatment",
+      "At-Home Beauty & Parlour Service"
+    ],
+    positiveTopics: [
+      "Flawless & Long-Lasting Makeup",
+      "Visible Skin Glow & Facial",
+      "Gentle & Painless Service",
+      "Spotless Hygiene & Sanitized Tools",
+      "Polite & Expert Beautician",
+      "Punctual At-Home Service",
+      "Soft & Silky Hair Transformation",
+      "Fair & Pocket-Friendly Rates"
+    ],
+    issueTopics: [
+      "Appointment Delay",
+      "Makeup Not Long Lasting",
+      "Skin Sensitivity / Redness",
+      "Pricing Discrepancy"
+    ],
+    sampleBusinessName: "Diva Beauty Salon"
   },
   {
     id: "gym",

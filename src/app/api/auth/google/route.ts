@@ -38,22 +38,24 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 2. If not standard Google OAuth, verify via Google Firebase Identity Toolkit
+      // 2. If not standard Google OAuth, verify via Google Firebase Identity Toolkit (if configured)
       if (!email) {
-        const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-        const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idToken }),
-        });
+        const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        if (fbApiKey) {
+          const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+          });
 
-        if (fbRes.ok) {
-          const fbData = await fbRes.json();
-          const userRec = fbData.users?.[0];
-          if (userRec?.email) {
-            email = userRec.email;
-            verifiedName = userRec.displayName || verifiedName;
-            verifiedPicture = userRec.photoUrl || verifiedPicture;
+          if (fbRes.ok) {
+            const fbData = await fbRes.json();
+            const userRec = fbData.users?.[0];
+            if (userRec?.email) {
+              email = userRec.email;
+              verifiedName = userRec.displayName || verifiedName;
+              verifiedPicture = userRec.photoUrl || verifiedPicture;
+            }
           }
         }
       }
@@ -105,7 +107,7 @@ export async function POST(req: NextRequest) {
       business = await FirestoreDB.getBusinessByUserId(userId);
     }
 
-    if (!business && (normalizedEmail === "nitin.sharmaji2405@gmail.com" || normalizedEmail === "owner@thecoffeehouse.com")) {
+    if (!business && normalizedEmail === "owner@thecoffeehouse.com") {
       business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
     }
 

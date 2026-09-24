@@ -62,6 +62,15 @@ const SOLAR_POSITIVE_ANGLES = [
   { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the professional solar installation and big power savings." },
 ];
 
+const SALON_POSITIVE_ANGLES = [
+  { vibe: "Flawless Bridal & Party Makeup", guidance: "Customer thrilled with subtle, natural makeup finish that looked radiant in photos and stayed intact all evening." },
+  { vibe: "Glowing Facial & Skincare", guidance: "Noticeable glow and soft skin texture after facial, D-tan, or cleanup. Gentle products with no redness." },
+  { vibe: "Gentle Hands & Painless Waxing/Threading", guidance: "Appreciated the gentle touch, hygienic wax strips, and virtually painless threading experience." },
+  { vibe: "Punctual At-Home Salon Service", guidance: "Beautician arrived right on time with fully sanitized kits, making parlour sessions comfortable at home." },
+  { vibe: "Hair Spa & Silky Makeover", guidance: "Hair feels completely nourished, frizz-free, and silky smooth after haircut, spa, or smoothening." },
+  { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the polite beautician, relaxing treatment, and glowing results." },
+];
+
 const CAFE_POSITIVE_ANGLES = [
   { vibe: "Casual Drop-in", guidance: "Casual customer who stopped by. Friendly, relaxed, satisfied tone." },
   { vibe: "Local Favorite", guidance: "Local customer recommending to others in the neighborhood. 5/5 stars." },
@@ -141,6 +150,7 @@ async function generateWithGemini(
 
   const categoryLower = (params.category || "").toLowerCase();
   const isSolar = categoryLower.includes("solar") || categoryLower.includes("engineer") || categoryLower.includes("energy") || categoryLower.includes("electrical");
+  const isSalon = categoryLower.includes("salon") || categoryLower.includes("beauty") || categoryLower.includes("makeup") || categoryLower.includes("spa") || categoryLower.includes("parlour") || categoryLower.includes("hair");
   const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
   const isSportswear = categoryLower.includes("sport") || categoryLower.includes("garment") || categoryLower.includes("activewear") || categoryLower.includes("jersey") || categoryLower.includes("cloth");
   const isGym = categoryLower.includes("gym") || categoryLower.includes("fitness") || categoryLower.includes("crossfit") || categoryLower.includes("workout");
@@ -148,6 +158,8 @@ async function generateWithGemini(
 
   const positiveAngles = isSolar
     ? SOLAR_POSITIVE_ANGLES
+    : isSalon
+    ? SALON_POSITIVE_ANGLES
     : isNutrition
     ? NUTRITION_POSITIVE_ANGLES
     : isSportswear
@@ -206,7 +218,7 @@ ${sentimentInstructions}
 
 MANDATORY UNIQUENESS & REAL-HUMAN WRITING RULES:
 1. Every review MUST be completely unique, fresh, and distinct. Vary opening words, sentence structure, and personal angle. Never use repetitive template formulas.
-2. Contextual Accuracy: Match the business type (${params.category}). For a solar energy, rooftop solar installation, or engineering firm, write from the perspective of a homeowner, commercial building owner, or client getting solar panels or engineering setups (talk about dramatic electricity bill reduction, smooth PM Surya Ghar subsidy approval and net metering with the discom, rock-solid galvanized mounting structure, clean conduit wiring, and responsive engineering support — NEVER mention food, cafes, gym workouts, or retail clothing). For a gym, fitness center or workout club, write from the perspective of an active member or lifter (talk about machine biomechanics, dumbbells, benches, motivating workout atmosphere, attentive trainers, clean floor, and strength progress — NEVER mention dining, cafes, or retail shopping). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
+2. Contextual Accuracy: Match the business type (${params.category}). For a beauty salon, parlour, beautician, or makeup artist, write from the perspective of a client getting a salon treatment, hair makeover, facial, waxing, or bridal/party makeup (talk about glowing skin results, natural makeup finish that lasted all evening, gentle hands, painless waxing, hygienic tools, relaxing vibe, and prompt at-home/parlour service — NEVER mention food, cafes, gym workouts, or solar panels). For a solar energy, rooftop solar installation, or engineering firm, write from the perspective of a homeowner, commercial building owner, or client getting solar panels or engineering setups (talk about dramatic electricity bill reduction, smooth PM Surya Ghar subsidy approval and net metering with the discom, rock-solid galvanized mounting structure, clean conduit wiring, and responsive engineering support — NEVER mention food, cafes, gym workouts, or retail clothing). For a gym, fitness center or workout club, write from the perspective of an active member or lifter (talk about machine biomechanics, dumbbells, benches, motivating workout atmosphere, attentive trainers, clean floor, and strength progress — NEVER mention dining, cafes, or retail shopping). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
 3. TALK LIKE A REAL LOCAL CUSTOMER:
    - Use natural contractions ("it's", "wasn't", "didn't", "was really").
    - Mention the selected items or topics naturally without sounding like an advertisement.
@@ -329,6 +341,37 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
     if (tone === "short") return solarShort[Math.floor(Math.random() * solarShort.length)];
     if (tone === "detailed") return solarDetailed[Math.floor(Math.random() * solarDetailed.length)];
     return solarNatural[Math.floor(Math.random() * solarNatural.length)];
+  }
+
+  const isSalon = categoryLower.includes("salon") || categoryLower.includes("beauty") || categoryLower.includes("makeup") || categoryLower.includes("spa") || categoryLower.includes("parlour") || categoryLower.includes("hair");
+
+  if (isSalon) {
+    const salonShort = [
+      `Loved the service at ${businessName}! The ${primaryTopic}${serviceMention} was wonderful. 10/10 glow!`,
+      `Such gentle and professional service! My skin feels super soft after the ${primaryTopic}.${commentAddon}`,
+      `Best beauty parlour experience! The ${primaryTopic}${serviceMention} turned out fantastic.`,
+      `Super polite beautician and spotless hygiene. Really impressed with ${businessName}!`,
+      `Loved my makeup and hair! The ${primaryTopic} stayed flawless throughout the function.${commentAddon}`,
+      `Punctual, hygienic, and very relaxing. Highly recommend ${businessName} for beauty treatments!`,
+    ];
+
+    const salonNatural = [
+      `Had a wonderful experience with ${businessName}. The ${primaryTopic} was done with so much care and attention to detail.${serviceMention}${commentAddon} My skin is glowing and the beautician was very sweet and gentle. Definitely my go-to salon!`,
+      `Booked ${businessName} for ${primaryTopic} and was completely satisfied with the results. The products used were gentle on the skin with zero irritation.${serviceMention}${commentAddon} Very professional and hygienic service. Highly recommend!`,
+      `Loved my makeover from ${businessName}! The ${primaryTopic} looked elegant and natural without looking cakey or overdone.${serviceMention}${commentAddon} Received so many compliments at the event. 10/10 service!`,
+      `So convenient and professional! The beautician was punctual, brought sanitized tools, and the ${primaryTopic} was totally relaxing.${serviceMention}${commentAddon} Great quality service at very reasonable rates.`,
+      `Really impressed with the hygiene and gentle hands at ${businessName}. The ${primaryTopic}${serviceMention} left me feeling refreshed and glowing.${commentAddon} Will definitely be coming back regularly.`,
+      `Best salon and beauty service in the area! The team is experienced, courteous, and the ${primaryTopic} was done to perfection.${serviceMention}${commentAddon} Highly recommended to all ladies looking for quality beauty care!`,
+    ];
+
+    const salonDetailed = [
+      `Had such an amazing session with ${businessName}! I opted for the ${primaryTopic} and the entire process was deeply relaxing and thoroughly professional. The beautician was gentle, took the time to understand my skin type, and used top-quality sanitized products.${serviceMention}${commentAddon} My face has an instant natural glow and I've already received tons of compliments. Highly recommend ${businessName} for anyone looking for premium beauty care!`,
+      `Getting ready with ${businessName} was an absolute delight! The ${primaryTopic} turned out stunning, elegant, and lasted flawlessly throughout the entire event.${serviceMention}${commentAddon} Super patient, polite, and punctual service with honest pricing. Truly a 5-star beauty parlour experience that I recommend to everyone!`,
+    ];
+
+    if (tone === "short") return salonShort[Math.floor(Math.random() * salonShort.length)];
+    if (tone === "detailed") return salonDetailed[Math.floor(Math.random() * salonDetailed.length)];
+    return salonNatural[Math.floor(Math.random() * salonNatural.length)];
   }
 
   const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
