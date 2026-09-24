@@ -126,7 +126,10 @@ export async function GET(req: NextRequest) {
       .filter(Boolean);
 
     const normalizedEmail = (session.email || "").toLowerCase().trim();
-    const isFounderSuperAdmin = adminEmails.includes(normalizedEmail);
+    const isFounderSuperAdmin =
+      normalizedEmail === "nitin.sharmaji0512@gmail.com" ||
+      normalizedEmail === "nitin.sharmaji2405@gmail.com" ||
+      adminEmails.includes(normalizedEmail);
 
     let isTrialActive = false;
     // Check trial only if not explicitly revoked

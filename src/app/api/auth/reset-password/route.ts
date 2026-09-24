@@ -40,19 +40,17 @@ export async function GET(req: NextRequest) {
       }
     } catch {}
 
-    // 3. Check with Firebase Identity Toolkit (if configured)
+    // 3. Check with Firebase Identity Toolkit
     try {
       const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-      if (fbKey) {
-        const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=${fbKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ oobCode: code }),
-        });
-        const fbData = await fbRes.json().catch(() => ({}));
-        if (fbData && fbData.email) {
-          return NextResponse.json({ valid: true, email: fbData.email });
-        }
+      const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=${fbKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oobCode: code }),
+      });
+      const fbData = await fbRes.json().catch(() => ({}));
+      if (fbData && fbData.email) {
+        return NextResponse.json({ valid: true, email: fbData.email });
       }
     } catch {}
 
@@ -147,32 +145,30 @@ export async function POST(req: NextRequest) {
     if (!userIdToUpdate) {
       try {
         const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
-        if (fbKey) {
-          const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=${fbKey}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              oobCode: resetCode,
-              newPassword,
-            }),
-          });
-          const fbData = await fbRes.json().catch(() => ({}));
-          if (fbData && fbData.email) {
-            const verifiedEmail = fbData.email.toLowerCase().trim();
-            userEmail = verifiedEmail;
-            let targetUser = await FirestoreDB.getUserByEmail(verifiedEmail);
-            if (!targetUser) {
-              try {
-                targetUser = await prisma.user.findUnique({ where: { email: verifiedEmail } });
-              } catch {}
-            }
-            if (targetUser?.id) {
-              userIdToUpdate = targetUser.id;
-            }
+        const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=${fbKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            oobCode: resetCode,
+            newPassword,
+          }),
+        });
+        const fbData = await fbRes.json().catch(() => ({}));
+        if (fbData && fbData.email) {
+          const verifiedEmail = fbData.email.toLowerCase().trim();
+          userEmail = verifiedEmail;
+          let targetUser = await FirestoreDB.getUserByEmail(verifiedEmail);
+          if (!targetUser) {
+            try {
+              targetUser = await prisma.user.findUnique({ where: { email: verifiedEmail } });
+            } catch {}
+          }
+          if (targetUser?.id) {
+            userIdToUpdate = targetUser.id;
           }
         }
       } catch (fbErr) {
-        console.warn("Identity Toolkit reset confirm note:", fbErr);
+        console.warn("Firebase reset verification note:", fbErr);
       }
     }
 
