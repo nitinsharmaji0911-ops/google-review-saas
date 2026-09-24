@@ -12,7 +12,10 @@ import {
   Link as LinkIcon,
   AlertCircle,
   MessageSquare,
-  RotateCcw
+  RotateCcw,
+  Headphones,
+  PhoneCall,
+  MessageCircle,
 } from "lucide-react";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
 import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
@@ -579,6 +582,43 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Customer Care Direct Support Card */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-inner">
+            <Headphones className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Direct Customer Care</span>
+            </div>
+            <h4 className="text-sm font-bold text-slate-900">Need Help or Facing Any Problem?</h4>
+            <p className="text-xs text-slate-500">Contact our support team directly via WhatsApp or Voice Call (+91 84217 06305).</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`https://wa.me/918421706305?text=${encodeURIComponent(
+              name ? `Hi Welurik Support, I need help with "${name}" review account.` : "Hi Welurik Support, I need help with my review account."
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>WhatsApp Us</span>
+          </a>
+          <a
+            href="tel:+918421706305"
+            className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+          >
+            <PhoneCall className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Call Support</span>
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

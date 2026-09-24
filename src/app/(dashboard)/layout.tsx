@@ -15,9 +15,12 @@ import {
   Lock,
   ShieldCheck,
   CheckCircle2,
+  Headphones,
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
 import { CheckoutButton } from "@/components/CheckoutButton";
+import { CustomerCareModal } from "@/components/CustomerCareModal";
+
 
 export default function DashboardLayout({
   children,
@@ -38,6 +41,7 @@ export default function DashboardLayout({
   const [paywallSuccess, setPaywallSuccess] = useState("");
   const [paywallError, setPaywallError] = useState("");
   const [showPaywallPromo, setShowPaywallPromo] = useState(false);
+  const [showCustomerCare, setShowCustomerCare] = useState(false);
 
   const handleApplyPaywallPromo = async () => {
     if (!paywallPromo.trim()) return;
@@ -171,8 +175,33 @@ export default function DashboardLayout({
   const publicReviewUrl = business?.slug ? `${origin}/r/${business.slug}` : "#";
 
   if (pathname === "/onboarding") {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        {/* Floating Customer Care Trigger Button during onboarding */}
+        <button
+          type="button"
+          onClick={() => setShowCustomerCare(true)}
+          className="fixed bottom-6 right-6 z-40 bg-slate-900 hover:bg-slate-800 text-white pl-3.5 pr-4 py-2.5 rounded-full shadow-xl border border-slate-700/60 flex items-center gap-2 text-xs font-bold cursor-pointer transition-all hover:scale-105 active:scale-95 group no-print"
+          title="Direct Customer Care"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <Headphones className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />
+          <span>Customer Care</span>
+        </button>
+
+        <CustomerCareModal
+          isOpen={showCustomerCare}
+          onClose={() => setShowCustomerCare(false)}
+          businessName={business?.name}
+        />
+      </>
+    );
   }
+
 
   return (
     <div className="min-h-screen bg-[#ECFDF5] flex font-sans selection:bg-slate-900 selection:text-white">
@@ -244,6 +273,22 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+
+            {/* Direct Customer Care Action */}
+            <button
+              type="button"
+              onClick={() => setShowCustomerCare(true)}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-emerald-900 bg-emerald-50 hover:bg-emerald-100/90 border border-emerald-200/80 transition-all cursor-pointer group mt-3 shadow-xs"
+            >
+              <div className="flex items-center gap-2.5">
+                <Headphones className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span>Customer Care</span>
+              </div>
+              <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-200/60 px-1.5 py-0.5 rounded-md">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Call / WhatsApp
+              </span>
+            </button>
           </nav>
         </div>
 
@@ -284,6 +329,15 @@ export default function DashboardLayout({
             <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">{business?.name || "Welurik"}</span>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowCustomerCare(true)}
+              className="text-xs font-bold px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center gap-1 cursor-pointer transition-colors"
+              title="Direct Customer Care"
+            >
+              <Headphones className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-[11px]">Support</span>
+            </button>
             {business?.isPro === true && (
               <Link
                 href="/qr-studio"
@@ -305,6 +359,7 @@ export default function DashboardLayout({
             </button>
           </div>
         </header>
+
 
         {/* Unpaid Account Paywall Guard */}
         {loadingBusiness && !business && pathname !== "/onboarding" ? (
@@ -440,6 +495,18 @@ export default function DashboardLayout({
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Secured by Razorpay • UPI (GPay, PhonePe), Cards & NetBanking</span>
               </div>
+
+              <div className="pt-2 border-t border-slate-200/60 flex items-center justify-center gap-1.5 text-xs text-slate-500">
+                <span>Facing any problem or question?</span>
+                <button
+                  type="button"
+                  onClick={() => setShowCustomerCare(true)}
+                  className="font-bold text-emerald-700 hover:text-emerald-800 underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Headphones className="w-3.5 h-3.5 text-emerald-600" />
+                  Call or WhatsApp Support
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -501,7 +568,30 @@ export default function DashboardLayout({
             )}
           </nav>
         )}
+
+        {/* Floating Customer Care Trigger Button */}
+        <button
+          type="button"
+          onClick={() => setShowCustomerCare(true)}
+          className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-30 bg-slate-900 hover:bg-slate-800 text-white pl-3.5 pr-4 py-2.5 rounded-full shadow-xl border border-slate-700/60 flex items-center gap-2 text-xs font-bold cursor-pointer transition-all hover:scale-105 active:scale-95 group no-print"
+          title="Direct Customer Care"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <Headphones className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />
+          <span>Customer Care</span>
+        </button>
+
+        {/* Customer Care Modal (Call or WhatsApp directly) */}
+        <CustomerCareModal
+          isOpen={showCustomerCare}
+          onClose={() => setShowCustomerCare(false)}
+          businessName={business?.name}
+        />
       </div>
     </div>
   );
 }
+
