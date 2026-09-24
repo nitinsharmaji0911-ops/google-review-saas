@@ -2,7 +2,35 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE_NAME = "review_saas_session";
-const PROTECTED_ROUTES = ["/dashboard", "/settings", "/qr-studio", "/feedback", "/onboarding", "/admin-vault", "/admin"];
+const PROTECTED_ROUTES = [
+  "/dashboard",
+  "/settings",
+  "/qr-studio",
+  "/feedback",
+  "/onboarding",
+  "/admin-vault",
+  "/admin",
+];
+const AUTH_ROUTES = ["/login", "/signup"];
+
+function base64UrlToBytes(str: string): Uint8Array {
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4 !== 0) {
+    base64 += "=";
+  }
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function base64UrlDecodeUtf8(str: string): string {
+  const bytes = base64UrlToBytes(str);
+  const decoder = new TextDecoder();
+  return decoder.decode(bytes);
+}
 
 async function verifyMiddlewareSession(sessionCookie: string): Promise<boolean> {
   try {
@@ -29,9 +57,8 @@ async function verifyMiddlewareSession(sessionCookie: string): Promise<boolean> 
       encoder.encode(base64Data)
     );
 
-    // Convert base64url signature from cookie back to bytes
-    const sigBase64 = signature.replace(/-/g, "+").replace(/_/g, "/");
-    const sigBytes = Uint8Array.from(atob(sigBase64), (c) => c.charCodeAt(0));
+    // Convert base64url signature from cookie back to bytes safely with RFC 4648 padding
+    const sigBytes = base64UrlToBytes(signature);
 
     // Constant-time comparison
     if (expectedSigBytes.byteLength !== sigBytes.byteLength) return false;
@@ -42,8 +69,8 @@ async function verifyMiddlewareSession(sessionCookie: string): Promise<boolean> 
     }
     if (mismatch !== 0) return false;
 
-    // Verify payload fields
-    const payload = JSON.parse(atob(base64Data.replace(/-/g, "+").replace(/_/g, "/")));
+    // Verify payload fields with UTF-8 decoding
+    const payload = JSON.parse(base64UrlDecodeUtf8(base64Data));
     if (!payload.userId) return false;
     if (payload.exp && Date.now() > payload.exp) return false;
 
@@ -55,19 +82,32 @@ async function verifyMiddlewareSession(sessionCookie: string): Promise<boolean> 
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
+  // 1. If user is already authenticated and visits /login or /signup, redirect straight to /dashboard
+  const isAuthRoute = AUTH_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+  if (isAuthRoute) {
+    if (sessionCookie && (await verifyMiddlewareSession(sessionCookie))) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 2. Protected dashboard routes require valid session
   const isProtected = PROTECTED_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
   if (!isProtected) return NextResponse.next();
 
-  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-
   if (!sessionCookie || !(await verifyMiddlewareSession(sessionCookie))) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     const res = NextResponse.redirect(loginUrl);
-    res.cookies.delete(SESSION_COOKIE_NAME);
+    if (sessionCookie) {
+      res.cookies.delete(SESSION_COOKIE_NAME);
+    }
     return res;
   }
 
@@ -83,5 +123,7 @@ export const config = {
     "/onboarding/:path*",
     "/admin-vault/:path*",
     "/admin/:path*",
+    "/login",
+    "/signup",
   ],
 };

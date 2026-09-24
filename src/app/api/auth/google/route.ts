@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       email: normalizedEmail,
       businessId,
       businessSlug: businessSlug || undefined,
-    });
+    }, 60 * 60 * 24 * 90);
 
     const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
 
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      maxAge: 60 * 60 * 24 * 90, // 90 days
     });
 
     return res;

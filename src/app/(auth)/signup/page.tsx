@@ -47,6 +47,12 @@ export default function SignupPage() {
         throw new Error(signupData.error || "Failed to create account");
       }
 
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("welurik_remembered_email", email.trim());
+        } catch {}
+      }
+
       router.push("/onboarding");
       router.refresh();
     } catch (err: any) {

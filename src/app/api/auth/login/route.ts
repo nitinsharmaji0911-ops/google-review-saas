@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { email, password, isDemo } = body;
+    const { email, password, isDemo, rememberMe = true } = body;
 
     // Strict Production Check: Demo login bypass is permanently forbidden in production
     if (isDemo) {
@@ -135,12 +135,13 @@ export async function POST(req: NextRequest) {
     const businessSlug = business?.slug || user.businessSlug || "";
     const businessId = business?.id || user.businessId || undefined;
 
+    const maxAgeSeconds = rememberMe !== false ? 60 * 60 * 24 * 90 : 60 * 60 * 24 * 1; // 90 days vs 1 day
     const payload = createSessionPayload({
       userId: user.id,
       email: user.email,
       businessId,
       businessSlug: businessSlug || undefined,
-    });
+    }, maxAgeSeconds);
 
     const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
 
@@ -180,7 +181,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: maxAgeSeconds,
     });
 
     return res;

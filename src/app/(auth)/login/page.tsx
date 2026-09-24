@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, AlertCircle } from "lucide-react";
@@ -12,19 +12,57 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // 1. Auto-fill remembered email from localStorage
+    try {
+      const savedEmail = localStorage.getItem("welurik_remembered_email");
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberMe(true);
+      }
+    } catch {}
+
+    // 2. Seamless session check: If already logged in, take straight to dashboard
+    fetch("/api/business/me")
+      .then((r) => {
+        if (r.ok) return r.json();
+        return null;
+      })
+      .then((d) => {
+        if (d && d.success && d.business) {
+          const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+          const fromRoute = params?.get("from");
+          window.location.href = fromRoute || "/dashboard";
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Persist or clear remembered email in localStorage based on Remember Me choice
+    if (typeof window !== "undefined") {
+      try {
+        if (rememberMe && email.trim()) {
+          localStorage.setItem("welurik_remembered_email", email.trim());
+        } else {
+          localStorage.removeItem("welurik_remembered_email");
+        }
+      } catch {}
+    }
+
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await res.json();
@@ -153,6 +191,24 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+            </div>
+
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center justify-between pt-0.5 pb-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-2 border-black text-[#15803D] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#15803D]"
+                />
+                <span className="text-xs font-bold text-slate-700 group-hover:text-black transition-colors">
+                  Remember me on this device
+                </span>
+              </label>
+              <span className="text-[10px] font-bold text-[#15803D] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                90-day access
+              </span>
             </div>
 
             <button

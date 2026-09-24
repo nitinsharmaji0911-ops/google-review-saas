@@ -26,7 +26,7 @@ export interface SessionData {
 /**
  * Secure HMAC-SHA256 Session Token Signer with Expiration
  */
-export function createSessionPayload(data: Omit<SessionData, "exp" | "iat">, maxAgeSeconds: number = 60 * 60 * 24 * 30): string {
+export function createSessionPayload(data: Omit<SessionData, "exp" | "iat">, maxAgeSeconds: number = 60 * 60 * 24 * 90): string {
   const now = Date.now();
   const payload: SessionData = {
     ...data,
