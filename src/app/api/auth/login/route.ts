@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     // 2. If not matched locally, verify with Firebase Authentication (e.g. after Firebase password reset)
     if (!isMatch) {
       try {
-        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
         if (fbKey) {
           const fbRes = await fetch(
             `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${fbKey}`,

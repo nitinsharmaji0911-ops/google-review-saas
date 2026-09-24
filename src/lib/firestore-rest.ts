@@ -4,13 +4,12 @@
  */
 
 export const FIRESTORE_PROJECT_ID =
-  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "";
-export const FIRESTORE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "";
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "saas-64015";
+export const FIRESTORE_API_KEY =
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
 const PROJECT_ID = FIRESTORE_PROJECT_ID;
 const API_KEY = FIRESTORE_API_KEY;
-const BASE_URL = PROJECT_ID
-  ? `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
-  : "";
+const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
 function toFirestoreFields(obj: Record<string, any>): Record<string, any> {
   const fields: Record<string, any> = {};
@@ -76,7 +75,6 @@ function fromFirestoreDoc(doc: any): any {
 
 export const FirestoreREST = {
   async setDocument(collection: string, docId: string, data: Record<string, any>): Promise<any> {
-    if (!PROJECT_ID || !API_KEY || !BASE_URL) return null;
     try {
       const url = `${BASE_URL}/${collection}/${encodeURIComponent(docId)}?key=${API_KEY}`;
       const res = await fetch(url, {
@@ -98,7 +96,6 @@ export const FirestoreREST = {
   },
 
   async getDocument(collection: string, docId: string): Promise<any | null> {
-    if (!PROJECT_ID || !API_KEY || !BASE_URL) return null;
     try {
       const url = `${BASE_URL}/${collection}/${encodeURIComponent(docId)}?key=${API_KEY}`;
       const res = await fetch(url, { cache: "no-store" });
@@ -116,7 +113,6 @@ export const FirestoreREST = {
   },
 
   async queryDocuments(collection: string, field: string, value: string, limit = 100): Promise<any[]> {
-    if (!PROJECT_ID || !API_KEY || !BASE_URL) return [];
     try {
       const url = `${BASE_URL}:runQuery?key=${API_KEY}`;
       const queryBody = {
@@ -153,7 +149,6 @@ export const FirestoreREST = {
   },
 
   async listDocuments(collection: string, limit = 50): Promise<any[]> {
-    if (!PROJECT_ID || !API_KEY || !BASE_URL) return [];
     try {
       const url = `${BASE_URL}/${collection}?pageSize=${limit}&key=${API_KEY}`;
       const res = await fetch(url, { cache: "no-store" });

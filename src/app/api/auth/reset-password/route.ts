@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Check with Firebase Identity Toolkit (if configured)
     try {
-      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
       if (fbKey) {
         const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=${fbKey}`, {
           method: "POST",
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
     // 3. Verify with Google Identity Toolkit if code is a Firebase Action Code (oobCode)
     if (!userIdToUpdate) {
       try {
-        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
         if (fbKey) {
           const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=${fbKey}`, {
             method: "POST",

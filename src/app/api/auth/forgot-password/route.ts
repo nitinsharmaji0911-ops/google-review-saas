@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Dispatch real password reset email via Google Identity Toolkit (if configured)
-      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+      const fbKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyB7nnrGVSUxVTmKw4t6qXrBVxAGbxarVvE";
       if (fbKey) {
         fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
           method: "POST",
