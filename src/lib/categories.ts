@@ -216,6 +216,39 @@ export const CATEGORIES: CategoryConfig[] = [
     positiveTopics: ["Punctual Arrival", "Fast & Effective Fix", "Polite & Professional Technician", "Fair & Upfront Pricing", "Left Area Clean", "Reliable Workmanship"],
     issueTopics: ["Late Arrival", "Unresolved Problem", "Pricing Disagreement", "Communication"],
     sampleBusinessName: "SwiftPro Home Services"
+  },
+  {
+    id: "solar",
+    name: "Solar Energy & Engineering Solutions",
+    emoji: "☀️",
+    description: "Solar EPC, rooftop solar panels, on-grid inverters, fire safety & electrical engineering",
+    defaultServices: [
+      "Residential Rooftop Solar Installation",
+      "Commercial & Industrial Solar EPC",
+      "On-Grid & Hybrid Solar Inverter Setup",
+      "PM Surya Ghar Subsidy & Net Metering",
+      "Solar Water Heating & Pumping",
+      "Certified Site Survey & Load Audit",
+      "Fire Safety Engineering & Hydrants",
+      "Solar Maintenance & Performance Check"
+    ],
+    positiveTopics: [
+      "Significant Electricity Bill Savings",
+      "Seamless Subsidy & Net Metering Approval",
+      "Top-Tier Solar Panels & Inverters",
+      "Punctual & Clean Installation",
+      "Knowledgeable & Transparent Engineers",
+      "Fast After-Sales Service & Support",
+      "Strong Mounting Structure & Wiring",
+      "Clear Guidance on Solar ROI"
+    ],
+    issueTopics: [
+      "Discom Net Metering Delay",
+      "Installation Scheduling Delay",
+      "Subsidy Processing Wait Time",
+      "Roof Space Constraints"
+    ],
+    sampleBusinessName: "S.M. Engineering"
   }
 ];
 

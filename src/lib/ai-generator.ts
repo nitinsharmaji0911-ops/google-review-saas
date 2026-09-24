@@ -53,6 +53,15 @@ const GYM_POSITIVE_ANGLES = [
   { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the workout vibe, equipment quality, and trainers." },
 ];
 
+const SOLAR_POSITIVE_ANGLES = [
+  { vibe: "Huge Electricity Bill Reduction", guidance: "Homeowner or factory owner thrilled that monthly electricity bills dropped to near zero after solar setup." },
+  { vibe: "Smooth Subsidy & Discom Net Metering", guidance: "Team handled all the paperwork for government subsidy (PM Surya Ghar) and net metering without headaches." },
+  { vibe: "Heavy-Duty Structure & Clean Wiring", guidance: "Impressed by the solid galvanized iron structure, clean conduit piping, and neat inverter installation." },
+  { vibe: "Expert Site Survey & Honest Advice", guidance: "Engineers did a thorough shadow analysis, calculated exact kW requirements, and gave honest recommendations." },
+  { vibe: "Prompt After-Sales Support", guidance: "Responsive team for maintenance, mobile app monitoring setup, and quick service resolution." },
+  { vibe: "Short & Punchy 5-Star", guidance: "Punchy 1-2 sentence review praising the professional solar installation and big power savings." },
+];
+
 const CAFE_POSITIVE_ANGLES = [
   { vibe: "Casual Drop-in", guidance: "Casual customer who stopped by. Friendly, relaxed, satisfied tone." },
   { vibe: "Local Favorite", guidance: "Local customer recommending to others in the neighborhood. 5/5 stars." },
@@ -131,12 +140,15 @@ async function generateWithGemini(
   const isMixed = rating === 3;
 
   const categoryLower = (params.category || "").toLowerCase();
+  const isSolar = categoryLower.includes("solar") || categoryLower.includes("engineer") || categoryLower.includes("energy") || categoryLower.includes("electrical");
   const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
   const isSportswear = categoryLower.includes("sport") || categoryLower.includes("garment") || categoryLower.includes("activewear") || categoryLower.includes("jersey") || categoryLower.includes("cloth");
   const isGym = categoryLower.includes("gym") || categoryLower.includes("fitness") || categoryLower.includes("crossfit") || categoryLower.includes("workout");
   const isCafe = categoryLower.includes("cafe") || categoryLower.includes("bakery") || categoryLower.includes("coffee");
 
-  const positiveAngles = isNutrition
+  const positiveAngles = isSolar
+    ? SOLAR_POSITIVE_ANGLES
+    : isNutrition
     ? NUTRITION_POSITIVE_ANGLES
     : isSportswear
     ? SPORTSWEAR_POSITIVE_ANGLES
@@ -194,7 +206,7 @@ ${sentimentInstructions}
 
 MANDATORY UNIQUENESS & REAL-HUMAN WRITING RULES:
 1. Every review MUST be completely unique, fresh, and distinct. Vary opening words, sentence structure, and personal angle. Never use repetitive template formulas.
-2. Contextual Accuracy: Match the business type (${params.category}). For a gym, fitness center or workout club, write from the perspective of an active member or lifter (talk about machine biomechanics, dumbbells, benches, motivating workout atmosphere, attentive trainers, clean floor, and strength progress — NEVER mention dining, cafes, or retail shopping). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
+2. Contextual Accuracy: Match the business type (${params.category}). For a solar energy, rooftop solar installation, or engineering firm, write from the perspective of a homeowner, commercial building owner, or client getting solar panels or engineering setups (talk about dramatic electricity bill reduction, smooth PM Surya Ghar subsidy approval and net metering with the discom, rock-solid galvanized mounting structure, clean conduit wiring, and responsive engineering support — NEVER mention food, cafes, gym workouts, or retail clothing). For a gym, fitness center or workout club, write from the perspective of an active member or lifter (talk about machine biomechanics, dumbbells, benches, motivating workout atmosphere, attentive trainers, clean floor, and strength progress — NEVER mention dining, cafes, or retail shopping). For a supplement/sports nutrition store, write from the perspective of an everyday gym-goer, athlete, or fitness enthusiast (talk about genuine products, seals, protein mixability, workouts, honest advice — NEVER mention cafe tables, dining, or office work). For a sportswear, garments & custom printing shop, write from the perspective of a customer buying activewear, gym clothes, tracksuits, sports jerseys, or personalized custom gifts like photo mugs, custom mirrors, and pillows (talk about fabric comfort, breathability, durable stitching, accurate fits, vibrant colors, or sharp printing clarity, excellent gift finish, reasonable rates — NEVER mention food, cafes, or dining).
 3. TALK LIKE A REAL LOCAL CUSTOMER:
    - Use natural contractions ("it's", "wasn't", "didn't", "was really").
    - Mention the selected items or topics naturally without sounding like an advertisement.
@@ -288,6 +300,37 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
 
   // C. POSITIVE REVIEWS (4 & 5 Stars)
   const categoryLower = (params.category || "").toLowerCase();
+  const isSolar = categoryLower.includes("solar") || categoryLower.includes("engineer") || categoryLower.includes("energy") || categoryLower.includes("electrical");
+
+  if (isSolar) {
+    const solarShort = [
+      `Outstanding solar installation by ${businessName}! Our electricity bill dropped to near zero. 10/10.`,
+      `Extremely professional solar engineers! The ${primaryTopic}${serviceMention} was handled smoothly.`,
+      `Got our rooftop solar setup done here. Heavy duty structure and top quality ${primaryTopic}!`,
+      `Hassle-free subsidy paperwork and quick net metering. Really impressed with ${businessName}!`,
+      `Best solar EPC team in the region. The ${primaryTopic} and installation quality are excellent.${commentAddon}`,
+      `Neat conduit wiring, high efficiency panels, and great ${primaryTopic}. Highly recommended!`,
+    ];
+
+    const solarNatural = [
+      `Got our rooftop solar plant installed by ${businessName} and the experience has been seamless. The ${primaryTopic} was done with utmost precision and our monthly power bills have plummeted.${serviceMention}${commentAddon} Truly dependable solar engineers.`,
+      `Really impressed with the team at ${businessName}. They guided us through the entire PM Surya Ghar subsidy and net metering process without any hassle. The ${primaryTopic} is top class.${serviceMention}${commentAddon} Definitely recommend them for solar installations!`,
+      `Professional site survey and honest recommendations from the engineers at ${businessName}. The ${primaryTopic} has a solid, heavy-duty mounting structure and neat cabling.${serviceMention}${commentAddon} 10/10 service and support!`,
+      `Switching to solar with ${businessName} was one of our best decisions. The ${primaryTopic} was delivered and commissioned right on time.${serviceMention}${commentAddon} The mobile app monitoring setup is great for tracking daily unit generation.`,
+      `Great engineering expertise and very courteous technicians at ${businessName}. The ${primaryTopic} was executed neatly with all safety standards followed.${serviceMention}${commentAddon} Easily the best solar contractor around.`,
+      `Excellent solar EPC work! From site load calculation to final discom inspection, the ${primaryTopic} was handled professionally.${serviceMention}${commentAddon} Highly recommended for residential and commercial solar!`,
+    ];
+
+    const solarDetailed = [
+      `Had a fantastic experience getting our solar system installed by ${businessName}. The engineers conducted a detailed shadow analysis and advised us on the optimal kW capacity. The ${primaryTopic} was carried out with heavy-duty galvanized mounting, clean conduit wiring, and certified inverters.${serviceMention}${commentAddon} They even took care of the entire net metering paperwork and government subsidy portal submission. Highly professional and dependable team!`,
+      `One of the most reliable solar engineering firms in the area! We engaged ${businessName} for our rooftop solar project, and the ${primaryTopic} exceeded expectations.${serviceMention}${commentAddon} The generation numbers are right on target and our electricity expenses have reduced drastically. Quick after-sales support and transparent pricing. Easily a 5-star recommendation!`,
+    ];
+
+    if (tone === "short") return solarShort[Math.floor(Math.random() * solarShort.length)];
+    if (tone === "detailed") return solarDetailed[Math.floor(Math.random() * solarDetailed.length)];
+    return solarNatural[Math.floor(Math.random() * solarNatural.length)];
+  }
+
   const isNutrition = categoryLower.includes("nutrition") || categoryLower.includes("supplement");
 
   if (isNutrition) {
