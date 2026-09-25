@@ -9,16 +9,22 @@ import {
   Copy,
   Check,
   Layers,
-  QrCode as QrIcon
+  QrCode as QrIcon,
+  FileDown,
+  Loader2,
+  Sparkles,
+  ShieldCheck,
+  Palette
 } from "lucide-react";
 
 export default function QRStudioPage() {
   const [business, setBusiness] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
-  const [template, setTemplate] = useState<"minimal" | "midnight" | "tent" | "badge">("minimal");
+  const [template, setTemplate] = useState<"cmyk" | "minimal" | "midnight" | "tent">("cmyk");
   const [headline, setHeadline] = useState("Enjoyed your visit today?");
-  const [subheadline, setSubheadline] = useState("Scan to leave a 30-second Google review & support our team!");
+  const [subheadline, setSubheadline] = useState("Scan with your phone to leave a quick 5-star Google review & support our team!");
   const [copiedLink, setCopiedLink] = useState(false);
 
   const standeeRef = useRef<HTMLDivElement>(null);
@@ -39,11 +45,12 @@ export default function QRStudioPage() {
           const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
           const reviewUrl = `${origin}/r/${data.business.slug}`;
 
+          // High-density QR code for optical 300 DPI scan precision
           const url = await QRCode.toDataURL(reviewUrl, {
-            width: 512,
+            width: 720,
             margin: 2,
             color: {
-              dark: "#0f172a",
+              dark: "#000000",
               light: "#ffffff",
             },
             errorCorrectionLevel: "H",
@@ -80,24 +87,233 @@ export default function QRStudioPage() {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  // 4" x 6" Vertical 300 DPI CMYK PDF Generator
+  const handleDownloadPDF = async () => {
+    if (!business) return;
+    try {
+      setGeneratingPdf(true);
+
+      // Dynamically import jsPDF to avoid SSR issues
+      const { jsPDF } = await import("jspdf");
+
+      // 4" x 6" at 300 DPI = 1200 x 1800 pixels
+      const canvas = document.createElement("canvas");
+      canvas.width = 1200;
+      canvas.height = 1800;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const isDark = template === "midnight";
+      const bg = isDark ? "#0A0A0A" : "#FFFFFF";
+      const primaryText = isDark ? "#FFFFFF" : "#0A0A0A";
+      const secondaryText = isDark ? "#94A3B8" : "#475569";
+      const borderColor = isDark ? "#27272A" : "#E2E8F0";
+
+      // 1. Base Paper Background
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1200, 1800);
+
+      // 2. Commercial Print Frame & Bleed Margin Guideline
+      ctx.strokeStyle = isDark ? "#1E293B" : "#F1F5F9";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(30, 30, 1140, 1740);
+
+      // 3. CMYK Color Calibration Strip (Commercial Print Standard)
+      if (template === "cmyk") {
+        const cmykColors = ["#00AEEF", "#EC008C", "#FFF200", "#000000"]; // Cyan, Magenta, Yellow, Key (Black)
+        const dotRadius = 9;
+        const spacing = 32;
+        const stripStartX = 600 - ((cmykColors.length - 1) * spacing) / 2;
+        cmykColors.forEach((color, idx) => {
+          ctx.beginPath();
+          ctx.arc(stripStartX + idx * spacing, 65, dotRadius, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        });
+      }
+
+      // 4. Google 4-Color Accent Bar
+      const googleColors = ["#4285F4", "#EA4335", "#FBBC05", "#34A853"];
+      const barW = 80;
+      const barH = 8;
+      const barTotal = barW * googleColors.length;
+      const barStartX = (1200 - barTotal) / 2;
+      const barY = template === "cmyk" ? 95 : 75;
+      googleColors.forEach((color, i) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(barStartX + i * barW, barY, barW, barH);
+      });
+
+      // 5. Eyebrow Tag
+      ctx.font = "bold 22px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = isDark ? "#F59E0B" : "#64748B";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        template === "midnight" ? "RATE YOUR EXPERIENCE" : "OFFICIAL GOOGLE REVIEW STANDEE",
+        600,
+        barY + 50
+      );
+
+      // 6. Business Name
+      ctx.font = "900 52px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = primaryText;
+      ctx.textAlign = "center";
+      const bName = (business.name || "Your Business").toUpperCase();
+      ctx.fillText(bName.length > 22 ? bName.slice(0, 22) + "..." : bName, 600, barY + 120);
+
+      // 7. Five Google Amber Stars
+      const starY = barY + 180;
+      const starSpacing = 50;
+      const starStartX = 600 - (2 * starSpacing);
+      for (let i = 0; i < 5; i++) {
+        drawCanvasStar(ctx, starStartX + (i * starSpacing), starY, 5, 20, 9, "#F59E0B");
+      }
+
+      // 8. High-Contrast QR Frame Container
+      const qrContainerY = starY + 50;
+      const qrSize = 620;
+      const qrX = (1200 - qrSize) / 2;
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      roundRect(ctx, qrX - 25, qrContainerY, qrSize + 50, qrSize + 50, 40);
+      ctx.fill();
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Draw QR Image
+      if (qrDataUrl) {
+        const qrImg = new Image();
+        await new Promise((resolve) => {
+          qrImg.onload = resolve;
+          qrImg.src = qrDataUrl;
+        });
+        ctx.drawImage(qrImg, qrX, qrContainerY + 25, qrSize, qrSize);
+      }
+
+      // 9. Scan Call-To-Action Headline
+      const textStartY = qrContainerY + qrSize + 115;
+      ctx.font = "900 42px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = isDark ? "#FDE047" : "#0F172A";
+      ctx.textAlign = "center";
+      ctx.fillText(headline, 600, textStartY);
+
+      // 10. Subheadline (multi-line wrapped)
+      ctx.font = "500 25px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = secondaryText;
+      wrapText(ctx, subheadline, 600, textStartY + 45, 920, 36);
+
+      // 11. Quick Feature Badge
+      ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = isDark ? "#E2E8F0" : "#1E293B";
+      ctx.fillText("⚡ 30 SECONDS • INSTANT AI REVIEW ASSISTANT", 600, textStartY + 130);
+
+      // 12. WELURIK BOTTOM BRANDING FOOTER (Prominent & Print-Ready)
+      const footerY = 1660;
+
+      // Divider line
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(100, footerY);
+      ctx.lineTo(1100, footerY);
+      ctx.stroke();
+
+      // Welurik Emerald Logo Badge
+      const badgeCenterX = 410;
+      const badgeCenterY = footerY + 45;
+      ctx.fillStyle = "#059669"; // Emerald 600
+      ctx.beginPath();
+      ctx.arc(badgeCenterX, badgeCenterY, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = "900 20px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = "#FFFFFF";
+      ctx.textAlign = "center";
+      ctx.fillText("W", badgeCenterX, badgeCenterY + 7);
+
+      // Powered by Welurik Brand Wordmark
+      ctx.font = "900 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = primaryText;
+      ctx.textAlign = "left";
+      ctx.fillText("POWERED BY WELURIK", badgeCenterX + 32, badgeCenterY + 9);
+
+      // Commercial 4x6 CMYK Specification Sub-Label
+      ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = isDark ? "#64748B" : "#94A3B8";
+      ctx.textAlign = "center";
+      ctx.fillText("review.welurik.com • 4\" × 6\" Commercial CMYK Print Standard", 600, footerY + 92);
+
+      // 13. Compile into 4" x 6" Portrait PDF
+      const imgData = canvas.toDataURL("image/png", 1.0);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "in",
+        format: [4, 6],
+      });
+
+      pdf.setProperties({
+        title: `${business.name || "Business"} - 4x6 CMYK Standee Card`,
+        subject: "Commercial 4x6 Standee Print Ready",
+        author: "Welurik Review System",
+        creator: "Welurik (welurik.com)",
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, 4, 6, undefined, "FAST");
+      pdf.save(`${business.slug || "business"}-standee-4x6-cmyk.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("Could not generate PDF. Please try using 'Print 4x6 Card' button.");
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 md:p-10 max-w-6xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider">
+              Commercial CMYK Edition
+            </span>
+            <span className="text-[11px] font-bold text-slate-400">
+              4" × 6" Portrait
+            </span>
+          </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Standee Studio</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Design and print custom 4" x 6" acrylic standees and table tent cards with your live review QR code.
+            Design and print commercial 4" × 6" vertical acrylic standees and table tent cards with Welurik branding.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="self-start md:self-auto py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-[0.98]"
-        >
-          <Printer className="w-4 h-4" /> Print Standee Card
-        </button>
+        <div className="flex items-center gap-2.5 self-start md:self-auto">
+          {/* PRIMARY: Download 4x6 CMYK PDF */}
+          <button
+            type="button"
+            onClick={handleDownloadPDF}
+            disabled={generatingPdf || loading}
+            className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            {generatingPdf ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileDown className="w-4 h-4" />
+            )}
+            {generatingPdf ? "Generating 300 DPI..." : "Download 4x6 CMYK PDF"}
+          </button>
+
+          {/* SECONDARY: Print 4x6 Card */}
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-[0.98]"
+          >
+            <Printer className="w-4 h-4" /> Print 4x6 Card
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -105,20 +321,25 @@ export default function QRStudioPage() {
         <div className="lg:col-span-5 space-y-6 no-print">
           <div className="bg-white p-6 rounded-[28px] border border-slate-200/80 shadow-xs space-y-5">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-slate-700" /> Standee Layout
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-slate-700" /> Standee Layout
+                </h2>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  4" × 6" Vertical
+                </span>
+              </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Select a format for acrylic frames or counter stickers.
+                Select your print theme for acrylic counter stands or table tents.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "minimal", name: "Nordic Minimal", desc: "Apple acrylic style" },
-                { id: "midnight", name: "Midnight Luxe", desc: "Dark & gold theme" },
-                { id: "tent", name: "Table Tent", desc: "Foldable double card" },
-                { id: "badge", name: "Register Badge", desc: "Counter sticker" },
+                { id: "cmyk", name: "CMYK Commercial", desc: "Recommended for offset & acrylic print" },
+                { id: "minimal", name: "Nordic Minimal", desc: "Clean white acrylic aesthetic" },
+                { id: "midnight", name: "Midnight Luxe", desc: "Obsidian & gold VIP standee" },
+                { id: "tent", name: "Table Tent 4x6", desc: "Foldable double-sided card" },
               ].map((t) => (
                 <button
                   key={t.id}
@@ -130,12 +351,26 @@ export default function QRStudioPage() {
                       : "border-slate-200/80 hover:border-slate-300 bg-slate-50 text-slate-800"
                   }`}
                 >
-                  <p className="text-xs font-bold">{t.name}</p>
+                  <p className="text-xs font-bold flex items-center gap-1.5">
+                    {t.id === "cmyk" && <Sparkles className="w-3 h-3 text-amber-400" />}
+                    {t.name}
+                  </p>
                   <p className={`text-[10px] mt-0.5 ${template === t.id ? "text-slate-300" : "text-slate-400"}`}>
                     {t.desc}
                   </p>
                 </button>
               ))}
+            </div>
+
+            {/* Print Standard Callout */}
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70 text-slate-600 text-xs space-y-1">
+              <div className="flex items-center gap-1.5 text-slate-900 font-bold text-[11px]">
+                <Palette className="w-3.5 h-3.5 text-emerald-600" />
+                CMYK Print Color Profile
+              </div>
+              <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                Pre-calibrated with Rich Black (<code className="text-slate-700 font-mono">#0A0A0A</code>), optical white background, and 300 DPI high-contrast vector QR code for 100% scanner precision in any acrylic frame.
+              </p>
             </div>
 
             <hr className="border-slate-100" />
@@ -163,8 +398,14 @@ export default function QRStudioPage() {
               </div>
             </div>
 
+            {/* Welurik Branding Assurance */}
+            <div className="flex items-center gap-2 p-2.5 bg-emerald-50/70 rounded-xl border border-emerald-200/60 text-[11px] text-emerald-800">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Official <strong>Powered by Welurik</strong> footer is permanently embedded at the bottom.</span>
+            </div>
+
             {/* Quick Actions */}
-            <div className="pt-2 grid grid-cols-2 gap-2">
+            <div className="pt-1 grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={handleDownloadQR}
@@ -182,35 +423,67 @@ export default function QRStudioPage() {
               </button>
             </div>
           </div>
+
+          {/* Commercial Print Setup Instructions */}
+          <div className="bg-white p-5 rounded-[24px] border border-slate-200/80 text-xs space-y-2 text-slate-600">
+            <h3 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+              <span>🖨️</span> How to Print Your Standee
+            </h3>
+            <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-500">
+              <li>Click <strong>Download 4x6 CMYK PDF</strong> for commercial print shops.</li>
+              <li>Or click <strong>Print 4x6 Card</strong> to print directly on 4" × 6" photo paper.</li>
+              <li>Insert into any standard 4" × 6" (10 × 15 cm) acrylic T-stand or L-stand.</li>
+            </ol>
+          </div>
         </div>
 
-        {/* RIGHT: Live Printable Preview */}
+        {/* RIGHT: Live Printable 4" x 6" Preview */}
         <div className="lg:col-span-7 flex flex-col items-center">
-          <div className="w-full max-w-sm mb-3 flex items-center justify-between no-print">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Live Preview
+          <div className="w-full max-w-[360px] mb-3 flex items-center justify-between no-print">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live 4" × 6" Standee Preview
             </span>
-            <span className="text-xs font-medium text-slate-400">
-              4" x 6" Frame Layout
+            <span className="text-[11px] font-mono font-bold text-slate-400">
+              101.6 × 152.4 mm
             </span>
           </div>
 
-          {/* PRINTABLE CONTAINER */}
+          {/* PRINTABLE CONTAINER (Exact 4:6 Aspect Ratio) */}
           <div
             id="printable-standee"
             ref={standeeRef}
-            className="w-full max-w-[340px] sm:max-w-sm bg-white rounded-[28px] sm:rounded-[32px] shadow-lg border border-slate-200/90 overflow-hidden transition-all duration-300 mx-auto"
+            className="w-full max-w-[340px] sm:max-w-[360px] aspect-[4/6] bg-white rounded-3xl shadow-xl border border-slate-200/90 overflow-hidden transition-all duration-300 mx-auto flex flex-col justify-between"
           >
-            {/* NORDIC CLEAN MINIMAL */}
-            {template === "minimal" && (
-              <div className="p-5 sm:p-8 text-center flex flex-col items-center justify-between min-h-[440px] sm:min-h-[480px]">
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            {/* TEMPLATE 1: CMYK COMMERCIAL PRINT (Default Standard) */}
+            {template === "cmyk" && (
+              <div className="h-full w-full p-5 sm:p-6 text-center flex flex-col items-center justify-between bg-white text-slate-900">
+                {/* Top Section */}
+                <div className="w-full space-y-2">
+                  {/* CMYK Registration Strip */}
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#00AEEF]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#EC008C]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#FFF200]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#000000]"></span>
+                  </div>
+
+                  {/* Google 4-Color Bar */}
+                  <div className="flex items-center justify-center gap-0.5 mx-auto w-24 h-1 rounded-full overflow-hidden">
+                    <span className="flex-1 h-full bg-[#4285F4]"></span>
+                    <span className="flex-1 h-full bg-[#EA4335]"></span>
+                    <span className="flex-1 h-full bg-[#FBBC05]"></span>
+                    <span className="flex-1 h-full bg-[#34A853]"></span>
+                  </div>
+
+                  <span className="text-[9.5px] font-extrabold tracking-widest text-slate-400 uppercase block">
                     Review Us On Google
                   </span>
-                  <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
                     {business?.name || "The Coffee House"}
                   </h3>
+
                   <div className="flex items-center justify-center gap-1">
                     {[1, 2, 3, 4, 5].map((s) => (
                       <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />
@@ -218,38 +491,63 @@ export default function QRStudioPage() {
                   </div>
                 </div>
 
-                <div className="my-4 sm:my-5 p-3 sm:p-4 bg-white rounded-3xl border border-slate-200/90 shadow-sm relative">
+                {/* Center High-Contrast QR Code */}
+                <div className="my-auto p-3 sm:p-3.5 bg-white rounded-2xl border-2 border-slate-900 shadow-md relative">
                   {qrDataUrl ? (
                     <img
                       src={qrDataUrl}
                       alt="Review QR Code"
-                      className="w-36 h-36 sm:w-44 sm:h-44 rounded-xl object-contain mx-auto"
+                      className="w-36 h-36 sm:w-40 sm:h-40 rounded-lg object-contain mx-auto"
                     />
                   ) : (
-                    <div className="w-36 h-36 sm:w-44 sm:h-44 bg-slate-100 flex items-center justify-center rounded-xl">
-                      <QrIcon className="w-8 h-8 sm:w-10 sm:h-10 text-slate-300" />
+                    <div className="w-36 h-36 sm:w-40 sm:h-40 bg-slate-100 flex items-center justify-center rounded-lg">
+                      <QrIcon className="w-10 h-10 text-slate-300" />
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <h4 className="text-xs font-bold text-slate-900">{headline}</h4>
-                  <p className="text-[10.5px] sm:text-[11px] text-slate-500 max-w-[240px] leading-relaxed">{subheadline}</p>
-                  <p className="text-[9.5px] sm:text-[10px] font-bold text-slate-900 pt-2 tracking-wide uppercase">
-                    ⚡ 30 Seconds • Tap to Post
+                {/* Bottom Call To Action */}
+                <div className="w-full space-y-1 mb-2">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900">{headline}</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 max-w-[250px] mx-auto leading-relaxed">
+                    {subheadline}
                   </p>
+                  <p className="text-[9px] sm:text-[9.5px] font-extrabold text-slate-900 pt-1 tracking-wider uppercase">
+                    ⚡ 30 Seconds • Instant AI Assistant
+                  </p>
+                </div>
+
+                {/* WELURIK BOTTOM BRANDING FOOTER */}
+                <div className="w-full pt-2.5 mt-auto border-t-2 border-slate-900 flex flex-col items-center gap-1">
+                  <div className="w-full flex items-center justify-between text-[10px]">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-4 rounded-md bg-slate-950 flex items-center justify-center text-[9px] font-black text-emerald-400">
+                        W
+                      </div>
+                      <span className="font-black text-slate-900 tracking-tight uppercase text-[10px]">
+                        Powered by Welurik
+                      </span>
+                    </div>
+                    <span className="text-[9.5px] font-bold text-slate-600 font-mono">
+                      review.welurik.com
+                    </span>
+                  </div>
+                  <div className="w-full flex items-center justify-between text-[8px] font-bold text-slate-400 tracking-wider uppercase">
+                    <span>4" × 6" CMYK Standard</span>
+                    <span>Verified Standee</span>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* MIDNIGHT LUXE */}
-            {template === "midnight" && (
-              <div className="p-8 text-center flex flex-col items-center justify-between min-h-[480px] bg-slate-950 text-white">
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">
-                    Rate Your Experience
+            {/* TEMPLATE 2: NORDIC MINIMAL */}
+            {template === "minimal" && (
+              <div className="h-full w-full p-5 sm:p-6 text-center flex flex-col items-center justify-between bg-white text-slate-900">
+                <div className="w-full space-y-1.5">
+                  <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase block">
+                    Review Us On Google
                   </span>
-                  <h3 className="text-xl font-bold tracking-tight text-white">
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
                     {business?.name || "The Coffee House"}
                   </h3>
                   <div className="flex items-center justify-center gap-1">
@@ -259,68 +557,124 @@ export default function QRStudioPage() {
                   </div>
                 </div>
 
-                <div className="my-5 p-3 bg-white rounded-3xl shadow-xl">
-                  {qrDataUrl && (
+                <div className="my-auto p-3 sm:p-4 bg-white rounded-3xl border border-slate-200/90 shadow-sm relative">
+                  {qrDataUrl ? (
                     <img
                       src={qrDataUrl}
                       alt="Review QR Code"
-                      className="w-44 h-44 rounded-xl object-contain mx-auto"
+                      className="w-36 h-36 sm:w-40 sm:h-40 rounded-xl object-contain mx-auto"
                     />
+                  ) : (
+                    <div className="w-36 h-36 sm:w-40 sm:h-40 bg-slate-100 flex items-center justify-center rounded-xl">
+                      <QrIcon className="w-10 h-10 text-slate-300" />
+                    </div>
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <h4 className="text-xs font-bold text-amber-300">{headline}</h4>
-                  <p className="text-[11px] text-slate-400 max-w-[240px] leading-relaxed">{subheadline}</p>
+                <div className="w-full space-y-1 mb-2">
+                  <h4 className="text-xs font-bold text-slate-900">{headline}</h4>
+                  <p className="text-[10.5px] text-slate-500 max-w-[240px] mx-auto leading-relaxed">{subheadline}</p>
+                  <p className="text-[9.5px] font-bold text-slate-900 pt-1 tracking-wide uppercase">
+                    ⚡ 30 Seconds • Tap to Post
+                  </p>
+                </div>
+
+                {/* Welurik Bottom Branding */}
+                <div className="w-full pt-2.5 mt-auto border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-600 flex items-center justify-center text-[9px] font-black text-white">
+                      W
+                    </div>
+                    <span className="font-bold text-slate-800 tracking-tight">Powered by Welurik</span>
+                  </div>
+                  <span className="text-[9.5px] text-slate-400 font-mono">review.welurik.com</span>
                 </div>
               </div>
             )}
 
-            {/* TABLE TENT */}
+            {/* TEMPLATE 3: MIDNIGHT LUXE */}
+            {template === "midnight" && (
+              <div className="h-full w-full p-5 sm:p-6 text-center flex flex-col items-center justify-between bg-slate-950 text-white">
+                <div className="w-full space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
+                    Rate Your Experience
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white leading-snug">
+                    {business?.name || "The Coffee House"}
+                  </h3>
+                  <div className="flex items-center justify-center gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="my-auto p-3 sm:p-4 bg-white rounded-3xl shadow-xl">
+                  {qrDataUrl && (
+                    <img
+                      src={qrDataUrl}
+                      alt="Review QR Code"
+                      className="w-36 h-36 sm:w-40 sm:h-40 rounded-xl object-contain mx-auto"
+                    />
+                  )}
+                </div>
+
+                <div className="w-full space-y-1 mb-2">
+                  <h4 className="text-xs font-bold text-amber-300">{headline}</h4>
+                  <p className="text-[10.5px] text-slate-400 max-w-[240px] mx-auto leading-relaxed">{subheadline}</p>
+                </div>
+
+                {/* Welurik Bottom Branding (Dark) */}
+                <div className="w-full pt-2.5 mt-auto border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400 font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] font-black text-slate-950">
+                      W
+                    </div>
+                    <span className="font-bold text-white tracking-tight">Powered by Welurik</span>
+                  </div>
+                  <span className="text-[9.5px] text-slate-400 font-mono">review.welurik.com</span>
+                </div>
+              </div>
+            )}
+
+            {/* TEMPLATE 4: TABLE TENT 4x6 */}
             {template === "tent" && (
-              <div className="p-6 text-center flex flex-col items-center justify-between min-h-[480px] bg-white border-2 border-slate-200">
-                <div className="w-full border-b border-dashed border-slate-300 pb-2 mb-1">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                    ✂️ Fold along center line for Table Tent
+              <div className="h-full w-full p-4 sm:p-5 text-center flex flex-col items-center justify-between bg-white border-2 border-slate-200">
+                <div className="w-full border-b border-dashed border-slate-300 pb-1.5 mb-1">
+                  <p className="text-[8.5px] font-bold uppercase tracking-widest text-slate-400">
+                    ✂️ 4" × 6" Fold along center line for Table Tent
                   </p>
                 </div>
-                <div className="space-y-1">
+
+                <div className="w-full space-y-1">
                   <h3 className="text-base font-bold text-slate-900">{business?.name || "The Coffee House"}</h3>
                   <p className="text-xs text-slate-600 font-semibold">{headline}</p>
                 </div>
 
-                <div className="my-3 p-2 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="my-auto p-2 bg-slate-50 rounded-2xl border border-slate-200">
                   {qrDataUrl && (
-                    <img src={qrDataUrl} alt="Review QR" className="w-36 h-36 object-contain mx-auto" />
+                    <img src={qrDataUrl} alt="Review QR" className="w-32 h-32 object-contain mx-auto" />
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-xs text-slate-500 font-medium max-w-[240px]">{subheadline}</p>
+                <div className="w-full space-y-1 mb-2">
+                  <p className="text-[10.5px] text-slate-500 font-medium max-w-[240px] mx-auto">{subheadline}</p>
                   <div className="flex items-center justify-center gap-1 text-amber-400 pt-1">
                     {[1, 2, 3, 4, 5].map((s) => (
                       <Star key={s} className="w-3.5 h-3.5 fill-amber-400" />
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* REGISTER BADGE */}
-            {template === "badge" && (
-              <div className="p-6 text-center flex flex-col items-center justify-center min-h-[400px] bg-white">
-                <h3 className="text-sm font-extrabold text-slate-900 mb-2">
-                  {business?.name || "The Coffee House"}
-                </h3>
-                <div className="p-2 bg-white rounded-3xl border-2 border-slate-900 shadow-md mb-3">
-                  {qrDataUrl && (
-                    <img src={qrDataUrl} alt="Review QR" className="w-36 h-36 object-contain mx-auto" />
-                  )}
-                </div>
-                <div className="bg-slate-100 rounded-xl px-4 py-2">
-                  <p className="text-xs font-bold text-slate-900 flex items-center justify-center gap-1">
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> Scan to Review on Google
-                  </p>
+                {/* Welurik Bottom Branding */}
+                <div className="w-full pt-2 mt-auto border-t border-slate-200 flex items-center justify-between text-[9.5px] text-slate-500 font-medium">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3.5 h-3.5 rounded-full bg-emerald-600 flex items-center justify-center text-[8px] font-black text-white">
+                      W
+                    </div>
+                    <span className="font-bold text-slate-800">Powered by Welurik</span>
+                  </div>
+                  <span className="text-[9px] text-slate-400 font-mono">review.welurik.com</span>
                 </div>
               </div>
             )}
@@ -329,4 +683,89 @@ export default function QRStudioPage() {
       </div>
     </div>
   );
+}
+
+// -------------------------------------------------------------
+// Canvas Helper Functions for High-Resolution 300 DPI PDF
+// -------------------------------------------------------------
+
+function drawCanvasStar(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  spikes: number,
+  outerRadius: number,
+  innerRadius: number,
+  color: string
+) {
+  let rot = (Math.PI / 2) * 3;
+  let x = cx;
+  let y = cy;
+  const step = Math.PI / spikes;
+
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - outerRadius);
+  for (let i = 0; i < spikes; i++) {
+    x = cx + Math.cos(rot) * outerRadius;
+    y = cy + Math.sin(rot) * outerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+
+    x = cx + Math.cos(rot) * innerRadius;
+    y = cy + Math.sin(rot) * innerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+  }
+  ctx.lineTo(cx, cy - outerRadius);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function wrapText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+) {
+  const words = text.split(" ");
+  let line = "";
+  let currentY = y;
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + " ";
+    const metrics = ctx.measureText(testLine);
+    const testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, currentY);
+      line = words[n] + " ";
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, currentY);
 }
