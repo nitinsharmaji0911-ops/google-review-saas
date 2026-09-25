@@ -14,13 +14,15 @@ import {
   Loader2,
   Sparkles,
   ShieldCheck,
-  Palette
+  Palette,
+  Scissors
 } from "lucide-react";
 
 export default function QRStudioPage() {
   const [business, setBusiness] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [generatingMode, setGeneratingMode] = useState<string>("");
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [template, setTemplate] = useState<"cmyk" | "minimal" | "midnight" | "tent">("cmyk");
   const [headline, setHeadline] = useState("Enjoyed your visit today?");
@@ -66,10 +68,6 @@ export default function QRStudioPage() {
     loadData();
   }, []);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleDownloadQR = () => {
     if (!qrDataUrl) return;
     const a = document.createElement("a");
@@ -87,13 +85,28 @@ export default function QRStudioPage() {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // 4" x 6" Vertical 300 DPI CMYK PDF Generator
-  const handleDownloadPDF = async () => {
+  // -------------------------------------------------------------
+  // High-Resolution 300 DPI PDF Engine (Exact 4" x 6" or A4 Sheet)
+  // -------------------------------------------------------------
+  const handleDownloadPDF = async (format: "4x6" | "a4" = "4x6", openPrintView = false) => {
     if (!business) return;
+
+    // If opening print view, initiate window immediately to prevent popup blockers
+    let printWin: Window | null = null;
+    if (openPrintView && typeof window !== "undefined") {
+      printWin = window.open("", "_blank");
+      if (printWin) {
+        printWin.document.write(
+          "<!DOCTYPE html><html><head><title>Preparing 4x6 Standee...</title></head><body style='font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#090d16;color:#ffffff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;'><div style='text-align:center;'><h2 style='margin:0 0 8px 0;font-size:18px;'>⚡ Generating 4\" × 6\" Print PDF</h2><p style='color:#94a3b8;font-size:13px;margin:0;'>Preparing 300 DPI CMYK calibrated document...</p></div></body></html>"
+        );
+      }
+    }
+
     try {
       setGeneratingPdf(true);
+      setGeneratingMode(openPrintView ? "print" : format);
 
-      // Dynamically import jsPDF to avoid SSR issues
+      // Dynamically import jsPDF
       const { jsPDF } = await import("jspdf");
 
       // 4" x 6" at 300 DPI = 1200 x 1800 pixels
@@ -109,18 +122,18 @@ export default function QRStudioPage() {
       const secondaryText = isDark ? "#94A3B8" : "#475569";
       const borderColor = isDark ? "#27272A" : "#E2E8F0";
 
-      // 1. Base Paper Background
+      // 1. Base Background (Full Bleed Edge-To-Edge)
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, 1200, 1800);
 
-      // 2. Commercial Print Frame & Bleed Margin Guideline
+      // 2. Commercial Print Calibration Guide
       ctx.strokeStyle = isDark ? "#1E293B" : "#F1F5F9";
       ctx.lineWidth = 2;
       ctx.strokeRect(30, 30, 1140, 1740);
 
       // 3. CMYK Color Calibration Strip (Commercial Print Standard)
       if (template === "cmyk") {
-        const cmykColors = ["#00AEEF", "#EC008C", "#FFF200", "#000000"]; // Cyan, Magenta, Yellow, Key (Black)
+        const cmykColors = ["#00AEEF", "#EC008C", "#FFF200", "#000000"];
         const dotRadius = 9;
         const spacing = 32;
         const stripStartX = 600 - ((cmykColors.length - 1) * spacing) / 2;
@@ -209,7 +222,7 @@ export default function QRStudioPage() {
       ctx.fillStyle = isDark ? "#E2E8F0" : "#1E293B";
       ctx.fillText("⚡ 30 SECONDS • INSTANT AI REVIEW ASSISTANT", 600, textStartY + 130);
 
-      // 12. WELURIK BOTTOM BRANDING FOOTER (Prominent & Print-Ready)
+      // 12. WELURIK BOTTOM BRANDING FOOTER (Official Commercial Standard)
       const footerY = 1660;
 
       // Divider line
@@ -223,7 +236,7 @@ export default function QRStudioPage() {
       // Welurik Emerald Logo Badge
       const badgeCenterX = 410;
       const badgeCenterY = footerY + 45;
-      ctx.fillStyle = "#059669"; // Emerald 600
+      ctx.fillStyle = "#059669";
       ctx.beginPath();
       ctx.arc(badgeCenterX, badgeCenterY, 20, 0, Math.PI * 2);
       ctx.fill();
@@ -245,28 +258,125 @@ export default function QRStudioPage() {
       ctx.textAlign = "center";
       ctx.fillText("review.welurik.com • 4\" × 6\" Commercial CMYK Print Standard", 600, footerY + 92);
 
-      // 13. Compile into 4" x 6" Portrait PDF
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "in",
-        format: [4, 6],
-      });
+      const standeeImagePng = canvas.toDataURL("image/png", 1.0);
 
-      pdf.setProperties({
-        title: `${business.name || "Business"} - 4x6 CMYK Standee Card`,
-        subject: "Commercial 4x6 Standee Print Ready",
-        author: "Welurik Review System",
-        creator: "Welurik (welurik.com)",
-      });
+      // ---------------------------------------------------------
+      // FORMAT OPTION A: STRICT 4" x 6" PORTRAIT PDF (Zero Margins)
+      // ---------------------------------------------------------
+      if (format === "4x6") {
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "in",
+          format: [4, 6],
+        });
 
-      pdf.addImage(imgData, "PNG", 0, 0, 4, 6, undefined, "FAST");
-      pdf.save(`${business.slug || "business"}-standee-4x6-cmyk.pdf`);
+        pdf.setProperties({
+          title: `${business.name || "Business"} - Exact 4x6 CMYK Standee`,
+          subject: "Commercial 4x6 Standee Print Ready",
+          author: "Welurik Review System",
+          creator: "Welurik (welurik.com)",
+        });
+
+        // Add image across entire 4in x 6in page bounds (0, 0, 4, 6)
+        pdf.addImage(standeeImagePng, "PNG", 0, 0, 4, 6, undefined, "FAST");
+
+        if (openPrintView) {
+          pdf.autoPrint();
+          const blobUrl = URL.createObjectURL(pdf.output("blob"));
+          if (printWin) {
+            printWin.location.href = blobUrl;
+          } else {
+            pdf.save(`${business.slug || "business"}-standee-exact-4x6-cmyk.pdf`);
+          }
+        } else {
+          pdf.save(`${business.slug || "business"}-standee-exact-4x6-cmyk.pdf`);
+        }
+      }
+
+      // ---------------------------------------------------------
+      // FORMAT OPTION B: A4 SHEET WITH 4" x 6" SCISSOR CUT MARKS
+      // ---------------------------------------------------------
+      else if (format === "a4") {
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "in",
+          format: "a4",
+        });
+
+        const pageWidth = 8.27;
+        const pageHeight = 11.69;
+        const cardW = 4.0;
+        const cardH = 6.0;
+        const startX = (pageWidth - cardW) / 2;
+        const startY = (pageHeight - cardH) / 2;
+
+        pdf.setProperties({
+          title: `${business.name || "Business"} - 4x6 Standee on A4 Cut Sheet`,
+          subject: "4x6 Standee with Cut Lines for A4 Desktop Printers",
+          author: "Welurik Review System",
+          creator: "Welurik (welurik.com)",
+        });
+
+        // Embed the 4x6 standee in center of A4
+        pdf.addImage(standeeImagePng, "PNG", startX, startY, cardW, cardH, undefined, "FAST");
+
+        // Draw dashed cutting rectangle around the 4x6 card
+        pdf.setLineDashPattern([0.05, 0.05], 0);
+        pdf.setDrawColor(148, 163, 184); // Slate 400
+        pdf.setLineWidth(0.015);
+        pdf.rect(startX, startY, cardW, cardH);
+
+        // Header scissor cutting instructions
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(10);
+        pdf.setTextColor(51, 65, 85);
+        pdf.text(
+          "✂  Cut along dashed rectangle for exact 4\" × 6\" acrylic standee card (101.6 × 152.4 mm)",
+          pageWidth / 2,
+          startY - 0.22,
+          { align: "center" }
+        );
+
+        // Bottom print settings instruction
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(
+          "Printer Setting: Scale 100% (Actual Size / Do not select 'Fit to Page') • Fits standard 4\" × 6\" acrylic stands",
+          pageWidth / 2,
+          startY + cardH + 0.28,
+          { align: "center" }
+        );
+
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(8);
+        pdf.setTextColor(5, 150, 105);
+        pdf.text(
+          "⚡ POWERED BY WELURIK (welurik.com)",
+          pageWidth / 2,
+          startY + cardH + 0.46,
+          { align: "center" }
+        );
+
+        if (openPrintView) {
+          pdf.autoPrint();
+          const blobUrl = URL.createObjectURL(pdf.output("blob"));
+          if (printWin) {
+            printWin.location.href = blobUrl;
+          } else {
+            pdf.save(`${business.slug || "business"}-standee-4x6-on-A4-cutsheet.pdf`);
+          }
+        } else {
+          pdf.save(`${business.slug || "business"}-standee-4x6-on-A4-cutsheet.pdf`);
+        }
+      }
     } catch (err) {
       console.error("PDF generation failed:", err);
-      alert("Could not generate PDF. Please try using 'Print 4x6 Card' button.");
+      if (printWin) printWin.close();
+      alert("Could not generate PDF. Please try again.");
     } finally {
       setGeneratingPdf(false);
+      setGeneratingMode("");
     }
   };
 
@@ -280,7 +390,7 @@ export default function QRStudioPage() {
               Commercial CMYK Edition
             </span>
             <span className="text-[11px] font-bold text-slate-400">
-              4" × 6" Portrait
+              Exact 4" × 6" Portrait (101.6 × 152.4 mm)
             </span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Standee Studio</h1>
@@ -289,29 +399,54 @@ export default function QRStudioPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start md:self-auto">
-          {/* PRIMARY: Download 4x6 CMYK PDF */}
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          {/* PRIMARY: Download Exact 4" x 6" PDF */}
           <button
             type="button"
-            onClick={handleDownloadPDF}
+            onClick={() => handleDownloadPDF("4x6", false)}
             disabled={generatingPdf || loading}
             className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+            title="Download true 4x6 inch PDF with zero outer margins"
           >
-            {generatingPdf ? (
+            {generatingPdf && generatingMode === "4x6" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <FileDown className="w-4 h-4" />
             )}
-            {generatingPdf ? "Generating 300 DPI..." : "Download 4x6 CMYK PDF"}
+            {generatingPdf && generatingMode === "4x6" ? "Generating..." : "Download Exact 4\" × 6\" PDF"}
           </button>
 
-          {/* SECONDARY: Print 4x6 Card */}
+          {/* SECONDARY: Print 4" x 6" Card */}
           <button
             type="button"
-            onClick={handlePrint}
-            className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-[0.98]"
+            onClick={() => handleDownloadPDF("4x6", true)}
+            disabled={generatingPdf || loading}
+            className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-[0.98] disabled:opacity-50"
+            title="Open native 4x6 print dialog directly"
           >
-            <Printer className="w-4 h-4" /> Print 4x6 Card
+            {generatingPdf && generatingMode === "print" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Printer className="w-4 h-4" />
+            )}
+            Print 4" × 6" Card
+          </button>
+
+          {/* TERTIARY: Download A4 Sheet with 4" x 6" Cut Guidelines */}
+          <button
+            type="button"
+            onClick={() => handleDownloadPDF("a4", false)}
+            disabled={generatingPdf || loading}
+            className="py-2.5 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-50 border border-slate-200"
+            title="Download on A4 paper with dashed scissors cut guidelines for standard office printers"
+          >
+            {generatingPdf && generatingMode === "a4" ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Scissors className="w-3.5 h-3.5 text-slate-600" />
+            )}
+            A4 Cut Sheet
           </button>
         </div>
       </div>
@@ -427,26 +562,42 @@ export default function QRStudioPage() {
           {/* Commercial Print Setup Instructions */}
           <div className="bg-white p-5 rounded-[24px] border border-slate-200/80 text-xs space-y-2 text-slate-600">
             <h3 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-              <span>🖨️</span> How to Print Your Standee
+              <span>🖨️</span> Choosing Your Download Format
             </h3>
-            <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-500">
-              <li>Click <strong>Download 4x6 CMYK PDF</strong> for commercial print shops.</li>
-              <li>Or click <strong>Print 4x6 Card</strong> to print directly on 4" × 6" photo paper.</li>
-              <li>Insert into any standard 4" × 6" (10 × 15 cm) acrylic T-stand or L-stand.</li>
-            </ol>
+            <ul className="space-y-1.5 text-[11px] text-slate-500">
+              <li className="flex items-start gap-1.5">
+                <span className="font-bold text-emerald-600">1. Exact 4" × 6" PDF:</span>
+                <span>The PDF document itself is strictly 4.00" × 6.00" with zero outer paper. Best for commercial printing shops, UV acrylic printers, and photo paper.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="font-bold text-slate-800">2. A4 Cut Sheet:</span>
+                <span>Centers the exact 4" × 6" standee on standard A4 paper with dashed scissors cut lines. Best for standard office or home printers.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="font-bold text-slate-800">3. Print 4" × 6" Card:</span>
+                <span>Directly triggers the browser print dialog with native 4" × 6" page dimensions.</span>
+              </li>
+            </ul>
           </div>
         </div>
 
         {/* RIGHT: Live Printable 4" x 6" Preview */}
         <div className="lg:col-span-7 flex flex-col items-center">
+          {/* Format Badge */}
           <div className="w-full max-w-[360px] mb-3 flex items-center justify-between no-print">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live 4" × 6" Standee Preview
+              Exact 4" × 6" Vertical Standee
             </span>
-            <span className="text-[11px] font-mono font-bold text-slate-400">
+            <span className="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
               101.6 × 152.4 mm
             </span>
+          </div>
+
+          {/* Guarantee banner */}
+          <div className="w-full max-w-[360px] mb-2 p-2 bg-slate-900 text-white rounded-xl text-center text-[10.5px] font-semibold flex items-center justify-center gap-1.5 no-print">
+            <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+            <span>PDF download is 100% full-bleed 4" × 6" with zero outer margins!</span>
           </div>
 
           {/* PRINTABLE CONTAINER (Exact 4:6 Aspect Ratio) */}
