@@ -91,7 +91,8 @@ export default function QRStudioPage() {
     doc: any,
     offsetX: number,
     offsetY: number,
-    activeTemplate: "midnight" | "minimal" | "tent"
+    activeTemplate: "midnight" | "minimal" | "tent",
+    logoBase64?: string
   ) => {
     const isDark = activeTemplate === "midnight";
 
@@ -221,15 +222,17 @@ export default function QRStudioPage() {
     doc.setLineWidth(0.01);
     doc.line(offsetX + 0.35, offsetY + 5.38, offsetX + 3.65, offsetY + 5.38);
 
-    // 10. Welurik Emerald Logo Badge in Native CMYK (C: 85%, M: 10%, Y: 80%, K: 25%)
-    doc.setFillColor(0.85, 0.10, 0.80, 0.25);
-    doc.circle(offsetX + 0.48, offsetY + 5.58, 0.09, "F");
-
-    // White 'W' inside badge
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
-    doc.setTextColor(0, 0, 0, 0); // Pure White
-    doc.text("W", offsetX + 0.48, offsetY + 5.61, { align: "center" });
+    // 10. Official Welurik Logo Mark & Powered by Welurik
+    if (logoBase64) {
+      try {
+        doc.addImage(logoBase64, "PNG", offsetX + 0.40, offsetY + 5.48, 0.17, 0.16);
+      } catch (e) {
+        console.warn("Could not embed Welurik logo:", e);
+      }
+    } else {
+      doc.setFillColor(0.85, 0.10, 0.80, 0.25);
+      doc.roundedRect(offsetX + 0.40, offsetY + 5.48, 0.16, 0.16, 0.02, 0.02, "F");
+    }
 
     // 'Powered by Welurik'
     doc.setFont("helvetica", "bold");
@@ -239,13 +242,13 @@ export default function QRStudioPage() {
     } else {
       doc.setTextColor(0, 0, 0, 1.0); // Black
     }
-    doc.text("Powered by Welurik", offsetX + 0.64, offsetY + 5.61);
+    doc.text("Powered by Welurik", offsetX + 0.63, offsetY + 5.60);
 
     // 'review.welurik.com'
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(0.20, 0.10, 0, isDark ? 0.35 : 0.55);
-    doc.text("review.welurik.com", offsetX + 3.65, offsetY + 5.61, { align: "right" });
+    doc.text("review.welurik.com", offsetX + 3.65, offsetY + 5.60, { align: "right" });
   };
 
   // -------------------------------------------------------------
@@ -272,6 +275,23 @@ export default function QRStudioPage() {
       // Dynamically import jsPDF
       const { jsPDF } = await import("jspdf");
 
+      // Pre-load official Welurik logo as base64 for crisp print embedding
+      let welurikLogoBase64 = "";
+      try {
+        const logoRes = await fetch("/welurik-logo.png");
+        if (logoRes.ok) {
+          const blob = await logoRes.blob();
+          welurikLogoBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve((reader.result as string) || "");
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+        }
+      } catch {
+        // Continue with vector fallback if network fetch fails
+      }
+
       // ---------------------------------------------------------
       // FORMAT A: STRICT 4" x 6" PURE CMYK VECTOR PDF
       // ---------------------------------------------------------
@@ -290,7 +310,7 @@ export default function QRStudioPage() {
         });
 
         // Render pure CMYK vectors directly on PDF (Zero RGB)
-        renderCmykStandee(pdf, 0, 0, template);
+        renderCmykStandee(pdf, 0, 0, template, welurikLogoBase64);
 
         if (openPrintView) {
           pdf.autoPrint();
@@ -330,7 +350,7 @@ export default function QRStudioPage() {
         });
 
         // Render pure CMYK vectors centered on A4
-        renderCmykStandee(pdf, startX, startY, template);
+        renderCmykStandee(pdf, startX, startY, template, welurikLogoBase64);
 
         // Dashed cutting line around the 4x6 card
         pdf.setLineDashPattern([0.05, 0.05], 0);
@@ -613,9 +633,11 @@ export default function QRStudioPage() {
                 {/* Welurik Bottom Branding Footer (Clean & Elegant) */}
                 <div className="w-full pt-3 mt-auto border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] font-black text-slate-950">
-                      W
-                    </div>
+                    <img
+                      src="/welurik-logo.png"
+                      alt="Welurik"
+                      className="w-4 h-4 rounded-[3px] object-contain shrink-0"
+                    />
                     <span className="font-bold text-white tracking-tight">Powered by Welurik</span>
                   </div>
                   <span className="text-[9.5px] text-slate-400 font-mono">review.welurik.com</span>
@@ -658,9 +680,11 @@ export default function QRStudioPage() {
                 {/* Welurik Bottom Branding */}
                 <div className="w-full pt-3 mt-auto border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-4 h-4 rounded-full bg-emerald-600 flex items-center justify-center text-[9px] font-black text-white">
-                      W
-                    </div>
+                    <img
+                      src="/welurik-logo.png"
+                      alt="Welurik"
+                      className="w-4 h-4 rounded-[3px] object-contain shrink-0"
+                    />
                     <span className="font-bold text-slate-800 tracking-tight">Powered by Welurik</span>
                   </div>
                   <span className="text-[9.5px] text-slate-400 font-mono">review.welurik.com</span>
@@ -699,10 +723,12 @@ export default function QRStudioPage() {
 
                 {/* Welurik Bottom Branding */}
                 <div className="w-full pt-2 mt-auto border-t border-slate-200 flex items-center justify-between text-[9.5px] text-slate-500 font-medium">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3.5 h-3.5 rounded-full bg-emerald-600 flex items-center justify-center text-[8px] font-black text-white">
-                      W
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <img
+                      src="/welurik-logo.png"
+                      alt="Welurik"
+                      className="w-3.5 h-3.5 rounded-[3px] object-contain shrink-0"
+                    />
                     <span className="font-bold text-slate-800">Powered by Welurik</span>
                   </div>
                   <span className="text-[9px] text-slate-400 font-mono">review.welurik.com</span>
