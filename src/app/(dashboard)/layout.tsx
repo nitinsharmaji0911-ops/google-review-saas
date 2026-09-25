@@ -20,6 +20,7 @@ import {
 import WelurikLogo from "@/components/Logo";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { CustomerCareModal } from "@/components/CustomerCareModal";
+import BirthdayPopCelebration, { triggerBirthdayPop } from "@/components/BirthdayPopCelebration";
 
 
 export default function DashboardLayout({
@@ -62,6 +63,11 @@ export default function DashboardLayout({
       const data = await res.json();
       if (res.ok && data.success) {
         setPaywallSuccess(data.message || "🎉 VIP Access Activated!");
+        triggerBirthdayPop({
+          title: "VIP Pro Access Activated! 🚀",
+          message: "All pro features, analytics, and standee templates are now unlocked!",
+          emoji: "🎉",
+        });
         setBusiness((prev: any) => ({
           ...(prev || {}),
           isPro: true,
@@ -75,7 +81,7 @@ export default function DashboardLayout({
         }
         setTimeout(() => {
           window.location.reload();
-        }, 500);
+        }, 1800);
       } else {
         setPaywallError(data.error || "Invalid or expired promo code.");
       }
@@ -590,6 +596,9 @@ export default function DashboardLayout({
           onClose={() => setShowCustomerCare(false)}
           businessName={business?.name}
         />
+
+        {/* Global Birthday Pop & Sky Fireworks Celebration System */}
+        <BirthdayPopCelebration />
       </div>
     </div>
   );

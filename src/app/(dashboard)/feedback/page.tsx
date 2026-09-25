@@ -14,6 +14,7 @@ import {
   Star,
   Tag
 } from "lucide-react";
+import { triggerBirthdayPop } from "@/components/BirthdayPopCelebration";
 
 interface FeedbackItem {
   id: string;
@@ -74,6 +75,13 @@ export default function FeedbackInboxPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        if (nextStatus === "resolved") {
+          triggerBirthdayPop({
+            title: "Feedback Marked Resolved! 🌟",
+            message: "Great job taking care of your customer's experience!",
+            emoji: "🏆",
+          });
+        }
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("refresh_business"));
         }

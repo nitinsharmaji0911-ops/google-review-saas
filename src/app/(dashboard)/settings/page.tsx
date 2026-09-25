@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { CATEGORIES, getCategoryById } from "@/lib/categories";
 import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
+import { triggerBirthdayPop } from "@/components/BirthdayPopCelebration";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -218,6 +219,11 @@ export default function SettingsPage() {
       if (res.ok && data.success) {
         setSaveSuccess(true);
         setSaveError("");
+        triggerBirthdayPop({
+          title: "Settings Saved Successfully! 🎉",
+          message: "Your business profile, keywords & review links are updated and live.",
+          emoji: "🎉",
+        });
         if (typeof window !== "undefined") {
           try {
             sessionStorage.removeItem("welurik_dashboard_cache");

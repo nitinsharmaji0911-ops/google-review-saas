@@ -14,8 +14,10 @@ import {
   Loader2,
   Sparkles,
   ShieldCheck,
-  Scissors
+  Scissors,
+  Save
 } from "lucide-react";
+import { triggerBirthdayPop } from "@/components/BirthdayPopCelebration";
 
 export default function QRStudioPage() {
   const [business, setBusiness] = useState<any>(null);
@@ -38,10 +40,22 @@ export default function QRStudioPage() {
         const data = await res.json();
         if (data.success && data.business) {
           setBusiness(data.business);
-          if (data.business.category === "salon") setHeadline("Loved your new look?");
+
+          const savedHeadline = typeof window !== "undefined" ? localStorage.getItem("welurik_standee_headline") : null;
+          const savedSub = typeof window !== "undefined" ? localStorage.getItem("welurik_standee_subheadline") : null;
+          const savedTpl = typeof window !== "undefined" ? localStorage.getItem("welurik_standee_template") : null;
+
+          if (savedHeadline) {
+            setHeadline(savedHeadline);
+          } else if (data.business.category === "salon") setHeadline("Loved your new look?");
           else if (data.business.category === "restaurant") setHeadline("How was your meal today?");
           else if (data.business.category === "cafe") setHeadline("Enjoyed your coffee & food?");
           else if (data.business.category === "snacks") setHeadline("Loved the taste & snacks today?");
+
+          if (savedSub) setSubheadline(savedSub);
+          if (savedTpl === "midnight" || savedTpl === "minimal" || savedTpl === "tent") {
+            setTemplate(savedTpl);
+          }
 
           const origin = typeof window !== "undefined" ? window.location.origin : "https://review.welurik.com";
           const reviewUrl = `${origin}/r/${data.business.slug}`;
@@ -67,12 +81,32 @@ export default function QRStudioPage() {
     loadData();
   }, []);
 
+  const handleSaveDesign = () => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("welurik_standee_headline", headline);
+        localStorage.setItem("welurik_standee_subheadline", subheadline);
+        localStorage.setItem("welurik_standee_template", template);
+      } catch {}
+    }
+    triggerBirthdayPop({
+      title: "Standee Preferences Saved! 🎨",
+      message: "Your headline, sub-headline, and template theme are saved.",
+      emoji: "🎉",
+    });
+  };
+
   const handleDownloadQR = () => {
     if (!qrDataUrl) return;
     const a = document.createElement("a");
     a.href = qrDataUrl;
     a.download = `${business?.slug || "business"}-google-review-qr.png`;
     a.click();
+    triggerBirthdayPop({
+      title: "QR Code Downloaded! 📱",
+      message: "High-resolution optical QR code saved to your device.",
+      emoji: "✨",
+    });
   };
 
   const handleCopyLink = () => {
@@ -81,6 +115,11 @@ export default function QRStudioPage() {
     const reviewUrl = `${origin}/r/${business.slug}`;
     navigator.clipboard.writeText(reviewUrl);
     setCopiedLink(true);
+    triggerBirthdayPop({
+      title: "Review Link Copied! 📋",
+      message: "Direct customer review link copied to your clipboard.",
+      emoji: "🔗",
+    });
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
@@ -392,6 +431,13 @@ export default function QRStudioPage() {
           pdf.save(`${business.slug || "business"}-standee-4x6-on-A4-cmyk.pdf`);
         }
       }
+
+      // Celebrate successful document generation
+      triggerBirthdayPop({
+        title: format === "4x6" ? "4\" × 6\" Standee PDF Ready! 🖨️" : "A4 Print Sheet Ready! ✂️",
+        message: "Your CMYK vector print document has been generated with pure precision.",
+        emoji: "🎉",
+      });
     } catch (err) {
       console.error("PDF generation failed:", err);
       if (printWin) printWin.close();
@@ -541,6 +587,15 @@ export default function QRStudioPage() {
                   className="w-full text-xs p-3 bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium text-slate-900 resize-none"
                 />
               </div>
+
+              {/* Save Standee Preferences Button */}
+              <button
+                type="button"
+                onClick={handleSaveDesign}
+                className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-98"
+              >
+                <Save className="w-3.5 h-3.5 text-emerald-400" /> Save Standee Preferences
+              </button>
             </div>
 
             {/* Welurik Branding Assurance */}

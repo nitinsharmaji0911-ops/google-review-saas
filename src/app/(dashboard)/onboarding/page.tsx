@@ -6,6 +6,7 @@ import { CATEGORIES, getCategoryById } from "@/lib/categories";
 import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, Check, Lock, Zap, ExternalLink, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import WelurikLogo from "@/components/Logo";
+import { triggerBirthdayPop } from "@/components/BirthdayPopCelebration";
 
 declare global {
   interface Window {
@@ -147,6 +148,11 @@ export default function OnboardingPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setPromoSuccess(data.message || "🎉 VIP Access Activated!");
+        triggerBirthdayPop({
+          title: "VIP Access Activated! 🚀",
+          message: "Welcome aboard! Your review funnel and dashboard are ready.",
+          emoji: "🎉",
+        });
         if (typeof window !== "undefined") {
           try {
             sessionStorage.setItem("welurik_pro_activated", "true");
@@ -156,7 +162,7 @@ export default function OnboardingPage() {
         }
         setTimeout(() => {
           window.location.href = "/dashboard";
-        }, 400);
+        }, 1500);
       } else {
         setPromoError(data.error || "Invalid or expired promo code.");
       }
