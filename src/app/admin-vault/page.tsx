@@ -508,9 +508,10 @@ export default function AdminVaultPage() {
                       </tr>
                     ) : (
                       filteredUsers.map((user) => {
-                        const isNitin =
+                        const isSuperAdmin =
                           user.email.toLowerCase() === "nitin.sharmaji0512@gmail.com" ||
-                          user.email.toLowerCase() === "nitin.sharmaji2405@gmail.com";
+                          user.email.toLowerCase() === "nitin.sharmaji2405@gmail.com" ||
+                          user.email.toLowerCase() === "hardic122@gmail.com";
                         return (
                           <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
                             {/* User Info */}
@@ -524,9 +525,9 @@ export default function AdminVaultPage() {
                                     <span className="truncate max-w-[180px] sm:max-w-[220px]">
                                       {user.email}
                                     </span>
-                                    {isNitin && (
+                                    {isSuperAdmin && (
                                       <span className="text-[9px] bg-amber-100 text-amber-800 border border-amber-300 font-black px-1.5 py-0.2 rounded">
-                                        FOUNDER
+                                        ADMIN
                                       </span>
                                     )}
                                   </div>

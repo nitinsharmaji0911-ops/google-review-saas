@@ -17,6 +17,7 @@ function checkIsSuperAdmin(email?: string | null): boolean {
   return (
     normalized === "nitin.sharmaji0512@gmail.com" ||
     normalized === "nitin.sharmaji2405@gmail.com" ||
+    normalized === "hardic122@gmail.com" ||
     adminEmails.includes(normalized)
   );
 }

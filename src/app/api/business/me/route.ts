@@ -129,6 +129,7 @@ export async function GET(req: NextRequest) {
     const isFounderSuperAdmin =
       normalizedEmail === "nitin.sharmaji0512@gmail.com" ||
       normalizedEmail === "nitin.sharmaji2405@gmail.com" ||
+      normalizedEmail === "hardic122@gmail.com" ||
       adminEmails.includes(normalizedEmail);
 
     let isTrialActive = false;
