@@ -105,39 +105,38 @@ try {
 }
 
 // -------------------------------------------------------------
-// CHECK 3: Pricing & Copy Compliance ("₹1,999 only")
+// CHECK 3: Multi-Tier Pricing & Copy Compliance (18M, 24M, 48M)
 // -------------------------------------------------------------
-console.log("\n🔍 Checking Pricing & Copy Compliance (₹1,999 only)...");
+console.log("\n🔍 Checking Multi-Tier Pricing & Copy Compliance...");
 try {
-  const filesToCheck = [
-    "src/app/page.tsx",
-    "src/components/CheckoutButton.tsx",
-    "src/app/(dashboard)/layout.tsx",
-    "src/app/(dashboard)/onboarding/page.tsx",
-    "src/app/(auth)/login/page.tsx",
-    "src/app/(auth)/signup/page.tsx",
-    "src/app/checkout/success/page.tsx",
-    "src/app/terms/page.tsx"
-  ];
+  const landingPagePath = path.join(rootDir, "src/app/page.tsx");
+  const landingContent = fs.readFileSync(landingPagePath, "utf-8");
 
-  let violations = [];
-  for (const relPath of filesToCheck) {
-    const fullPath = path.join(rootDir, relPath);
-    if (!fs.existsSync(fullPath)) continue;
-    const content = fs.readFileSync(fullPath, "utf-8");
-
-    // Match any instance of ₹1,999 or ₹1999 not followed by only
-    const regex = /₹\s*1[,.]?999(?!\s+only)/gi;
-    const matches = content.match(regex);
-    if (matches && matches.length > 0) {
-      violations.push(`${relPath} has ${matches.length} instance(s) missing 'only' after ₹1,999`);
-    }
-  }
-
-  if (violations.length > 0) {
-    reportFail("Pricing Compliance Audit", violations.join(" | "));
+  // Verify Hero dropdown front text
+  if (!landingContent.includes("Get this at 1,999")) {
+    reportFail("Pricing Compliance Audit", "Hero CTA is missing 'Get this at 1,999' front button text");
+  } else if (landingContent.includes("one-time lifetime deal")) {
+    reportFail("Pricing Compliance Audit", "Found unapproved 'one-time lifetime deal' badge in pricing section");
   } else {
-    reportPass("Pricing Compliance Audit", "All ₹1,999 references across SaaS strictly suffixed with 'only'");
+    // Verify 3 distinct pricing tiers are present on landing page
+    const requiredPricingTiers = [
+      { label: "18 Months (At 1,999 for 18 months)", pattern: /1[,.]?999\s*(for|\/)\s*18\s*months/i },
+      { label: "24 Months (At 2,499 for 24 months)", pattern: /2[,.]?499\s*(for|\/)\s*24\s*months/i },
+      { label: "48 Months (At 3,499 for 48 months)", pattern: /3[,.]?499\s*(for|\/)\s*48\s*months/i }
+    ];
+
+    let missingTiers = [];
+    for (const tier of requiredPricingTiers) {
+      if (!tier.pattern.test(landingContent)) {
+        missingTiers.push(tier.label);
+      }
+    }
+
+    if (missingTiers.length > 0) {
+      reportFail("Pricing Compliance Audit", `Missing required tiers: ${missingTiers.join(", ")}`);
+    } else {
+      reportPass("Pricing Compliance Audit", "All 3 pricing tiers (18M @ ₹1,999, 24M @ ₹2,499, 48M @ ₹3,499) verified");
+    }
   }
 } catch (e) {
   reportFail("Pricing Compliance Check", e.message);

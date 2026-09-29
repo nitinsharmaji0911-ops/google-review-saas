@@ -21,10 +21,30 @@ export async function POST(req: NextRequest | Request) {
       );
     }
 
-    // Official Pricing: ₹1,999 Lifetime License (199900 Paise)
-    const amountInPaise = 199900;
-    const planLabel = "₹1,999 only Lifetime License";
-    const planType = "lifetime";
+    const body = await req.json().catch(() => ({}));
+    const requestedPlan = (body?.planType || "").toLowerCase();
+
+    // Multi-tier pricing plans:
+    // - 18 Months: ₹1,999 (199900 paise)
+    // - 24 Months: ₹2,499 (249900 paise)
+    // - 48 Months: ₹3,499 (349900 paise)
+    let amountInPaise = 199900;
+    let planLabel = "18 Months Access (₹1,999)";
+    let planType = "18m";
+
+    if (requestedPlan === "24m" || requestedPlan === "24months") {
+      amountInPaise = 249900;
+      planLabel = "24 Months Access (₹2,499)";
+      planType = "24m";
+    } else if (requestedPlan === "48m" || requestedPlan === "48months") {
+      amountInPaise = 349900;
+      planLabel = "48 Months Access (₹3,499)";
+      planType = "48m";
+    } else if (requestedPlan === "lifetime" || requestedPlan === "18m" || requestedPlan === "18months") {
+      amountInPaise = 199900;
+      planLabel = "18 Months Access (₹1,999)";
+      planType = "18m";
+    }
 
     const key_id =
       process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||

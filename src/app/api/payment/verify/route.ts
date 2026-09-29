@@ -77,6 +77,17 @@ export async function POST(req: NextRequest | Request) {
       } catch {}
     }
 
+    let amountInPaise = 199900;
+    let planTitle = "18 Months Access";
+    const normalizedPlan = (planType || "").toLowerCase();
+    if (normalizedPlan === "24m" || normalizedPlan === "24months") {
+      amountInPaise = 249900;
+      planTitle = "24 Months Access";
+    } else if (normalizedPlan === "48m" || normalizedPlan === "48months") {
+      amountInPaise = 349900;
+      planTitle = "48 Months Access";
+    }
+
     // 1. Update in Prisma
     try {
       let order = await prisma.order.findUnique({
@@ -100,10 +111,10 @@ export async function POST(req: NextRequest | Request) {
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,
             razorpaySignature: razorpay_signature || "verified",
-            amount: 199900,
+            amount: amountInPaise,
             currency: "INR",
             status: "paid",
-            planType,
+            planType: normalizedPlan || "18m",
             businessId: businessId || null,
             userEmail: session?.email || null,
           },
@@ -202,11 +213,11 @@ export async function POST(req: NextRequest | Request) {
         id: razorpay_order_id,
         orderId: razorpay_order_id,
         paymentId: razorpay_payment_id,
-        amount: 199900,
+        amount: amountInPaise,
         currency: "INR",
         status: "paid",
-        planType: "lifetime",
-        planName: "Lifetime License",
+        planType: normalizedPlan || "18m",
+        planName: planTitle,
         userId: userId || "guest",
         userEmail: userEmail || "",
         businessSlug: fsBusiness?.slug || businessSlug || "",
@@ -218,7 +229,7 @@ export async function POST(req: NextRequest | Request) {
 
     const res = NextResponse.json({
       success: true,
-      message: "Payment successfully verified! Your ₹1,999 only Lifetime License is now active.",
+      message: `Payment successfully verified! Your ${planTitle} is now active.`,
       orderId,
       paymentId: razorpay_payment_id,
       isPro: true,
