@@ -14,6 +14,8 @@ import {
   ArrowRight,
   TrendingUp,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Menu,
   X,
   Copy,
@@ -30,6 +32,9 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pricingDropdownOpen, setPricingDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const pricingCarouselRef = useRef<HTMLDivElement>(null);
+  const [activePricingSlide, setActivePricingSlide] = useState(0);
+  const [isPricingInteracting, setIsPricingInteracting] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,6 +49,68 @@ export default function LandingPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Auto-scroll pricing cards carousel on mobile (< 768px)
+  useEffect(() => {
+    if (isPricingInteracting) return;
+
+    const interval = setInterval(() => {
+      if (typeof window !== "undefined" && window.innerWidth >= 768) return;
+
+      const container = pricingCarouselRef.current;
+      if (!container) return;
+
+      setActivePricingSlide((prev) => {
+        const nextSlide = (prev + 1) % 3;
+        const card = container.children[nextSlide] as HTMLElement;
+        if (card) {
+          const offsetLeft =
+            card.offsetLeft -
+            container.offsetLeft -
+            (container.clientWidth - card.clientWidth) / 2;
+          container.scrollTo({
+            left: Math.max(0, offsetLeft),
+            behavior: "smooth",
+          });
+        }
+        return nextSlide;
+      });
+    }, 3800);
+
+    return () => clearInterval(interval);
+  }, [isPricingInteracting]);
+
+  const handlePricingScroll = () => {
+    const container = pricingCarouselRef.current;
+    if (!container) return;
+    const scrollLeft = container.scrollLeft;
+    const card = container.children[0] as HTMLElement;
+    const cardWidth = card ? card.clientWidth + 20 : container.clientWidth * 0.85;
+    const index = Math.round(scrollLeft / (cardWidth || 1));
+    const clampedIndex = Math.max(0, Math.min(2, index));
+    if (clampedIndex !== activePricingSlide) {
+      setActivePricingSlide(clampedIndex);
+    }
+  };
+
+  const scrollToPricingSlide = (index: number) => {
+    setActivePricingSlide(index);
+    setIsPricingInteracting(true);
+    const container = pricingCarouselRef.current;
+    if (!container) return;
+    const card = container.children[index] as HTMLElement;
+    if (card) {
+      const offsetLeft =
+        card.offsetLeft -
+        container.offsetLeft -
+        (container.clientWidth - card.clientWidth) / 2;
+      container.scrollTo({
+        left: Math.max(0, offsetLeft),
+        behavior: "smooth",
+      });
+    }
+    setTimeout(() => setIsPricingInteracting(false), 5000);
+  };
 
   // Video starts PAUSED - Plays with full unmuted sound when user clicks Play
   const togglePlay = () => {
@@ -834,15 +901,23 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* 3 Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch pt-4 text-left">
+        {/* 3 Pricing Cards: Auto-Scroll Carousel on Mobile, Bento Grid on Desktop */}
+        <div
+          ref={pricingCarouselRef}
+          onScroll={handlePricingScroll}
+          onTouchStart={() => setIsPricingInteracting(true)}
+          onTouchEnd={() => setTimeout(() => setIsPricingInteracting(false), 4000)}
+          onMouseEnter={() => setIsPricingInteracting(true)}
+          onMouseLeave={() => setIsPricingInteracting(false)}
+          className="flex md:grid md:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 items-stretch pt-4 text-left overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-smooth no-scrollbar pb-6 px-4 md:px-0 -mx-4 md:mx-0"
+        >
           
           {/* CARD 1: At 1,999 for 18 months */}
           <motion.div
             id="pricing-card-18m"
             whileHover={{ y: -5 }}
             transition={{ duration: 0.2 }}
-            className="bg-white border-2 border-black rounded-[28px] p-6 sm:p-7 space-y-5 flex flex-col justify-between shadow-[5px_5px_0px_#000000]"
+            className="w-[85vw] max-w-[340px] sm:w-[360px] md:w-auto md:max-w-none shrink-0 md:shrink snap-center bg-white border-2 border-black rounded-[28px] p-6 sm:p-7 space-y-5 flex flex-col justify-between shadow-[5px_5px_0px_#000000]"
           >
             <div className="space-y-4">
               <div className="space-y-1">
@@ -901,7 +976,7 @@ export default function LandingPage() {
             id="pricing-card-24m"
             whileHover={{ y: -6 }}
             transition={{ duration: 0.2 }}
-            className="bg-white border-[3px] border-black rounded-[30px] p-6 sm:p-7 space-y-5 flex flex-col justify-between shadow-[8px_8px_0px_#15803D] relative md:-translate-y-2"
+            className="w-[85vw] max-w-[340px] sm:w-[360px] md:w-auto md:max-w-none shrink-0 md:shrink snap-center bg-white border-[3px] border-black rounded-[30px] p-6 sm:p-7 space-y-5 flex flex-col justify-between shadow-[8px_8px_0px_#15803D] relative md:-translate-y-2"
           >
             {/* Top Badge */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#15803D] text-white text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] whitespace-nowrap">
@@ -965,7 +1040,7 @@ export default function LandingPage() {
             id="pricing-card-48m"
             whileHover={{ y: -5 }}
             transition={{ duration: 0.2 }}
-            className="bg-white border-2 border-black rounded-[28px] p-6 sm:p-7 space-y-5 flex flex-col justify-between shadow-[5px_5px_0px_#000000]"
+            className="w-[85vw] max-w-[340px] sm:w-[360px] md:w-auto md:max-w-none shrink-0 md:shrink snap-center bg-white border-2 border-black rounded-[28px] p-6 sm:p-7 space-y-5 flex flex-col justify-between shadow-[5px_5px_0px_#000000]"
           >
             <div className="space-y-4">
               <div className="space-y-1">
@@ -1019,6 +1094,55 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
+        </div>
+
+        {/* Mobile Carousel Controls & Interactive Dot Indicators (md:hidden) */}
+        <div className="flex md:hidden flex-col items-center justify-center gap-2.5 pt-1">
+          <div className="flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollToPricingSlide((activePricingSlide - 1 + 3) % 3)}
+              className="p-1.5 rounded-full border-2 border-black bg-white hover:bg-slate-100 shadow-[1px_1px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px]"
+              aria-label="Previous plan"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 text-black" />
+            </button>
+
+            {[
+              { label: "18M", price: "₹1,999" },
+              { label: "24M", price: "₹2,499", popular: true },
+              { label: "48M", price: "₹3,499" },
+            ].map((p, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => scrollToPricingSlide(idx)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black transition-all border-2 border-black ${
+                  activePricingSlide === idx
+                    ? "bg-[#15803D] text-white shadow-[2px_2px_0px_#000000] scale-105"
+                    : "bg-white text-slate-700 hover:bg-slate-100 shadow-[1px_1px_0px_#000000]"
+                }`}
+                aria-label={`View ${p.label} plan`}
+              >
+                <span>{p.label}</span>
+                <span className="text-[10px] opacity-80">{p.price}</span>
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => scrollToPricingSlide((activePricingSlide + 1) % 3)}
+              className="p-1.5 rounded-full border-2 border-black bg-white hover:bg-slate-100 shadow-[1px_1px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px]"
+              aria-label="Next plan"
+            >
+              <ChevronRight className="w-3.5 h-3.5 text-black" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#15803D] animate-pulse" />
+            <span>Auto-scrolling • Swipe to explore ({activePricingSlide + 1} of 3)</span>
+          </div>
         </div>
       </motion.section>
 
