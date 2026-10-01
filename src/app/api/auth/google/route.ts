@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB, FirestoreREST } from "@/lib/firestore-db";
-import { createSessionPayload, SESSION_COOKIE_NAME, hashPassword } from "@/lib/auth";
+import { createSessionPayload, SESSION_COOKIE_NAME, hashPassword, checkIsSuperAdmin } from "@/lib/auth";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -137,7 +137,10 @@ export async function POST(req: NextRequest) {
       businessSlug: businessSlug || undefined,
     }, 60 * 60 * 24 * 90);
 
-    const redirectPath = businessSlug ? "/dashboard" : "/onboarding";
+    const isSuperAdmin = checkIsSuperAdmin(normalizedEmail);
+    const redirectPath = isSuperAdmin
+      ? (businessSlug ? "/dashboard" : "/admin-vault")
+      : (businessSlug ? "/dashboard" : "/onboarding");
 
     // Record login activity in Firestore for Super Admin audit log
     try {
@@ -150,6 +153,9 @@ export async function POST(req: NextRequest) {
           ...(user || {}),
           id: uId,
           email: normalizedEmail,
+          role: isSuperAdmin ? "admin" : (user?.role || "user"),
+          isPro: isSuperAdmin ? true : Boolean(user?.isPro),
+          planName: isSuperAdmin ? (user?.planName || "Super Admin") : (user?.planName || "Free"),
           lastLoginAt: loginTime,
           loginCount: ((user?.loginCount) || 0) + 1,
           lastLoginProvider: "google",

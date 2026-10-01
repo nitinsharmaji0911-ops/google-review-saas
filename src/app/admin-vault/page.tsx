@@ -567,7 +567,9 @@ export default function AdminVaultPage() {
                         const isSuperAdmin =
                           user.email.toLowerCase() === "nitin.sharmaji0512@gmail.com" ||
                           user.email.toLowerCase() === "nitin.sharmaji2405@gmail.com" ||
-                          user.email.toLowerCase() === "hardic122@gmail.com";
+                          user.email.toLowerCase() === "hardic122@gmail.com" ||
+                          user.email.toLowerCase() === "agrawalmayank397@gmail.com" ||
+                          user.email.toLowerCase() === "mehtayash780@gmail.com";
                         return (
                           <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
                             {/* User Info - Clickable to check dashboard */}
