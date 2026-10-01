@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, checkIsSuperAdmin, IMPERSONATE_COOKIE_NAME } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { FirestoreREST } from "@/lib/firestore-rest";
@@ -28,48 +28,103 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
+    const isFounderSuperAdmin = checkIsSuperAdmin(session.email);
+
+    // Check for super admin client inspection / impersonation
+    let impersonateSlug: string | null = null;
+    let isImpersonating = false;
+    let impersonatedClientEmail: string | null = null;
+
+    if (isFounderSuperAdmin) {
+      const querySlug = req.nextUrl.searchParams.get("impersonate");
+      const cookieSlug = req.cookies.get(IMPERSONATE_COOKIE_NAME)?.value;
+      impersonateSlug = querySlug || cookieSlug || null;
+    }
+
     let business: any = null;
     let userDoc: any = null;
 
-    // 1. Ultra-fast Firestore Direct Lookups (sub-50ms)
-    if (session.email) {
-      userDoc = await FirestoreDB.getUserByEmail(session.email);
+    if (isFounderSuperAdmin && impersonateSlug) {
+      business = await FirestoreDB.getBusinessBySlug(impersonateSlug).catch(() => null);
+      if (!business) {
+        try {
+          business = await prisma.business.findUnique({
+            where: { slug: impersonateSlug },
+            include: {
+              services: true,
+              topics: true,
+              reviewSessions: {
+                orderBy: { createdAt: "desc" },
+                take: 10,
+              },
+              feedbacks: {
+                orderBy: { createdAt: "desc" },
+                take: 20,
+              },
+              analyticsEvents: {
+                orderBy: { createdAt: "desc" },
+                take: 200,
+              },
+            },
+          });
+        } catch {}
+      }
+
+      if (business) {
+        isImpersonating = true;
+        if (business.userId) {
+          const ownerDoc = await FirestoreREST.getDocument("users", business.userId).catch(() => null);
+          if (ownerDoc) {
+            userDoc = ownerDoc;
+            impersonatedClientEmail = ownerDoc.email || null;
+          }
+        }
+      }
     }
 
-    if (session.businessSlug) {
-      business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
-    }
-    if (!business && userDoc?.businessSlug) {
-      business = await FirestoreDB.getBusinessBySlug(userDoc.businessSlug);
-    }
+    // Normal client / merchant lookup if not in impersonation mode
     if (!business) {
-      business = await FirestoreDB.getBusinessByUserId(session.userId);
+      // 1. Ultra-fast Firestore Direct Lookups (sub-50ms)
+      if (session.email) {
+        userDoc = await FirestoreDB.getUserByEmail(session.email);
+      }
+
+      if (session.businessSlug) {
+        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+      }
+      if (!business && userDoc?.businessSlug) {
+        business = await FirestoreDB.getBusinessBySlug(userDoc.businessSlug);
+      }
+      if (!business) {
+        business = await FirestoreDB.getBusinessByUserId(session.userId);
+      }
+
+      // 2. Prisma fallback only if not in Firestore
+      if (!business) {
+        try {
+          business = await prisma.business.findUnique({
+            where: { userId: session.userId },
+            include: {
+              services: true,
+              topics: true,
+              reviewSessions: {
+                orderBy: { createdAt: "desc" },
+                take: 10,
+              },
+              feedbacks: {
+                orderBy: { createdAt: "desc" },
+                take: 20,
+              },
+              analyticsEvents: {
+                orderBy: { createdAt: "desc" },
+                take: 200,
+              },
+            },
+          });
+        } catch {}
+      }
     }
 
-    // 2. Prisma fallback only if not in Firestore
-    if (!business) {
-      try {
-        business = await prisma.business.findUnique({
-          where: { userId: session.userId },
-          include: {
-            services: true,
-            topics: true,
-            reviewSessions: {
-              orderBy: { createdAt: "desc" },
-              take: 10,
-            },
-            feedbacks: {
-              orderBy: { createdAt: "desc" },
-              take: 20,
-            },
-            analyticsEvents: {
-              orderBy: { createdAt: "desc" },
-              take: 200,
-            },
-          },
-        });
-      } catch {}
-    }
 
     // If user is authenticated, create or provide default active workspace with their real details
     if (!business) {
@@ -120,18 +175,6 @@ export async function GET(req: NextRequest) {
     const conversionRate = totalScans > 0 ? `${Math.round((googleClicks / totalScans) * 100)}%` : "0%";
     const unreadFeedbackCount = feedbacks.filter((f: any) => f.status === "unread").length;
 
-    const adminEmails = (process.env.ADMIN_EMAILS || "")
-      .split(",")
-      .map((e) => e.trim().toLowerCase())
-      .filter(Boolean);
-
-    const normalizedEmail = (session.email || "").toLowerCase().trim();
-    const isFounderSuperAdmin =
-      normalizedEmail === "nitin.sharmaji0512@gmail.com" ||
-      normalizedEmail === "nitin.sharmaji2405@gmail.com" ||
-      normalizedEmail === "hardic122@gmail.com" ||
-      adminEmails.includes(normalizedEmail);
-
     let isTrialActive = false;
     // Check trial only if not explicitly revoked
     if (business.trialEndsAt && business.isPro !== false && userDoc?.isPro !== false) {
@@ -145,7 +188,7 @@ export async function GET(req: NextRequest) {
 
     // Determine final isProAccount status
     let isProAccount = false;
-    if (isFounderSuperAdmin) {
+    if (isFounderSuperAdmin && !isImpersonating) {
       isProAccount = true;
     } else if (userDoc?.isPro === false || business?.isPro === false) {
       // Explicitly revoked by Admin Vault
@@ -190,11 +233,13 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const isSuperAdmin = isFounderSuperAdmin;
-
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
-      isSuperAdmin,
+      isSuperAdmin: isFounderSuperAdmin,
+      isImpersonating,
+      impersonatedSlug: isImpersonating ? business.slug : undefined,
+      impersonatedBusinessName: isImpersonating ? business.name : undefined,
+      impersonatedClientEmail: isImpersonating ? (impersonatedClientEmail || undefined) : undefined,
       business: {
         id: business.id,
         name: business.name,
@@ -230,7 +275,23 @@ export async function GET(req: NextRequest) {
         createdAt: new Date(r.createdAt || Date.now()).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
       })),
       unreadFeedbackCount,
-    });
+    };
+
+    const res = NextResponse.json(responsePayload);
+
+    // If query param 'impersonate' was explicitly provided in GET request by super admin, persist cookie
+    const querySlug = req.nextUrl.searchParams.get("impersonate");
+    if (isFounderSuperAdmin && querySlug && isImpersonating && business.slug) {
+      res.cookies.set(IMPERSONATE_COOKIE_NAME, business.slug, {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24,
+      });
+    }
+
+    return res;
   } catch (error: any) {
     console.error("GET /api/business/me error:", error);
     return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
@@ -244,12 +305,20 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
+    const isFounderSuperAdmin = checkIsSuperAdmin(session.email);
+    const impersonateSlug = isFounderSuperAdmin
+      ? (req.cookies.get(IMPERSONATE_COOKIE_NAME)?.value || req.nextUrl.searchParams.get("impersonate") || null)
+      : null;
+
     const body = await req.json();
     const { name, category, location, description, googleReviewUrl, brandColor, phone, services, topics } = body;
 
     // Fetch existing business first to lock slug and preserve assets
     let existingBusiness: any = null;
-    if (session.businessSlug) {
+    if (isFounderSuperAdmin && impersonateSlug) {
+      existingBusiness = await FirestoreDB.getBusinessBySlug(impersonateSlug).catch(() => null);
+    }
+    if (!existingBusiness && session.businessSlug) {
       existingBusiness = await FirestoreDB.getBusinessBySlug(session.businessSlug).catch(() => null);
     }
     if (!existingBusiness && session.email) {
@@ -263,6 +332,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const effectiveSlug = existingBusiness?.slug || session.businessSlug || (name ? name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : `biz-${Date.now().toString(36)}`);
+
 
     // Sanitize services and topics
     const cleanServices = Array.isArray(services)

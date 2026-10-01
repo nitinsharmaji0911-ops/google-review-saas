@@ -1,26 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, checkIsSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FirestoreREST } from "@/lib/firestore-rest";
 
 export const dynamic = "force-dynamic";
-
-function checkIsSuperAdmin(email?: string | null): boolean {
-  if (!email) return false;
-  const normalized = email.toLowerCase().trim();
-
-  const adminEmails = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-
-  return (
-    normalized === "nitin.sharmaji0512@gmail.com" ||
-    normalized === "nitin.sharmaji2405@gmail.com" ||
-    normalized === "hardic122@gmail.com" ||
-    adminEmails.includes(normalized)
-  );
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,9 +16,10 @@ export async function GET(req: NextRequest) {
     }
 
     // 1. Fetch raw data from Firestore
-    const [fsUsers, fsBusinesses, fsLoginLogs] = await Promise.all([
+    const [fsUsers, fsBusinesses, fsUserBusinesses, fsLoginLogs] = await Promise.all([
       FirestoreREST.listDocuments("users", 200).catch(() => []),
       FirestoreREST.listDocuments("businesses", 200).catch(() => []),
+      FirestoreREST.listDocuments("user_businesses", 200).catch(() => []),
       FirestoreREST.listDocuments("login_logs", 150).catch(() => []),
     ]);
 
@@ -56,6 +40,14 @@ export async function GET(req: NextRequest) {
       if (b.userId) businessMap.set(`user:${b.userId}`, b);
     });
 
+    // Map user_businesses by userId
+    const userBizSlugMap = new Map<string, string>();
+    fsUserBusinesses.forEach((ub: any) => {
+      if (ub.userId && (ub.businessSlug || ub.businessId)) {
+        userBizSlugMap.set(ub.userId, ub.businessSlug || ub.businessId);
+      }
+    });
+
     // Merge and deduplicate users by normalized email
     const userMap = new Map<string, any>();
 
@@ -63,10 +55,12 @@ export async function GET(req: NextRequest) {
     fsUsers.forEach((u: any) => {
       if (!u.email) return;
       const key = u.email.toLowerCase().trim();
+      const mappedSlug = u.businessSlug || userBizSlugMap.get(u.id);
       const biz =
-        (u.businessSlug && businessMap.get(`slug:${u.businessSlug}`)) ||
+        (mappedSlug && businessMap.get(`slug:${mappedSlug}`)) ||
         (u.id && businessMap.get(`user:${u.id}`)) ||
         null;
+
 
       const isTrialActive = u.trialEndsAt ? new Date(u.trialEndsAt).getTime() > Date.now() : false;
       const isExplicitlyRevoked = u.isPro === false || biz?.isPro === false;

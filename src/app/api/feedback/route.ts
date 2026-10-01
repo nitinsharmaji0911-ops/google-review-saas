@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, checkIsSuperAdmin, IMPERSONATE_COOKIE_NAME } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FirestoreDB } from "@/lib/firestore-db";
 import { sendFeedbackNotificationEmail } from "@/lib/email";
@@ -12,24 +12,48 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    let business: any = null;
-    try {
-      business = await prisma.business.findUnique({
-        where: { userId: session.userId },
-        include: {
-          feedbacks: {
-            orderBy: { createdAt: "desc" },
-          },
-        },
-      });
-    } catch {}
+    const isSuperAdmin = checkIsSuperAdmin(session.email);
+    const impersonateSlug = isSuperAdmin
+      ? (req.cookies.get(IMPERSONATE_COOKIE_NAME)?.value || req.nextUrl.searchParams.get("impersonate") || null)
+      : null;
 
-    if (!business) {
-      business = await FirestoreDB.getBusinessByUserId(session.userId);
-      if (!business && session.businessSlug) {
-        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+    let business: any = null;
+    if (isSuperAdmin && impersonateSlug) {
+      business = await FirestoreDB.getBusinessBySlug(impersonateSlug).catch(() => null);
+      if (!business) {
+        try {
+          business = await prisma.business.findUnique({
+            where: { slug: impersonateSlug },
+            include: {
+              feedbacks: {
+                orderBy: { createdAt: "desc" },
+              },
+            },
+          });
+        } catch {}
       }
     }
+
+    if (!business) {
+      try {
+        business = await prisma.business.findUnique({
+          where: { userId: session.userId },
+          include: {
+            feedbacks: {
+              orderBy: { createdAt: "desc" },
+            },
+          },
+        });
+      } catch {}
+
+      if (!business) {
+        business = await FirestoreDB.getBusinessByUserId(session.userId);
+        if (!business && session.businessSlug) {
+          business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+        }
+      }
+    }
+
 
     if (!business) {
       return NextResponse.json({ success: true, feedback: [] });
@@ -80,18 +104,29 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Valid ID and status ('unread' | 'resolved') required" }, { status: 400 });
     }
 
+    const isSuperAdmin = checkIsSuperAdmin(session.email);
+    const impersonateSlug = isSuperAdmin
+      ? (req.cookies.get(IMPERSONATE_COOKIE_NAME)?.value || req.nextUrl.searchParams.get("impersonate") || null)
+      : null;
+
     // Verify ownership in Prisma
     let business: any = null;
-    try {
-      business = await prisma.business.findUnique({
-        where: { userId: session.userId },
-      });
-    } catch {}
+    if (isSuperAdmin && impersonateSlug) {
+      business = await FirestoreDB.getBusinessBySlug(impersonateSlug).catch(() => null);
+    }
 
     if (!business) {
-      business = await FirestoreDB.getBusinessByUserId(session.userId);
-      if (!business && session.businessSlug) {
-        business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+      try {
+        business = await prisma.business.findUnique({
+          where: { userId: session.userId },
+        });
+      } catch {}
+
+      if (!business) {
+        business = await FirestoreDB.getBusinessByUserId(session.userId);
+        if (!business && session.businessSlug) {
+          business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
+        }
       }
     }
 
@@ -104,9 +139,10 @@ export async function PATCH(req: NextRequest) {
         where: { id },
       });
 
-      if (feedbackItem && feedbackItem.businessId !== business.id) {
+      if (feedbackItem && feedbackItem.businessId !== business.id && !isSuperAdmin) {
         return NextResponse.json({ success: false, error: "Forbidden: You do not own this feedback record" }, { status: 403 });
       }
+
 
       if (feedbackItem) {
         await prisma.feedback.update({

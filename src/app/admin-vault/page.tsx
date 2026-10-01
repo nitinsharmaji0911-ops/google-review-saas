@@ -19,7 +19,10 @@ import {
   ArrowRight,
   Sparkles,
   Zap,
+  Eye,
+  LayoutDashboard,
 } from "lucide-react";
+
 import WelurikLogo from "@/components/Logo";
 
 interface BusinessData {
@@ -107,7 +110,42 @@ export default function AdminVaultPage() {
     fetchAdminData();
   }, []);
 
+  const handleInspectDashboard = async (user: UserItem) => {
+    try {
+      const slug = user.business?.slug;
+      setActionLoading(`inspect_${user.id}`);
+      setActionMessage(null);
+
+      const res = await fetch("/api/admin/impersonate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: slug || undefined,
+          email: user.email,
+        }),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.removeItem("welurik_dashboard_cache");
+          } catch {}
+        }
+        setActionMessage(`✓ Opening dashboard for ${json.businessName || user.business?.name || user.email}...`);
+        router.push(`/dashboard?impersonate=${encodeURIComponent(json.slug || slug || "")}`);
+      } else {
+        alert(json.error || "Failed to switch into client dashboard.");
+      }
+    } catch {
+      alert("Network error while attempting to check client dashboard.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleTogglePro = async (user: UserItem) => {
+
     try {
       setActionLoading(user.email);
       setActionMessage(null);
@@ -475,34 +513,52 @@ export default function AdminVaultPage() {
               </div>
             </div>
 
+            {/* Super Admin Client Inspection Callout */}
+            <div className="bg-amber-100 border-2 border-black text-amber-950 p-3 sm:p-3.5 rounded-2xl text-xs font-black shadow-[3px_3px_0px_#000000] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-black text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                  <Eye className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="font-extrabold uppercase text-[10px] tracking-wider bg-black text-amber-300 px-2 py-0.5 rounded mr-1.5">
+                    SUPER ADMIN FEATURE
+                  </span>
+                  <span className="font-medium text-slate-900">
+                    Click <strong>"Check Dashboard"</strong> or any client account/business name to inspect their live dashboard, analytics, standees, and customer feedback!
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* Users Directory Table */}
             <div className="bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_#000000] overflow-hidden">
               <div className="sm:hidden text-[10px] text-slate-500 font-bold px-3.5 py-1.5 bg-amber-50/80 border-b border-black/10 flex items-center justify-between">
                 <span>👉 Swipe horizontally for all columns</span>
-                <span className="text-emerald-700">Pro Actions →</span>
+                <span className="text-amber-800 font-bold">Check Dashboards →</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 border-b-2 border-black text-slate-700 font-bold uppercase tracking-wider text-[10px]">
                     <tr>
-                      <th className="py-3 px-4">User / Account</th>
+                      <th className="py-3 px-4">Client / Account</th>
                       <th className="py-3 px-4">Registered Date</th>
                       <th className="py-3 px-4">Last Login</th>
-                      <th className="py-3 px-4">Business Storefront</th>
+                      <th className="py-3 px-4">Storefront Details</th>
                       <th className="py-3 px-4">Plan Status</th>
-                      <th className="py-3 px-4 text-right">Pro Access Action</th>
+                      <th className="py-3 px-4 text-center">Inspect Dashboard</th>
+                      <th className="py-3 px-4 text-right">Membership</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12 text-slate-500 font-bold">
+                        <td colSpan={7} className="text-center py-12 text-slate-500 font-bold">
                           Loading user directory...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12 text-slate-500 font-medium">
+                        <td colSpan={7} className="text-center py-12 text-slate-500 font-medium">
                           No users found matching your search.
                         </td>
                       </tr>
@@ -514,15 +570,19 @@ export default function AdminVaultPage() {
                           user.email.toLowerCase() === "hardic122@gmail.com";
                         return (
                           <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
-                            {/* User Info */}
+                            {/* User Info - Clickable to check dashboard */}
                             <td className="py-3.5 px-4">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0">
+                              <div
+                                onClick={() => handleInspectDashboard(user)}
+                                className="flex items-center gap-2.5 cursor-pointer group/user hover:bg-emerald-50/70 p-1.5 -m-1.5 rounded-xl transition-all"
+                                title="Click to check this client's dashboard"
+                              >
+                                <div className="w-8 h-8 rounded-full bg-slate-900 group-hover/user:bg-[#15803D] text-white font-bold flex items-center justify-center text-xs shrink-0 transition-colors shadow-xs">
                                   {user.email.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
-                                  <div className="font-bold text-black flex items-center gap-1.5">
-                                    <span className="truncate max-w-[180px] sm:max-w-[220px]">
+                                  <div className="font-bold text-black group-hover/user:text-[#15803D] flex items-center gap-1.5 transition-colors">
+                                    <span className="truncate max-w-[170px] sm:max-w-[210px] underline decoration-dotted group-hover/user:decoration-solid">
                                       {user.email}
                                     </span>
                                     {isSuperAdmin && (
@@ -559,15 +619,22 @@ export default function AdminVaultPage() {
                               </div>
                             </td>
 
-                            {/* Business Storefront */}
+                            {/* Business Storefront - Clickable to check dashboard */}
                             <td className="py-3.5 px-4">
                               {user.business ? (
-                                <div className="space-y-0.5">
-                                  <div className="font-bold text-black flex items-center gap-1.5">
-                                    <span>{user.business.name}</span>
+                                <div
+                                  onClick={() => handleInspectDashboard(user)}
+                                  className="space-y-0.5 cursor-pointer group/biz hover:bg-emerald-50/80 p-1.5 -m-1.5 rounded-xl transition-all border border-transparent hover:border-emerald-300"
+                                  title="Click to check this client's dashboard"
+                                >
+                                  <div className="font-bold text-black group-hover/biz:text-emerald-900 flex items-center gap-1.5">
+                                    <span className="underline decoration-dotted decoration-emerald-500/70 group-hover/biz:decoration-solid">
+                                      {user.business.name}
+                                    </span>
                                     <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-semibold capitalize">
                                       {user.business.category}
                                     </span>
+                                    <Eye className="w-3 h-3 text-emerald-600 opacity-0 group-hover/biz:opacity-100 transition-opacity shrink-0" />
                                   </div>
                                   <div className="flex items-center gap-2 text-[10px]">
                                     {user.business.location && (
@@ -580,19 +647,26 @@ export default function AdminVaultPage() {
                                         href={`/r/${user.business.slug}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-[#15803D] hover:underline flex items-center gap-0.5 font-bold"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="text-[#15803D] hover:underline flex items-center gap-0.5 font-bold shrink-0"
                                         title="Preview Customer Review Funnel"
                                       >
-                                        <span>Preview Funnel</span>
+                                        <span>Public Funnel</span>
                                         <ExternalLink className="w-2.5 h-2.5" />
                                       </a>
                                     )}
                                   </div>
                                 </div>
                               ) : (
-                                <span className="text-[11px] text-slate-400 italic">
-                                  Onboarding not completed
-                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleInspectDashboard(user)}
+                                  className="text-[11px] text-slate-400 hover:text-black italic hover:underline flex items-center gap-1 cursor-pointer"
+                                  title="View client onboarding workspace"
+                                >
+                                  <span>Onboarding pending (Inspect)</span>
+                                  <ArrowRight className="w-2.5 h-2.5" />
+                                </button>
                               )}
                             </td>
 
@@ -609,6 +683,25 @@ export default function AdminVaultPage() {
                                   UNPAID
                                 </span>
                               )}
+                            </td>
+
+                            {/* Dedicated Check Dashboard Action */}
+                            <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                              <button
+                                type="button"
+                                disabled={actionLoading === `inspect_${user.id}`}
+                                onClick={() => handleInspectDashboard(user)}
+                                className="px-3 py-1.5 bg-black hover:bg-slate-800 text-amber-300 hover:text-white border-2 border-black rounded-xl text-xs font-black shadow-[2px_2px_0px_#000000] flex items-center justify-center gap-1.5 cursor-pointer active:translate-y-0.5 transition-all mx-auto group"
+                                title={`Inspect dashboard for ${user.business?.name || user.email}`}
+                              >
+                                {actionLoading === `inspect_${user.id}` ? (
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
+                                ) : (
+                                  <Eye className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform" />
+                                )}
+                                <span>Check Dashboard</span>
+                                <ArrowRight className="w-3 h-3 text-slate-300 group-hover:translate-x-0.5 transition-transform" />
+                              </button>
                             </td>
 
                             {/* 1-Click Pro Toggle Action */}
@@ -640,6 +733,7 @@ export default function AdminVaultPage() {
                       })
                     )}
                   </tbody>
+
                 </table>
               </div>
             </div>

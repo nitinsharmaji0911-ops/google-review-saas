@@ -129,3 +129,26 @@ export function verifyPassword(password: string, storedHash: string): boolean {
 }
 
 export { SESSION_COOKIE_NAME };
+
+export const IMPERSONATE_COOKIE_NAME = "welurik_impersonate_slug";
+
+/**
+ * Super Admin Authorization Checker
+ */
+export function checkIsSuperAdmin(email?: string | null): boolean {
+  if (!email) return false;
+  const normalized = email.toLowerCase().trim();
+
+  const adminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  return (
+    normalized === "nitin.sharmaji0512@gmail.com" ||
+    normalized === "nitin.sharmaji2405@gmail.com" ||
+    normalized === "hardic122@gmail.com" ||
+    adminEmails.includes(normalized)
+  );
+}
+

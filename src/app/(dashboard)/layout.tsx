@@ -16,6 +16,11 @@ import {
   ShieldCheck,
   CheckCircle2,
   Headphones,
+  Eye,
+  ChevronDown,
+  Check,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
 import { CheckoutButton } from "@/components/CheckoutButton";
@@ -36,6 +41,14 @@ export default function DashboardLayout({
   const [loggingOut, setLoggingOut] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
+  // Super Admin Client Inspection / Impersonation States
+  const [isImpersonating, setIsImpersonating] = useState(false);
+  const [impersonatedSlug, setImpersonatedSlug] = useState<string | null>(null);
+  const [impersonatedBusinessName, setImpersonatedBusinessName] = useState<string | null>(null);
+  const [impersonatedClientEmail, setImpersonatedClientEmail] = useState<string | null>(null);
+  const [clientList, setClientList] = useState<{ slug: string; name: string }[]>([]);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
   // Paywall Promo Code States
   const [paywallPromo, setPaywallPromo] = useState("");
   const [paywallLoading, setPaywallLoading] = useState(false);
@@ -43,6 +56,7 @@ export default function DashboardLayout({
   const [paywallError, setPaywallError] = useState("");
   const [showPaywallPromo, setShowPaywallPromo] = useState(false);
   const [showCustomerCare, setShowCustomerCare] = useState(false);
+
 
   const handleApplyPaywallPromo = async () => {
     if (!paywallPromo.trim()) return;
@@ -107,6 +121,22 @@ export default function DashboardLayout({
             setBusiness(d.business);
             setUnreadCount(d.unreadFeedbackCount || 0);
             setIsSuperAdmin(Boolean(d.isSuperAdmin));
+            setIsImpersonating(Boolean(d.isImpersonating));
+            setImpersonatedSlug(d.impersonatedSlug || null);
+            setImpersonatedBusinessName(d.impersonatedBusinessName || null);
+            setImpersonatedClientEmail(d.impersonatedClientEmail || null);
+
+            if (d.isSuperAdmin) {
+              fetch("/api/admin/impersonate")
+                .then((res) => res.json())
+                .then((impData) => {
+                  if (impData.success && Array.isArray(impData.clients)) {
+                    setClientList(impData.clients);
+                  }
+                })
+                .catch(() => {});
+            }
+
             if (d.business.isPro !== true && typeof window !== "undefined") {
               try {
                 sessionStorage.removeItem("welurik_dashboard_cache");
@@ -125,6 +155,44 @@ export default function DashboardLayout({
     window.addEventListener("refresh_business", fetchBusiness);
     return () => window.removeEventListener("refresh_business", fetchBusiness);
   }, [router, pathname]);
+
+  const handleExitImpersonation = async (returnToVault: boolean = false) => {
+    try {
+      await fetch("/api/admin/impersonate", { method: "DELETE" });
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("welurik_dashboard_cache");
+        } catch {}
+      }
+      if (returnToVault) {
+        router.push("/admin-vault");
+      } else {
+        window.location.href = "/dashboard";
+      }
+    } catch {
+      if (returnToVault) router.push("/admin-vault");
+    }
+  };
+
+  const handleSwitchClient = async (targetSlug: string) => {
+    try {
+      const res = await fetch("/api/admin/impersonate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: targetSlug }),
+      });
+      if (res.ok) {
+        if (typeof window !== "undefined") {
+          try {
+            sessionStorage.removeItem("welurik_dashboard_cache");
+          } catch {}
+        }
+        setSwitcherOpen(false);
+        window.location.href = "/dashboard";
+      }
+    } catch {}
+  };
+
 
   const handleLogout = async () => {
     try {
@@ -299,7 +367,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Bottom CTA / Quick Customer Link & Logout */}
-        <div className="space-y-3 pt-4 border-t border-slate-100">
+        <div className="space-y-2 pt-4 border-t border-slate-100">
           {business?.slug && (
             <a
               href={publicReviewUrl}
@@ -311,6 +379,31 @@ export default function DashboardLayout({
               <span>Live Customer Link</span>
               <ExternalLink className="w-3 h-3 text-slate-400" />
             </a>
+          )}
+
+          {isSuperAdmin && (
+            <Link
+              href="/admin-vault"
+              className="w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-between transition-all shadow-xs"
+              title="Return to Super Admin Vault"
+            >
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                <span>Super Admin Vault</span>
+              </div>
+              <ArrowRight className="w-3 h-3 text-amber-700" />
+            </Link>
+          )}
+
+          {isImpersonating && (
+            <button
+              type="button"
+              onClick={() => handleExitImpersonation(true)}
+              className="w-full py-2 px-3 bg-black hover:bg-slate-800 text-amber-300 border border-black rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              <span>Exit Inspection Mode</span>
+            </button>
           )}
 
           <button
@@ -326,8 +419,79 @@ export default function DashboardLayout({
 
       {/* MAIN CONTENT WRAPPER */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Super Admin Client Inspection Banner */}
+        {isImpersonating && (
+          <div className="bg-amber-400 border-b-2 border-black text-black px-3.5 sm:px-6 py-2 sticky top-0 z-50 shadow-[0_3px_0px_#000000] no-print">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="bg-black text-amber-300 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shrink-0">
+                  <Eye className="w-3 h-3 text-amber-300" /> Super Admin View
+                </span>
+                <span className="text-xs font-black truncate">
+                  Inspecting Dashboard: <span className="underline decoration-black">{business?.name || impersonatedBusinessName || "Client"}</span>
+                  {impersonatedClientEmail && (
+                    <span className="text-[11px] font-medium text-black/75 ml-1 hidden sm:inline">
+                      ({impersonatedClientEmail})
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Switcher Dropdown */}
+                {clientList.length > 0 && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setSwitcherOpen(!switcherOpen)}
+                      className="px-2.5 py-1 bg-white hover:bg-slate-50 text-black border border-black rounded-lg text-xs font-bold shadow-[1px_1px_0px_#000000] flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <span>Switch Client ({clientList.length})</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                    {switcherOpen && (
+                      <div className="absolute right-0 top-full mt-1.5 w-64 max-h-72 overflow-y-auto bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_#000000] py-1 z-50 divide-y divide-slate-100">
+                        <div className="px-3 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-50">
+                          Select Client Dashboard
+                        </div>
+                        {clientList.map((c) => (
+                          <button
+                            key={c.slug}
+                            type="button"
+                            onClick={() => handleSwitchClient(c.slug)}
+                            className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-emerald-50 transition-colors cursor-pointer ${
+                              c.slug === business?.slug
+                                ? "font-black bg-emerald-100/70 text-emerald-900"
+                                : "font-medium text-slate-900"
+                            }`}
+                          >
+                            <span className="truncate">{c.name}</span>
+                            {c.slug === business?.slug && (
+                              <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => handleExitImpersonation(true)}
+                  className="px-3 py-1 bg-black hover:bg-slate-800 text-white border border-black rounded-lg text-xs font-black shadow-[1.5px_1.5px_0px_#000000] flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ArrowLeft className="w-3 h-3 text-amber-300" />
+                  <span>Exit to Admin Vault</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mobile Header Bar */}
         <header className="md:hidden bg-white border-b border-slate-200 px-3.5 py-2.5 flex items-center justify-between sticky top-0 z-20 no-print gap-2">
+
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0">
               {business?.name ? business.name.charAt(0) : "W"}
@@ -377,7 +541,9 @@ export default function DashboardLayout({
           </div>
         ) : business &&
         business.isPro !== true &&
+        !isSuperAdmin &&
         pathname !== "/onboarding" ? (
+
           <div className="min-h-[80vh] flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-[32px] p-7 sm:p-8 text-center border border-slate-200/80 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-5">
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
