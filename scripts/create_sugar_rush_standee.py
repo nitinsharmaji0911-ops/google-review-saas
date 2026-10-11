@@ -103,7 +103,7 @@ draw.line([(80, 1045), (width - 80, 1045)], fill=(75, 25, 45), width=1)
 # 10. Footer Brand & Google Attribution
 draw.text((width // 2, 1085), "Official Google Review Solicitation Portal", fill=(255, 255, 255), font=font_footer, anchor="mm")
 draw.text((width // 2, 1120), "review.welurik.com/r/sugar-rush", fill=(251, 113, 133), font=font_footersub, anchor="mm")
-draw.text((width // 2, 1150), "Sugar Rush  |  Nagpur  |  Phone: +91 99608 72777", fill=(156, 163, 175), font=font_footersub, anchor="mm")
+draw.text((width // 2, 1150), "Sugar Rush  |  Shree Heera Sweets, Medical Sq, Nagpur  |  +91 99608 72777", fill=(156, 163, 175), font=font_footersub, anchor="mm")
 
 # Output files
 out_artifact = "C:/Users/Nitin Sharma/.gemini/antigravity/brain/53a06f14-de5f-4055-83e6-503359e97f82/sugar-rush-standee.png"
