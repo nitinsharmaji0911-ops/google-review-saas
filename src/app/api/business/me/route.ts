@@ -150,29 +150,46 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Hydrate metrics from Firestore if Prisma was empty or not used
-    let analytics = business.analyticsEvents || [];
-    let reviewSessions = business.reviewSessions || [];
-    let feedbacks = business.feedbacks || [];
+    // Hydrate metrics from Firestore (the primary live data store)
+    let analytics: any[] = [];
+    let reviewSessions: any[] = [];
+    let feedbacks: any[] = [];
 
-    if (business.slug && (analytics.length === 0 || reviewSessions.length === 0)) {
+    if (business.slug) {
       try {
         const [fsReviews, fsFeedbacks, fsAnalytics] = await Promise.all([
-          reviewSessions.length === 0 ? FirestoreDB.getReviewsBySlug(business.slug) : Promise.resolve([]),
-          feedbacks.length === 0 ? FirestoreDB.getFeedbacksBySlug(business.slug) : Promise.resolve([]),
-          analytics.length === 0 ? FirestoreDB.getAnalyticsBySlug(business.slug) : Promise.resolve([]),
+          FirestoreDB.getReviewsBySlug(business.slug, 5000),
+          FirestoreDB.getFeedbacksBySlug(business.slug, 1000),
+          FirestoreDB.getAnalyticsBySlug(business.slug, 10000),
         ]);
-        if (fsReviews.length > 0) reviewSessions = fsReviews;
-        if (fsFeedbacks.length > 0) feedbacks = fsFeedbacks;
-        if (fsAnalytics.length > 0) analytics = fsAnalytics;
-      } catch {}
+        if (fsReviews && fsReviews.length > 0) reviewSessions = fsReviews;
+        if (fsFeedbacks && fsFeedbacks.length > 0) feedbacks = fsFeedbacks;
+        if (fsAnalytics && fsAnalytics.length > 0) analytics = fsAnalytics;
+      } catch (err) {
+        console.warn("Firestore metrics load warning:", err);
+      }
     }
+
+    // Fallback to embedded Prisma models if Firestore collections returned empty
+    if (reviewSessions.length === 0 && business.reviewSessions?.length) {
+      reviewSessions = business.reviewSessions;
+    }
+    if (feedbacks.length === 0 && business.feedbacks?.length) {
+      feedbacks = business.feedbacks;
+    }
+    if (analytics.length === 0 && business.analyticsEvents?.length) {
+      analytics = business.analyticsEvents;
+    }
+
+    // Sort reviewSessions newest first
+    reviewSessions.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
     // Calculate metrics
     const totalScans = analytics.filter((a: any) => a.eventType === "scan").length;
     const reviewsGenerated = reviewSessions.length;
     const googleClicks = analytics.filter((a: any) => a.eventType === "google_clicked").length;
-    const conversionRate = totalScans > 0 ? `${Math.round((googleClicks / totalScans) * 100)}%` : "0%";
+    const rawConversion = totalScans > 0 ? Math.round((googleClicks / totalScans) * 100) : 0;
+    const conversionRate = `${Math.min(100, Math.max(0, rawConversion))}%`;
     const unreadFeedbackCount = feedbacks.filter((f: any) => f.status === "unread").length;
 
     let isTrialActive = false;
@@ -267,11 +284,11 @@ export async function GET(req: NextRequest) {
       },
       recentReviews: reviewSessions.map((r: any) => ({
         id: r.id,
-        rating: r.rating,
+        rating: r.rating || 5,
         selectedTopics: safeParseArray(r.selectedTopics),
         selectedServices: safeParseArray(r.selectedServices),
-        generatedReview: r.generatedReview || "",
-        status: r.status,
+        generatedReview: r.generatedReview || r.reviewText || "",
+        status: r.status || "completed",
         createdAt: new Date(r.createdAt || Date.now()).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
       })),
       unreadFeedbackCount,

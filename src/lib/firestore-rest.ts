@@ -110,7 +110,7 @@ export const FirestoreREST = {
     }
   },
 
-  async queryDocuments(collection: string, field: string, value: string, limit = 100): Promise<any[]> {
+  async queryDocuments(collection: string, field: string, value: string, limit = 5000): Promise<any[]> {
     try {
       const url = `${BASE_URL}:runQuery?key=${API_KEY}`;
       const queryBody = {

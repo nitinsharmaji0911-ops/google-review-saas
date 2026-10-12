@@ -174,13 +174,13 @@ export const FirestoreDB = {
     return feedbackDoc;
   },
 
-  async getFeedbacksBySlug(slug: string) {
+  async getFeedbacksBySlug(slug: string, limit = 1000) {
     if (!slug) return [];
 
     // 1. Try Firestore REST
-    const docs = await FirestoreREST.queryDocuments("feedback", "businessSlug", slug);
+    const docs = await FirestoreREST.queryDocuments("feedback", "businessSlug", slug, limit);
     if (docs && docs.length > 0) {
-      return docs;
+      return docs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     }
 
     // 2. Try Firestore Admin
@@ -191,7 +191,7 @@ export const FirestoreDB = {
           .collection("feedback")
           .where("businessSlug", "==", slug)
           .orderBy("createdAt", "desc")
-          .limit(50)
+          .limit(limit)
           .get();
         if (!snap.empty) {
           return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -199,7 +199,9 @@ export const FirestoreDB = {
       } catch {}
     }
 
-    return inMemoryStore.feedback.filter((f) => f.businessSlug === slug);
+    return inMemoryStore.feedback
+      .filter((f) => f.businessSlug === slug)
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   },
 
   async updateFeedbackStatus(id: string, status: string, businessSlug?: string) {
@@ -283,11 +285,13 @@ export const FirestoreDB = {
     inMemoryStore.analytics.push(eventDoc);
   },
 
-  async getReviewsBySlug(slug: string) {
+  async getReviewsBySlug(slug: string, limit = 5000) {
     if (!slug) return [];
     try {
-      const docs = await FirestoreREST.queryDocuments("reviews", "businessSlug", slug);
-      if (docs && docs.length > 0) return docs;
+      const docs = await FirestoreREST.queryDocuments("reviews", "businessSlug", slug, limit);
+      if (docs && docs.length > 0) {
+        return docs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      }
     } catch {}
 
     const { firestore } = getFirebaseAdmin();
@@ -297,19 +301,21 @@ export const FirestoreDB = {
           .collection("reviews")
           .where("businessSlug", "==", slug)
           .orderBy("createdAt", "desc")
-          .limit(20)
+          .limit(limit)
           .get();
         if (!snap.empty) return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       } catch {}
     }
 
-    return inMemoryStore.reviews.filter((r) => r.businessSlug === slug);
+    return inMemoryStore.reviews
+      .filter((r) => r.businessSlug === slug)
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   },
 
-  async getAnalyticsBySlug(slug: string) {
+  async getAnalyticsBySlug(slug: string, limit = 10000) {
     if (!slug) return [];
     try {
-      const docs = await FirestoreREST.queryDocuments("analytics", "businessSlug", slug);
+      const docs = await FirestoreREST.queryDocuments("analytics", "businessSlug", slug, limit);
       if (docs && docs.length > 0) return docs;
     } catch {}
 
@@ -319,7 +325,7 @@ export const FirestoreDB = {
         const snap = await firestore
           .collection("analytics")
           .where("businessSlug", "==", slug)
-          .limit(200)
+          .limit(limit)
           .get();
         if (!snap.empty) return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       } catch {}
