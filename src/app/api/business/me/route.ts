@@ -89,7 +89,16 @@ export async function GET(req: NextRequest) {
         userDoc = await FirestoreDB.getUserByEmail(session.email);
       }
 
-      if (session.businessSlug) {
+      // Check if user requested a specific branch/location they own
+      const branchSlug = req.nextUrl.searchParams.get("branch") || req.nextUrl.searchParams.get("slug");
+      if (branchSlug) {
+        const candidateBiz = await FirestoreDB.getBusinessBySlug(branchSlug);
+        if (candidateBiz && (candidateBiz.userId === session.userId || candidateBiz.email === session.email)) {
+          business = candidateBiz;
+        }
+      }
+
+      if (!business && session.businessSlug) {
         business = await FirestoreDB.getBusinessBySlug(session.businessSlug);
       }
       if (!business && userDoc?.businessSlug) {
