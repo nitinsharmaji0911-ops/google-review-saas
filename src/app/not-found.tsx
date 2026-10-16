@@ -48,7 +48,7 @@ export default function NotFound() {
               <ArrowLeft className="w-3.5 h-3.5" /> Return to Homepage
             </Link>
             <Link
-              href="/r/the-coffee-house"
+              href="/r/welurik-media"
               className="w-full sm:w-auto px-5 py-3 bg-white hover:bg-slate-50 text-black font-bold rounded-full text-xs border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
             >
               View Demo Funnel

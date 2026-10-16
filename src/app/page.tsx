@@ -198,7 +198,7 @@ export default function LandingPage() {
             <Link href="/#features" className="hover:text-black transition-colors">Features</Link>
             <Link href="/#pricing" className="hover:text-black transition-colors">Pricing</Link>
             <Link href="/#faq" className="hover:text-black transition-colors">FAQ</Link>
-            <Link href="/r/the-coffee-house" className="text-[#15803D] font-bold hover:text-[#166534] transition-colors">Demo</Link>
+            <Link href="/r/welurik-media" className="text-[#15803D] font-bold hover:text-[#166534] transition-colors">Demo</Link>
             <Link href="/dashboard" className="hover:text-black transition-colors">Admin Dashboard</Link>
           </nav>
 
@@ -272,7 +272,7 @@ export default function LandingPage() {
                 FAQ
               </Link>
               <Link
-                href="/r/the-coffee-house"
+                href="/r/welurik-media"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block py-1 text-sm font-bold text-[#15803D]"
               >
@@ -474,7 +474,7 @@ export default function LandingPage() {
                 className="w-full sm:w-auto"
               >
                 <Link
-                  href="/r/the-coffee-house"
+                  href="/r/welurik-media"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 bg-white hover:bg-slate-50 text-black rounded-full text-xs sm:text-sm font-bold border-2 border-black shadow-[2px_2px_0px_#000000] sm:shadow-[4px_4px_0px_#000000] transition-shadow text-center"
                 >
                   <Play className="w-3 h-3 fill-black text-black" /> Try Customer Demo
@@ -1253,7 +1253,7 @@ export default function LandingPage() {
           <Link href="/terms" className="hover:text-black transition-colors">Terms</Link>
           <Link href="/refund" className="hover:text-black transition-colors">Refunds</Link>
           <Link href="/login" className="hover:text-black transition-colors">Sign In</Link>
-          <Link href="/r/the-coffee-house" className="hover:text-black transition-colors">Customer Demo</Link>
+          <Link href="/r/welurik-media" className="hover:text-black transition-colors">Customer Demo</Link>
         </div>
       </footer>
 
