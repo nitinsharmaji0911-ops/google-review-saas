@@ -65,6 +65,11 @@ export default function CustomerReviewPage() {
   const [genError, setGenError] = useState("");
 
   useEffect(() => {
+    if (slug === "the-coffee-house") {
+      window.location.replace("/r/welurik-media");
+      return;
+    }
+
     async function loadBusiness() {
       try {
         setLoading(true);

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCategoryById } from "@/lib/categories";
 import { getSession } from "@/lib/auth";
 import { parseTopicItem, parseServiceItem } from "@/lib/sanitize-items";
+import { DEMO_BUSINESS } from "@/lib/db";
 
 // In-memory LRU/TTL cache for public business metadata (sub-10ms responses)
 interface CachedBusiness {
@@ -19,7 +20,10 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const slug = params.slug;
+    let slug = params.slug;
+    if (slug === "the-coffee-house") {
+      slug = "welurik-media";
+    }
     if (!slug) {
       return NextResponse.json({ success: false, error: "Missing slug" }, { status: 400 });
     }
@@ -47,6 +51,10 @@ export async function GET(
           include: { services: true, topics: true },
         });
       } catch {}
+    }
+
+    if (!business && (slug === "welurik-media" || slug === "the-coffee-house")) {
+      business = DEMO_BUSINESS;
     }
 
     if (!business) {

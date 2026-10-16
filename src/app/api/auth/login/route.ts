@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
       // Local development only fixture
       const payload = createSessionPayload({
         userId: "demo-user-id",
-        email: "owner@thecoffeehouse.com",
-        businessId: "the-coffee-house-id",
-        businessSlug: "the-coffee-house",
+        email: "welurik.media@gmail.com",
+        businessId: "welurik-media",
+        businessSlug: "welurik-media",
       });
 
       const res = NextResponse.json({ success: true, redirect: "/dashboard" });

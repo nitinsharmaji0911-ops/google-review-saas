@@ -12,9 +12,18 @@ const inMemoryStore = {
   analytics: [] as any[],
 };
 
+inMemoryStore.businesses.set("welurik-media", {
+  ...DEMO_BUSINESS,
+  id: "welurik-media",
+  slug: "welurik-media",
+  userId: "demo-user-id",
+  createdAt: new Date().toISOString(),
+});
+
 inMemoryStore.businesses.set("the-coffee-house", {
   ...DEMO_BUSINESS,
-  id: "the-coffee-house-id",
+  id: "welurik-media",
+  slug: "welurik-media",
   userId: "demo-user-id",
   createdAt: new Date().toISOString(),
 });
@@ -98,18 +107,19 @@ export const FirestoreDB = {
 
   async getBusinessBySlug(slug: string) {
     if (!slug) return null;
+    const lookupSlug = slug === "the-coffee-house" ? "welurik-media" : slug;
 
     // 1. Try direct Firestore REST get
-    const doc = await FirestoreREST.getDocument("businesses", slug);
+    const doc = await FirestoreREST.getDocument("businesses", lookupSlug);
     if (doc) return doc;
 
     // Query by slug
-    const docs = await FirestoreREST.queryDocuments("businesses", "slug", slug);
+    const docs = await FirestoreREST.queryDocuments("businesses", "slug", lookupSlug);
     if (docs && docs.length > 0) {
       return docs[0];
     }
 
-    return inMemoryStore.businesses.get(slug) || null;
+    return inMemoryStore.businesses.get(lookupSlug) || (lookupSlug === "welurik-media" ? DEMO_BUSINESS : null);
   },
 
   async saveBusiness(data: any) {

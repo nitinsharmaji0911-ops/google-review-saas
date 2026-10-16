@@ -99,11 +99,11 @@ export async function POST(req: NextRequest) {
         } catch {}
       }
 
-      if (!businessId && businessSlug === "the-coffee-house") {
-        businessName = "The Coffee House";
-        category = "cafe";
-        location = "Indiranagar, Bangalore";
-        businessId = "the-coffee-house";
+      if (!businessId && (businessSlug === "welurik-media" || businessSlug === "the-coffee-house")) {
+        businessName = "welurik.media";
+        category = "services";
+        location = "Nagpur, Maharashtra";
+        businessId = "welurik-media";
       }
 
       if (businessId) {
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
       }).catch((e) => console.warn("Firestore trackEvent non-blocking notice:", e)),
     ];
 
-    if (businessId && businessId !== "the-coffee-house") {
+    if (businessId && businessId !== "the-coffee-house" && businessId !== "welurik-media") {
       persistPromises.push(
         prisma.reviewSession.create({
           data: {

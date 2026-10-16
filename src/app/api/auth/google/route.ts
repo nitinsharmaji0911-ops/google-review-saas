@@ -105,8 +105,8 @@ export async function POST(req: NextRequest) {
       business = await FirestoreDB.getBusinessByUserId(userId);
     }
 
-    if (!business && (normalizedEmail === "nitin.sharmaji2405@gmail.com" || normalizedEmail === "owner@thecoffeehouse.com")) {
-      business = await FirestoreDB.getBusinessBySlug("the-coffee-house");
+    if (!business && (normalizedEmail === "nitin.sharmaji2405@gmail.com" || normalizedEmail === "welurik.media@gmail.com" || normalizedEmail === "owner@thecoffeehouse.com")) {
+      business = await FirestoreDB.getBusinessBySlug("welurik-media");
     }
 
     // Check if a business exists under the email prefix slug belonging to this user

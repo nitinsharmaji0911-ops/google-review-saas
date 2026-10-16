@@ -166,7 +166,7 @@ export default function QRStudioPage() {
     } else {
       doc.setTextColor(0, 0, 0, 1.0); // CMYK Process Black
     }
-    const bName = (business?.name || "The Coffee House");
+    const bName = (business?.name || "welurik.media");
     doc.text(bName.length > 24 ? bName.slice(0, 24) + "..." : bName, offsetX + 2, offsetY + 0.95, { align: "center" });
 
     // 4. Five Gold Stars (Pure CMYK Vector Polygons)
@@ -708,7 +708,7 @@ export default function QRStudioPage() {
                     Review Us On Google
                   </span>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight leading-snug">
-                    {business?.name || "The Coffee House"}
+                    {business?.name || "welurik.media"}
                   </h3>
                   <div className="flex items-center justify-center gap-1 pt-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
@@ -757,7 +757,7 @@ export default function QRStudioPage() {
                 </div>
 
                 <div className="w-full space-y-1">
-                  <h3 className="text-base font-bold text-slate-900">{business?.name || "The Coffee House"}</h3>
+                  <h3 className="text-base font-bold text-slate-900">{business?.name || "welurik.media"}</h3>
                   <p className="text-xs text-slate-600 font-semibold">{headline}</p>
                 </div>
 

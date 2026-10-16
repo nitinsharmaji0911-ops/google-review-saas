@@ -12,6 +12,25 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/r/the-coffee-house",
+        destination: "/r/welurik-media",
+        permanent: false,
+      },
+      {
+        source: "/r/the-coffee-house/feedback",
+        destination: "/r/welurik-media/feedback",
+        permanent: false,
+      },
+      {
+        source: "/demo",
+        destination: "/r/welurik-media",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {

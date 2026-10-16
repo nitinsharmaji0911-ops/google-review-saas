@@ -22,6 +22,11 @@ export default function PrivateFeedbackPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (slug === "the-coffee-house") {
+      window.location.replace("/r/welurik-media/feedback");
+      return;
+    }
+
     async function loadBusiness() {
       try {
         const res = await fetch(`/api/business/${slug}`);
