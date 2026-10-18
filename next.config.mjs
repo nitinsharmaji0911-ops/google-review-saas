@@ -29,6 +29,11 @@ const nextConfig = {
         destination: "/r/welurik-media",
         permanent: false,
       },
+      {
+        source: "/r/local-goa-kayaking",
+        destination: "/r/localgoakayaking",
+        permanent: false,
+      },
     ];
   },
   async headers() {

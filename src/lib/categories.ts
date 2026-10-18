@@ -272,6 +272,41 @@ export const CATEGORIES: CategoryConfig[] = [
       "Roof Space Constraints"
     ],
     sampleBusinessName: "S.M. Engineering"
+  },
+  {
+    id: "adventure",
+    name: "Adventure, Water Sports & Kayaking",
+    emoji: "🛶",
+    description: "Kayaking tours, river safaris, water sports, boat cruises & island adventures",
+    defaultServices: [
+      "Guided Mangrove Kayaking Tour",
+      "Sunrise & Sunset River Paddling",
+      "High-Speed Motorboat Rides",
+      "Backwater Exploration & Bird Watching",
+      "Island Trips & Private Boat Cruise",
+      "Cliff Jumping & River Swimming",
+      "Safety Gear & Life Jacket Provided",
+      "Action Photography & HD Video Clips"
+    ],
+    positiveTopics: [
+      "Peaceful & Scenic Mangrove Trails",
+      "Knowledgeable & Friendly Guides",
+      "Top-Notch Safety Gear & Life Jackets",
+      "Thrilling & Memorable Experience",
+      "Clean & Well-Maintained Boats",
+      "Beginner Friendly & Patient Instructors",
+      "Breathtaking Sunset Views",
+      "Great Photos & Action Videos",
+      "Punctual & Smooth Coordination",
+      "100% Value for Money"
+    ],
+    issueTopics: [
+      "Peak Hour Slot Waiting",
+      "Weather / Tide Rescheduling",
+      "Boarding Point Directions",
+      "Water Splash / Clothing Query"
+    ],
+    sampleBusinessName: "Local Goa Kayaking"
   }
 ];
 

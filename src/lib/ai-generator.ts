@@ -772,6 +772,7 @@ CRITICAL ANTI-REPETITION RULES (VERY IMPORTANT):
    - If gym: talk about machines, dumbbells, trainers, motivating floor vibe.
    - If salon: talk about glowing skin, natural makeup finish, gentle hands, relaxing parlour hygiene.
    - If solar: talk about power bill reduction, PM Surya Ghar subsidy, net metering, heavy duty GI structure.
+   - If adventure, kayaking or water sports: talk about peaceful mangrove trails, clear calm waters, helpful instructor/guide who made beginners feel safe, life jackets/safety, breathtaking sunset or sunrise, and great photos/videos captured.
 6. Output ONLY the raw review text. No quotes. No preamble.`;
 
   // Try gemini-2.5-flash first with 7,500ms timeout.
