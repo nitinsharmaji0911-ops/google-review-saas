@@ -307,6 +307,38 @@ export const CATEGORIES: CategoryConfig[] = [
       "Water Splash / Clothing Query"
     ],
     sampleBusinessName: "Local Goa Kayaking"
+  },
+  {
+    id: "accounting",
+    name: "Accounting, Tax & Corporate Advisory",
+    emoji: "📊",
+    description: "Bookkeeping, VAT/Corporate Tax filing, audit, payroll, company formation & financial advisory",
+    defaultServices: [
+      "Corporate Tax Registration & Filing",
+      "VAT Accounting & Return Filing",
+      "Monthly Bookkeeping & Reporting",
+      "UAE Business Setup (Mainland & Free Zone)",
+      "Corporate Bank Account Opening",
+      "Internal Audit & Compliance Assurance",
+      "Payroll Management & WPS Setup",
+      "Financial Advisory & ESR Compliance"
+    ],
+    positiveTopics: [
+      "Accurate & Punctual Tax Filing",
+      "Smooth & Fast Dubai Business Setup",
+      "Stress-Free Bank Account Opening",
+      "Knowledgeable & Responsive Advisors",
+      "Transparent & Hassle-Free Compliance",
+      "Clear Financial Reporting & Bookkeeping",
+      "Highly Professional & Trustworthy Team",
+      "100% Peace of Mind for Business Owners"
+    ],
+    issueTopics: [
+      "Documentation Processing Wait Time",
+      "Authority Approval Timelines",
+      "Custom Scope & Advisory Discussion"
+    ],
+    sampleBusinessName: "Axon Accounting Dubai"
   }
 ];
 

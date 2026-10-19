@@ -34,6 +34,11 @@ const nextConfig = {
         destination: "/r/localgoakayaking",
         permanent: false,
       },
+      {
+        source: "/r/axonaccounting",
+        destination: "/r/axon-accounting",
+        permanent: false,
+      },
     ];
   },
   async headers() {

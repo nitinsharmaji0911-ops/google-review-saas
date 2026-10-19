@@ -24,6 +24,9 @@ export async function GET(
     if (slug === "the-coffee-house") {
       slug = "welurik-media";
     }
+    if (slug === "axonaccounting") {
+      slug = "axon-accounting";
+    }
     if (!slug) {
       return NextResponse.json({ success: false, error: "Missing slug" }, { status: 400 });
     }

@@ -311,6 +311,45 @@ function humanizeTopic(topic: string, category: string): { clause: string; highl
     }
   }
 
+  // ACCOUNTING, TAX & CORPORATE ADVISORY (Axon Accounting / UAE)
+  if (cat.includes("accounting") || cat.includes("tax") || cat.includes("bookkeep") || cat.includes("audit") || cat.includes("finance")) {
+    if (t.includes("tax") || t.includes("vat") || t.includes("filing")) {
+      return {
+        clause: "their UAE Corporate Tax and VAT filing was handled with complete accuracy and zero delays",
+        highlight: "expert Corporate Tax registration and hassle-free VAT filing",
+        experience: "they made our UAE Corporate Tax compliance and VAT return filing completely effortless and audit-proof",
+      };
+    }
+    if (t.includes("setup") || t.includes("business") || t.includes("formation")) {
+      return {
+        clause: "they guided us through our Dubai business setup and trade license smoothly from start to finish",
+        highlight: "fast and transparent UAE company formation and licensing",
+        experience: "setting up our company in Dubai was seamless thanks to their clear step-by-step guidance",
+      };
+    }
+    if (t.includes("bank") || t.includes("account")) {
+      return {
+        clause: "their assistance in opening our UAE corporate bank account was prompt and completely stress-free",
+        highlight: "reliable corporate bank account opening support",
+        experience: "they assisted us through the entire bank documentation process until our corporate account was approved",
+      };
+    }
+    if (t.includes("bookkeep") || t.includes("report")) {
+      return {
+        clause: "their monthly bookkeeping reports and financial statements are always clear, accurate, and on schedule",
+        highlight: "punctual monthly bookkeeping and clean financial reporting",
+        experience: "our monthly books and accounts are always clean and up-to-date, giving us complete peace of mind",
+      };
+    }
+    if (t.includes("advisor") || t.includes("knowledge") || t.includes("responsive") || t.includes("professional") || t.includes("trustworthy")) {
+      return {
+        clause: "their financial advisors are exceptionally knowledgeable, approachable, and responsive",
+        highlight: "responsive consultation and trustworthy advisory",
+        experience: "the team is highly professional and always ready with clear answers to our accounting questions",
+      };
+    }
+  }
+
   // DEFAULT / GENERAL
   return {
     clause: `their ${topic.toLowerCase()} was carried out with complete professionalism`,
@@ -828,6 +867,8 @@ CRITICAL ANTI-REPETITION RULES (VERY IMPORTANT):
    - If adventure, kayaking or water sports: talk about peaceful mangrove trails, clear calm waters, helpful instructor/guide who made beginners feel safe, life jackets/safety, breathtaking sunset or sunrise, and great photos/videos captured.
    - If digital marketing, media agency, or welurik.media in Nagpur:
      Naturally and organically weave in relevant Nagpur keywords such as "best digital marketing agency in Nagpur", "performance marketing company in Nagpur", "website design company in Nagpur", "ROI-focused marketing", "Meta & Google Ads", "commercial video production & reel-making", "B2B and local business lead generation", or "WhatsApp lead automation". Speak like an impressed business client or founder in Nagpur who saw tangible revenue and lead growth.
+   - If accounting, bookkeeping, tax, or corporate advisory (e.g. Axon Accounting in Dubai):
+     Speak like an appreciative UAE business owner or entrepreneur. Highlight smooth UAE Corporate Tax registration, punctual VAT return filing, clear monthly bookkeeping, seamless Dubai company setup, or stress-free corporate bank account opening. Highlight their professionalism, accuracy, and peace of mind.
 6. Output ONLY the raw review text. No quotes. No preamble.`;
 
   // Try gemini-2.5-flash first with 7,500ms timeout.
