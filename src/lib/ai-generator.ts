@@ -258,6 +258,59 @@ function humanizeTopic(topic: string, category: string): { clause: string; highl
     };
   }
 
+  // DIGITAL MARKETING & MEDIA AGENCY (Welurik Media / Nagpur)
+  if (cat.includes("service") || cat.includes("agency") || cat.includes("marketing") || cat.includes("media")) {
+    if (t.includes("best") || t.includes("agency in nagpur")) {
+      return {
+        clause: "they are hands-down the best digital marketing agency in Nagpur for real business growth",
+        highlight: "Nagpur's top digital strategy and performance marketing team",
+        experience: "truly the best digital marketing agency in Nagpur with exceptional results and transparent communication",
+      };
+    }
+    if (t.includes("roi") || t.includes("lead") || t.includes("growth")) {
+      return {
+        clause: "our lead flow and business ROI grew noticeably right from month one",
+        highlight: "measurable lead generation and high ROI on marketing spend",
+        experience: "the ROI and quality of incoming leads exceeded our expectations",
+      };
+    }
+    if (t.includes("web") || t.includes("website") || t.includes("design")) {
+      return {
+        clause: "the website design is ultra-modern, super fast, and built specifically for conversions",
+        highlight: "stunning, high-converting website design and clean development",
+        experience: "delivered a beautiful, conversion-focused website that our clients constantly compliment",
+      };
+    }
+    if (t.includes("ad") || t.includes("meta") || t.includes("google") || t.includes("performance")) {
+      return {
+        clause: "their Meta and Google ad campaigns lowered our customer acquisition cost significantly",
+        highlight: "high-performing Meta and Google advertising strategies",
+        experience: "their performance marketing campaigns on Facebook and Google delivered consistent, qualified leads",
+      };
+    }
+    if (t.includes("reel") || t.includes("video") || t.includes("production")) {
+      return {
+        clause: "the commercial video and reel-making production quality is on a whole different level",
+        highlight: "viral reel production and high-impact commercial video content",
+        experience: "the brand reels and product videos they produced gave our business immense reach and engagement",
+      };
+    }
+    if (t.includes("whatsapp") || t.includes("automation")) {
+      return {
+        clause: "the WhatsApp lead generation and CRM automation streamlined our entire client onboarding",
+        highlight: "seamless WhatsApp automation and automated lead funnels",
+        experience: "the automated WhatsApp lead system helped us capture and convert inquiries 24/7 without delays",
+      };
+    }
+    if (t.includes("brand") || t.includes("identity") || t.includes("graphic")) {
+      return {
+        clause: "their branding and creative design gave our company a fresh, premium identity",
+        highlight: "creative brand identity and top-tier graphic design",
+        experience: "the brand identity and creative assets they designed set us apart from competitors",
+      };
+    }
+  }
+
   // DEFAULT / GENERAL
   return {
     clause: `their ${topic.toLowerCase()} was carried out with complete professionalism`,
@@ -773,6 +826,8 @@ CRITICAL ANTI-REPETITION RULES (VERY IMPORTANT):
    - If salon: talk about glowing skin, natural makeup finish, gentle hands, relaxing parlour hygiene.
    - If solar: talk about power bill reduction, PM Surya Ghar subsidy, net metering, heavy duty GI structure.
    - If adventure, kayaking or water sports: talk about peaceful mangrove trails, clear calm waters, helpful instructor/guide who made beginners feel safe, life jackets/safety, breathtaking sunset or sunrise, and great photos/videos captured.
+   - If digital marketing, media agency, or welurik.media in Nagpur:
+     Naturally and organically weave in relevant Nagpur keywords such as "best digital marketing agency in Nagpur", "performance marketing company in Nagpur", "website design company in Nagpur", "ROI-focused marketing", "Meta & Google Ads", "commercial video production & reel-making", "B2B and local business lead generation", or "WhatsApp lead automation". Speak like an impressed business client or founder in Nagpur who saw tangible revenue and lead growth.
 6. Output ONLY the raw review text. No quotes. No preamble.`;
 
   // Try gemini-2.5-flash first with 7,500ms timeout.
