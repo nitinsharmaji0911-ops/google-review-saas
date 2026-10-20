@@ -888,7 +888,7 @@ CRITICAL SENTIMENT REQUIREMENT: THIS IS A POSITIVE ${rating}-STAR REVIEW.
 - End naturally for a positive review (e.g. "Definitely coming back!", "10/10!", "Highly recommend!", "Will be back for sure!").`;
   }
 
-  const prompt = `You are a real local customer writing an authentic Google Maps review on your smartphone for "${params.businessName}" (${params.category}${params.location ? `, located in ${params.location}` : ""}).
+  const prompt = `You are a genuine local customer writing a real, authentic Google Maps review on your smartphone for "${params.businessName}" (${params.category}${params.location ? `, located in ${params.location}` : ""}).
 
 Star Rating: ${rating}/5
 Perspective Angle: ${selectedStyle}
@@ -899,26 +899,30 @@ Target Length: ${toneLength}
 
 ${sentimentInstructions}
 
-CRITICAL ANTI-REPETITION RULES (VERY IMPORTANT):
-1. NEVER start the review with "Super clean and well-stocked store!" or "Picked up some...".
-2. NEVER use rigid formulaic phrases like "Picked up some [feature]".
-   - If mentioning "Original Seal & Batch Verification", speak naturally: "I checked the scratch code and batch number right at the counter and it verified instantly on the brand portal."
-   - If mentioning "Knowledgeable, Honest & Transparent Recommendation", speak naturally: "The owner gave genuine, honest advice for my goals rather than pushing expensive products."
-3. Every single review must have a completely unique opening sentence and conversational flow.
-4. Do NOT use corporate AI clichés: "truly shines", "testament to", "delightful", "impressed beyond measure", "wonderfully", "epitome of", "chilled here".
-5. Match the business context accurately (${params.category}):
-   - If supplement/nutrition store: talk about verified seals, batch QR codes, genuine protein mixability, honest non-pushy advice, authorized dealer peace of mind.
-   - If gym: talk about machines, dumbbells, trainers, motivating floor vibe.
-   - If salon: talk about glowing skin, natural makeup finish, gentle hands, relaxing parlour hygiene.
-   - If solar: talk about power bill reduction, PM Surya Ghar subsidy, net metering, heavy duty GI structure.
-   - If adventure, kayaking or water sports: talk about peaceful mangrove trails, clear calm waters, helpful instructor/guide who made beginners feel safe, life jackets/safety, breathtaking sunset or sunrise, and great photos/videos captured.
-   - If digital marketing, media agency, or welurik.media in Nagpur:
-     Naturally and organically weave in relevant Nagpur keywords such as "best digital marketing agency in Nagpur", "performance marketing company in Nagpur", "website design company in Nagpur", "ROI-focused marketing", "Meta & Google Ads", "commercial video production & reel-making", "B2B and local business lead generation", or "WhatsApp lead automation". Speak like an impressed business client or founder in Nagpur who saw tangible revenue and lead growth.
-   - If accounting, bookkeeping, tax, or corporate advisory (e.g. Axon Accounting in Dubai):
-     Speak like an appreciative UAE business owner or entrepreneur. Highlight smooth UAE Corporate Tax registration, punctual VAT return filing, clear monthly bookkeeping, seamless Dubai company setup, or stress-free corporate bank account opening. Highlight their professionalism, accuracy, and peace of mind.
+CRITICAL RULES TO MAKE THIS 100% HUMAN AND ZERO PERCENT AI:
+1. WRITE LIKE A REAL HUMAN TYPING ON A PHONE:
+   - Use simple, straightforward everyday words. Keep it natural, relaxed, and conversational.
+   - Contractions ("wasn't", "didn't", "we've", "it's") make it sound authentic and human.
+   - Mention real situational context naturally (e.g., "visited with family", "checked in after a long travel", "found them through a friend's recommendation", "stopped by on our way").
+2. ABSOLUTELY BANNED AI CLICHÉS & PATTERNS (NEVER USE ANY OF THESE):
+   - Never say: "hidden gem", "nestled in", "from the moment I walked in", "look no further", "a testament to", "truly shines", "kudos to", "epitome of", "pleasantly surprised", "exceeded all expectations", "whether you are looking for...", "delightful", "impressed beyond measure".
+   - Never use marketing/PR voice or sound like a commercial brochure.
+   - Never use repetitive sentence templates like "Not only X, but also Y".
+   - Do NOT start with "Super clean and well-stocked store!" or "Picked up some...".
+3. UNIQUE OPENINGS:
+   - Start directly with your personal situation or direct observation. Every single review must have a distinct, fresh opening.
+4. MATCH THE BUSINESS CONTEXT NATURALLY (${params.category}):
    - If hotel, lodge, or yatri nivas (e.g. Asha Yatry Nivas in Kolhapur):
-     Speak like a satisfied pilgrim, traveler or family visiting Kolhapur. Highlight clean and comfortable rooms, fresh bed linen, 24/7 hot water, proximity to the holy Shri Mahalakshmi (Ambabai) Temple and Central Bus Stand / Railway Station, polite and helpful staff, safe family environment, and budget-friendly value.
-6. Output ONLY the raw review text. No quotes. No preamble.`;
+     Talk like a real person visiting Kolhapur for temple darshan or work. Mention clean bedsheets, neat washroom, geyser/hot water in the morning, safe stay with family, easy auto/rickshaw availability, peaceful sleep, and humble front desk.
+   - If accounting, bookkeeping, or corporate advisory (e.g. Axon Accounting in Dubai):
+     Talk like a pragmatic business owner in UAE. Mention fast VAT filing, zero tax penalties, clear bank account paperwork, responsive on WhatsApp/phone, and total peace of mind without confusing jargon.
+   - If digital marketing, media agency, or welurik.media in Nagpur:
+     Talk like a local Nagpur entrepreneur or shop owner who got real customer inquiries, phone calls, and revenue growth through their ads and reels.
+   - If adventure or kayaking:
+     Talk about calm water, relaxing mangrove trail, instructor who kept everyone safe, life jackets, and memorable photos.
+   - If supplement/nutrition store:
+     Talk about checking the scratch code/seal on the spot, genuine authorized stock, reasonable pricing, and non-pushy staff.
+5. Output ONLY the raw review text. No quotes. No introductory notes. No hashtags.`;
 
   // Try gemini-3.5-flash-lite first for lightning fast (~1s) review generation.
   // If it hits rate limit (429) or errors, failover to gemini-3.6-flash.
