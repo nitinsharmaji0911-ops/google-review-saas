@@ -39,6 +39,16 @@ const nextConfig = {
         destination: "/r/axon-accounting",
         permanent: false,
       },
+      {
+        source: "/r/ashayatrynivas",
+        destination: "/r/asha-yatry-nivas",
+        permanent: false,
+      },
+      {
+        source: "/r/asha-yatri-nivas",
+        destination: "/r/asha-yatry-nivas",
+        permanent: false,
+      },
     ];
   },
   async headers() {

@@ -90,13 +90,14 @@ def generate_midnight_card(business_name, qr_filename, headline, out_filename):
     img.save(out_public, quality=98)
     print(f"SUCCESS: Saved {out_filename}")
 
-# Generate Local Goa Kayaking
+# Generate Asha Yatry Nivas
 generate_midnight_card(
-    business_name="Local Goa Kayaking",
-    qr_filename="localgoakayaking-qr.png",
-    headline="Enjoyed your kayaking adventure?",
-    out_filename="localgoakayaking-midnight-card.png"
+    business_name="Asha Yatry Nivas",
+    qr_filename="asha-yatry-nivas-qr.png",
+    headline="Enjoyed your stay at Asha Yatry Nivas?",
+    out_filename="asha-yatry-nivas-midnight-card.png"
 )
+
 
 # Generate Adventure Wave Experience
 generate_midnight_card(

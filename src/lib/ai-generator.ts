@@ -350,6 +350,52 @@ function humanizeTopic(topic: string, category: string): { clause: string; highl
     }
   }
 
+  // HOTEL, LODGE & YATRI NIVAS (Asha Yatry Nivas / Kolhapur Hospitality)
+  if (cat.includes("hotel") || cat.includes("lodge") || cat.includes("resort") || cat.includes("stay") || cat.includes("yatri")) {
+    if (t.includes("room") || t.includes("clean") || t.includes("comfort") || t.includes("hygiene")) {
+      return {
+        clause: "the rooms were spotless, properly sanitized, and comfortable with fresh bed linen",
+        highlight: "clean, sanitized rooms and comfortable bedding",
+        experience: "the room was well-maintained and spotless, ensuring a peaceful and restful stay",
+      };
+    }
+    if (t.includes("temple") || t.includes("mandir") || t.includes("mahalaxmi") || t.includes("location") || t.includes("station")) {
+      return {
+        clause: "the location is unbeatable, just minutes away from the holy Shri Mahalakshmi Temple and central bus stand",
+        highlight: "prime location very close to Mahalaxmi Temple and station",
+        experience: "super convenient location for temple darshan and family travel in Kolhapur",
+      };
+    }
+    if (t.includes("water") || t.includes("geyser") || t.includes("amenit")) {
+      return {
+        clause: "24/7 hot water and essential amenities made our stay completely hassle-free",
+        highlight: "dependable 24-hour hot water and amenities",
+        experience: "hot water was readily available which was a big plus after a long journey",
+      };
+    }
+    if (t.includes("staff") || t.includes("service") || t.includes("desk") || t.includes("hospitality")) {
+      return {
+        clause: "the front desk staff and owner were warm, humble, and always ready to assist",
+        highlight: "polite, humble staff and prompt service",
+        experience: "the hospitality was heartwarming with very helpful and courteous staff",
+      };
+    }
+    if (t.includes("family") || t.includes("peace") || t.includes("safe")) {
+      return {
+        clause: "the environment is very safe, quiet, and family-friendly",
+        highlight: "safe, peaceful and secure atmosphere for families",
+        experience: "felt completely safe staying here with my family and elderly parents",
+      };
+    }
+    if (t.includes("value") || t.includes("rate") || t.includes("budget") || t.includes("price")) {
+      return {
+        clause: "the room rates are genuinely pocket-friendly and offer tremendous value for money",
+        highlight: "affordable tariff and complete value for money",
+        experience: "very economical and budget-friendly stay without compromising on cleanliness",
+      };
+    }
+  }
+
   // DEFAULT / GENERAL
   return {
     clause: `their ${topic.toLowerCase()} was carried out with complete professionalism`,
@@ -869,6 +915,8 @@ CRITICAL ANTI-REPETITION RULES (VERY IMPORTANT):
      Naturally and organically weave in relevant Nagpur keywords such as "best digital marketing agency in Nagpur", "performance marketing company in Nagpur", "website design company in Nagpur", "ROI-focused marketing", "Meta & Google Ads", "commercial video production & reel-making", "B2B and local business lead generation", or "WhatsApp lead automation". Speak like an impressed business client or founder in Nagpur who saw tangible revenue and lead growth.
    - If accounting, bookkeeping, tax, or corporate advisory (e.g. Axon Accounting in Dubai):
      Speak like an appreciative UAE business owner or entrepreneur. Highlight smooth UAE Corporate Tax registration, punctual VAT return filing, clear monthly bookkeeping, seamless Dubai company setup, or stress-free corporate bank account opening. Highlight their professionalism, accuracy, and peace of mind.
+   - If hotel, lodge, or yatri nivas (e.g. Asha Yatry Nivas in Kolhapur):
+     Speak like a satisfied pilgrim, traveler or family visiting Kolhapur. Highlight clean and comfortable rooms, fresh bed linen, 24/7 hot water, proximity to the holy Shri Mahalakshmi (Ambabai) Temple and Central Bus Stand / Railway Station, polite and helpful staff, safe family environment, and budget-friendly value.
 6. Output ONLY the raw review text. No quotes. No preamble.`;
 
   // Try gemini-2.5-flash first with 7,500ms timeout.

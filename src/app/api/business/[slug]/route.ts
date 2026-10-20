@@ -27,6 +27,9 @@ export async function GET(
     if (slug === "axonaccounting") {
       slug = "axon-accounting";
     }
+    if (slug === "ashayatrynivas" || slug === "asha-yatri-nivas" || slug === "ashayatrinivas") {
+      slug = "asha-yatry-nivas";
+    }
     if (!slug) {
       return NextResponse.json({ success: false, error: "Missing slug" }, { status: 400 });
     }
