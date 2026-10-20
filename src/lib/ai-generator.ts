@@ -797,9 +797,11 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
 // ---------------------------------------------------------------------------
 
 let cachedGenAI: GoogleGenerativeAI | null = null;
+let cachedKey = "";
 function getGenAI(apiKey: string): GoogleGenerativeAI {
-  if (!cachedGenAI) {
+  if (!cachedGenAI || cachedKey !== apiKey) {
     cachedGenAI = new GoogleGenerativeAI(apiKey);
+    cachedKey = apiKey;
   }
   return cachedGenAI;
 }
@@ -822,8 +824,7 @@ async function callGeminiModel(
     model: modelName,
     generationConfig: {
       temperature: 0.95,
-      // @ts-ignore - thinkingBudget: 0 stops Gemini 2.5 from wasting tokens on hidden thinking
-      thinkingConfig: { thinkingBudget: 0 },
+      ...(modelName.includes("2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
       maxOutputTokens: 350,
     },
   });
@@ -919,15 +920,15 @@ CRITICAL ANTI-REPETITION RULES (VERY IMPORTANT):
      Speak like a satisfied pilgrim, traveler or family visiting Kolhapur. Highlight clean and comfortable rooms, fresh bed linen, 24/7 hot water, proximity to the holy Shri Mahalakshmi (Ambabai) Temple and Central Bus Stand / Railway Station, polite and helpful staff, safe family environment, and budget-friendly value.
 6. Output ONLY the raw review text. No quotes. No preamble.`;
 
-  // Try gemini-2.5-flash first with 7,500ms timeout.
+  // Try gemini-3.5-flash-lite first for lightning fast (~1s) review generation.
   // If it hits rate limit (429) or errors, failover to gemini-3.6-flash.
   try {
-    return await callGeminiModel(genAI, "gemini-2.5-flash", prompt, 7500);
+    return await callGeminiModel(genAI, "gemini-3.5-flash-lite", prompt, 6500);
   } catch (err: any) {
     const isRateLimit = err?.message?.includes("429") || err?.status === 429;
-    console.warn(`Gemini 2.5-flash failed (${isRateLimit ? "429 Rate Limit" : err?.message}), attempting failover to gemini-3.6-flash...`);
+    console.warn(`Gemini 3.5-flash-lite failed (${isRateLimit ? "429 Rate Limit" : err?.message}), attempting failover to gemini-3.6-flash...`);
     try {
-      return await callGeminiModel(genAI, "gemini-3.6-flash", prompt, 6000);
+      return await callGeminiModel(genAI, "gemini-3.6-flash", prompt, 6500);
     } catch (fallbackErr: any) {
       console.warn("Gemini failover also failed, will use smart combinatorial NLP:", fallbackErr?.message);
       throw fallbackErr;
