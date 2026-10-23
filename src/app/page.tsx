@@ -18,6 +18,9 @@ import {
   ChevronRight,
   Menu,
   X,
+  Home,
+  PhoneCall,
+  Navigation,
   Copy,
   Check,
   Play,
@@ -233,68 +236,122 @@ export default function LandingPage() {
           </div>
         </motion.header>
 
-        {/* Mobile Dropdown Drawer */}
+        {/* Mobile Slide-Up Drawer Overlay */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden absolute top-full left-3.5 right-3.5 mt-2 bg-white border-2 border-black rounded-3xl p-4 sm:p-5 shadow-[4px_4px_0px_#000000] space-y-2.5 z-50"
-            >
-              <Link
-                href="/#how-it-works"
+            <>
+              {/* Dimmed Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-bold text-black"
+                className="md:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50"
+              />
+
+              {/* Bottom Sheet Drawer */}
+              <motion.div
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
+                transition={{ type: "spring", damping: 28, stiffness: 300 }}
+                className="md:hidden fixed bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto bg-white border-t-2 border-black rounded-t-[32px] p-5 pb-24 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] space-y-4 z-50"
               >
-                How It Works
-              </Link>
-              <Link
-                href="/#features"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-bold text-black"
-              >
-                Features
-              </Link>
-              <Link
-                href="/#pricing"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-bold text-black"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/#faq"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-bold text-black"
-              >
-                FAQ
-              </Link>
-              <Link
-                href="/r/welurik-media"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-bold text-[#15803D]"
-              >
-                Customer Demo Funnel
-              </Link>
-              <Link
-                href="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-bold text-black"
-              >
-                Admin Dashboard
-              </Link>
-              <div className="pt-2 border-t-2 border-black/10 flex flex-col gap-2">
-                <Link
-                  href="/#pricing"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border-2 border-black rounded-full shadow-[2px_2px_0px_#000000]"
-                >
-                  View Plans (From ₹1,999)
-                </Link>
-              </div>
-            </motion.div>
+                {/* Drawer Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <WelurikLogo className="h-7" />
+                  <button
+                    type="button"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-1.5 rounded-full text-slate-500 hover:text-black hover:bg-slate-100 transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Nav Links */}
+                <div className="grid grid-cols-2 gap-2 text-sm font-bold text-slate-900">
+                  <Link
+                    href="/#how-it-works"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-between"
+                  >
+                    <span>How It Works</span>
+                  </Link>
+                  <Link
+                    href="/#features"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-between"
+                  >
+                    <span>Features</span>
+                  </Link>
+                  <Link
+                    href="/#pricing"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-between"
+                  >
+                    <span>Pricing Plans</span>
+                  </Link>
+                  <Link
+                    href="/#faq"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-between"
+                  >
+                    <span>FAQ</span>
+                  </Link>
+                  <Link
+                    href="/r/welurik-media"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3 bg-emerald-50 text-[#15803D] hover:bg-emerald-100 rounded-2xl flex items-center justify-between col-span-2"
+                  >
+                    <span>Try Customer Demo Funnel</span>
+                    <Sparkles className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-between col-span-2"
+                  >
+                    <span>Admin Dashboard</span>
+                  </Link>
+                </div>
+
+                {/* Quick Action Buttons */}
+                <div className="pt-2 flex flex-col gap-2.5">
+                  <a
+                    href="https://wa.me/918421706305?text=Hi%20Welurik%2C%20I%20would%20like%20to%20submit%20a%20project%20brief%20and%20get%20started%20with%20Welurik%20Review."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 text-center text-xs font-bold text-white bg-black hover:bg-neutral-800 border-2 border-black rounded-full shadow-[2px_2px_0px_#000000] flex items-center justify-center gap-2"
+                  >
+                    <Navigation className="w-4 h-4" /> Submit Project Brief
+                  </a>
+                  <a
+                    href="tel:+918421706305"
+                    className="w-full py-3 text-center text-xs font-bold text-black bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center gap-2"
+                  >
+                    <PhoneCall className="w-4 h-4" /> Call Studio (+91 84217 06305)
+                  </a>
+                  <div className="flex gap-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 py-2.5 text-center text-xs font-bold text-black bg-white border border-slate-200 rounded-full"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 py-2.5 text-center text-xs font-bold text-white bg-[#15803D] border border-black rounded-full"
+                    >
+                      Get Started
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
@@ -1259,41 +1316,70 @@ export default function LandingPage() {
 
       {/* 
         ========================================================================
-        MOBILE STICKY BOTTOM ACTION BAR (High-Converting Mobile UX)
+        MOBILE STICKY BOTTOM NAVIGATION BAR (Exact Match: MENU | HOME | CALL US | BRIEF)
         ========================================================================
       */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 px-4 py-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-md border-t-2 border-black z-50 flex items-center justify-between gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] line-through text-slate-400 font-bold">₹3,999</span>
-            <span className="text-sm font-black text-black">From ₹1,999</span>
-          </div>
-          <span className="text-[10px] font-bold text-slate-500 truncate">
-            18, 24 or 48 Months Plans
-          </span>
-        </div>
-
-        <motion.div
-          animate={{
-            scale: [1, 1.05, 0.98, 1.03, 1],
-          }}
-          transition={{
-            duration: 0.7,
-            repeat: Infinity,
-            repeatDelay: 2,
-            ease: "easeInOut",
-          }}
-          whileTap={{ scale: 0.94 }}
-          className="shrink-0"
-        >
-          <Link
-            href="/#pricing"
-            className="px-6 py-3 bg-[#15803D] hover:bg-[#166534] text-white text-sm font-black rounded-full border-2 border-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 text-center transition-all whitespace-nowrap"
+      <nav
+        aria-label="Mobile Bottom Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200/90 z-50 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="grid grid-cols-4 items-center h-[58px]">
+          {/* 1. MENU */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="flex flex-col items-center justify-center gap-1 text-slate-900 hover:text-black active:scale-90 transition-transform cursor-pointer w-full h-full select-none"
+            aria-label="Toggle navigation menu"
           >
-            View Plans <ArrowRight className="w-4 h-4 shrink-0" />
-          </Link>
-        </motion.div>
-      </div>
+            <Menu className="w-5 h-5 text-slate-900 stroke-[2.2]" />
+            <span className="text-[10px] font-black tracking-wider uppercase text-slate-900">
+              MENU
+            </span>
+          </button>
+
+          {/* 2. HOME */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="flex flex-col items-center justify-center gap-1 text-slate-900 hover:text-black active:scale-90 transition-transform cursor-pointer w-full h-full select-none"
+            aria-label="Scroll to Home"
+          >
+            <Home className="w-5 h-5 text-slate-900 stroke-[2.2]" />
+            <span className="text-[10px] font-black tracking-wider uppercase text-slate-900">
+              HOME
+            </span>
+          </button>
+
+          {/* 3. CALL US */}
+          <a
+            href="tel:+918421706305"
+            className="flex flex-col items-center justify-center gap-1 text-slate-900 hover:text-black active:scale-90 transition-transform cursor-pointer w-full h-full select-none"
+            aria-label="Call Us directly"
+          >
+            <PhoneCall className="w-5 h-5 text-slate-900 stroke-[2.2]" />
+            <span className="text-[10px] font-black tracking-wider uppercase text-slate-900 whitespace-nowrap">
+              CALL US
+            </span>
+          </a>
+
+          {/* 4. BRIEF */}
+          <a
+            href="https://wa.me/918421706305?text=Hi%20Welurik%2C%20I%20would%20like%20to%20submit%20a%20project%20brief%20and%20get%20started%20with%20Welurik%20Review."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center gap-1 text-slate-900 hover:text-black active:scale-90 transition-transform cursor-pointer w-full h-full select-none"
+            aria-label="Submit Project Brief on WhatsApp"
+          >
+            <Navigation className="w-5 h-5 text-slate-900 stroke-[2.2]" />
+            <span className="text-[10px] font-black tracking-wider uppercase text-slate-900">
+              BRIEF
+            </span>
+          </a>
+        </div>
+      </nav>
     </div>
   );
 }
