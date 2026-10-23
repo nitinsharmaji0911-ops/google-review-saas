@@ -29,6 +29,7 @@ import {
   VolumeX
 } from "lucide-react";
 import WelurikLogo from "@/components/Logo";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -1380,6 +1381,9 @@ export default function LandingPage() {
           </a>
         </div>
       </nav>
+
+      {/* Floating WhatsApp Action Button */}
+      <FloatingWhatsApp />
     </div>
   );
 }
