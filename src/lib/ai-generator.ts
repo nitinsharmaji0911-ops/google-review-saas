@@ -521,14 +521,14 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
       `Finding authentic supplements locally used to be a gamble, but ${businessName}${locStr} has completely solved that.`,
       `Hands down the most trustworthy supplement store${locStr}.`,
       `Been visiting ${businessName} for my workout nutrition and the experience has been consistently top notch.`,
-      `Dropped by ${businessName} today to restock my supplements and was thoroughly impressed.`,
+      `Restocked my monthly supplements at ${businessName} and the experience was seamless.`,
       `If you're serious about fitness and want guaranteed original products, ${businessName} is the go-to place.`,
       `Had a really smooth shopping experience at ${businessName} today.`,
       `Really glad to have an authorized, dependable dealer like ${businessName} in the area.`,
       `My workout partner suggested I check out ${businessName}, and it lived up to every expectation.`,
       `Always a pleasure dealing with the team at ${businessName}.`,
       `100% satisfied with my visit to ${businessName} today.`,
-      `Stopped by ${businessName} to pick up my fitness essentials and the service was flawless.`,
+      `Picked up my workout essentials from ${businessName} today and everything was verified genuine.`,
       `Finally a genuine fitness nutrition shop${locStr} that athletes and lifters can truly rely on.`,
       `Super impressed with the setup and professionalism at ${businessName}.`,
       `Every lifter knows how crucial genuine supplements are, and ${businessName} delivers on that promise every time.`,
@@ -751,11 +751,11 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
   // 6. CAFE & RESTAURANT
   if (catLower.includes("cafe") || catLower.includes("restaurant") || catLower.includes("food") || catLower.includes("bakery") || catLower.includes("coffee")) {
     const cafeOpenings = [
-      `Stopped by ${businessName} today and thoroughly enjoyed it!`,
+      `Tried the food at ${businessName} today and thoroughly enjoyed every dish!`,
       `Honestly one of the best spots around${locStr}.`,
-      `Had a really pleasant time at ${businessName}.`,
-      `Such a cozy and welcoming place!`,
-      `Dropped in for a quick bite and was super impressed.`,
+      `Had a really pleasant time dining at ${businessName}.`,
+      `Such a cozy and welcoming place for family and friends!`,
+      `Grabbed a quick bite here and was super impressed by the fresh taste.`,
     ];
     const cafeBodies = [
       humanizedPrimary.experience + ".",
@@ -795,6 +795,43 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
 // ---------------------------------------------------------------------------
 // 3. GOOGLE GEMINI AI GENERATION WITH MODEL FAILOVER & THINKING SHIELD
 // ---------------------------------------------------------------------------
+
+export function cleanReviewOpening(text: string, businessName: string = ""): string {
+  if (!text) return "";
+  let t = text.trim();
+  // Remove wrapping quotes or markdown formatting
+  t = t.replace(/^["'`\s]+|["'`\s]+$/g, "");
+
+  // 0. "Stopped by on my/our way..." -> "Took a break on my/our way..."
+  t = t.replace(/^(?:Just\s+)?(?:stopped|dropped|swung|popped)\s+(?:by|in)\s+on\s+(my|our)\s+way\s+/i, "Took a break on $1 way ");
+  t = t.replace(/^(I|We)\s+(?:just\s+)?(?:stopped|dropped|swung|popped)\s+(?:by|in)\s+on\s+(my|our)\s+way\s+/i, "$1 took a break on $2 way ");
+
+  // 1. "Stopped by to..." / "Dropped by to..." -> "Went in to..."
+  t = t.replace(/^(?:Just\s+)?(?:stopped|dropped|swung|popped)\s+by\s+to\s+/i, "Went in to ");
+  t = t.replace(/^(I|We)\s+(?:just\s+)?(?:stopped|dropped|swung|popped)\s+by\s+to\s+/i, "$1 went in to ");
+
+  // 2. "Stopped by [Name]..." / "Dropped by [Name]..." -> "Visited [Name]..."
+  t = t.replace(/^(?:Just\s+)?(?:stopped|dropped|swung|popped)\s+by\s+/i, "Visited ");
+  t = t.replace(/^(I|We)\s+(?:just\s+)?(?:stopped|dropped|swung|popped)\s+by\s+/i, "$1 visited ");
+
+  // 3. "Dropped in for..." / "Stopped in for..." -> "Came in for..."
+  t = t.replace(/^(?:Just\s+)?(?:stopped|dropped|swung|popped)\s+in\s+for\s+/i, "Came in for ");
+  t = t.replace(/^(I|We)\s+(?:just\s+)?(?:stopped|dropped|swung|popped)\s+in\s+for\s+/i, "$1 came in for ");
+
+  // 4. "Dropped in / Stopped in / Popped into"
+  t = t.replace(/^(?:Just\s+)?(?:stopped|dropped|swung|popped)\s+(?:in|into)\s+/i, "Went into ");
+  t = t.replace(/^(I|We)\s+(?:just\s+)?(?:stopped|dropped|swung|popped)\s+(?:in|into)\s+/i, "$1 went into ");
+
+  // 5. "Visited at [Name]" -> "Visited [Name]"
+  t = t.replace(/^Visited\s+at\s+/i, "Visited ");
+  t = t.replace(/^(I|We)\s+visited\s+at\s+/i, "$1 visited ");
+
+  // 6. Ensure initial capitalization
+  if (t.length > 0) {
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  return t;
+}
 
 let cachedGenAI: GoogleGenerativeAI | null = null;
 let cachedKey = "";
@@ -863,6 +900,18 @@ async function generateWithGemini(
   ];
   const selectedStyle = pickRandom(randomStyles);
 
+  const DYNAMIC_OPENING_HOOKS = [
+    "DIRECT PRODUCT/SERVICE FIRST: Open directly by naming the specific item, service, dish, room, or work you experienced (e.g., 'Ordered the...', 'Got my phone screen repaired here...', 'Booked a family room here...', 'Restocked on my workout protein...').",
+    "SITUATIONAL REASON / PURPOSE: Open with what prompted your visit or the situation you were in (e.g., 'Needed urgent assistance with...', 'Was driving through the highway and needed a comfortable place to halt...', 'Had an event coming up and wanted...').",
+    "RECOMMENDATION OR LOCAL DISCOVERY: Open with how you came across the business (e.g., 'A friend from the area suggested...', 'Found this spot while looking for reliable...', 'Decided to check them out after hearing positive word of mouth...').",
+    "HONEST PRICING & VALUE FIRST: Open with a candid remark on transparency, rates, or value (e.g., 'Very fair pricing without any hidden charges...', 'Reasonable rates compared to other shops nearby...', 'Felt like total value for money...').",
+    "STAFF & OWNER IMPRESSION: Open with how the team or owner treated you (e.g., 'The owner was extremely courteous and explained everything...', 'Appreciated the humble and patient staff...', 'The team didn't push unnecessary products...').",
+    "REPEAT / LOYAL CUSTOMER: Open as someone who visits or relies on them regularly (e.g., 'Been coming here for a couple of months now...', 'Second time getting work done here and...', 'Always my go-to place whenever I need...').",
+    "ATMOSPHERE & CLEANLINESS: Open with the hygiene, tidiness, or vibe (e.g., 'Spotless, neat setup and very well maintained...', 'Very calm and clean atmosphere...', 'Super organized store layout...').",
+    "CONVERSATIONAL CASUAL OPENER: Open naturally like a text message to a buddy (e.g., 'Super smooth experience from start to finish...', 'Can easily vouch for the service here...', 'Honestly really impressed with how quickly they sorted this...').",
+  ];
+  const chosenOpeningHook = pickRandom(DYNAMIC_OPENING_HOOKS);
+
   let sentimentInstructions = "";
   if (isNegative) {
     const angle = pickRandom(CRITICAL_REVIEW_ANGLES);
@@ -892,6 +941,7 @@ CRITICAL SENTIMENT REQUIREMENT: THIS IS A POSITIVE ${rating}-STAR REVIEW.
 
 Star Rating: ${rating}/5
 Perspective Angle: ${selectedStyle}
+Mandatory Starting Hook: ${chosenOpeningHook}
 Selected Customer Highlights: ${params.selectedTopics.length > 0 ? params.selectedTopics.join(", ") : "Great quality, genuine service"}
 Specific Items/Services: ${params.selectedServices.length > 0 ? params.selectedServices.join(", ") : "None"}
 Customer Note: ${params.customerComment ? `"${params.customerComment}"` : "None"}
@@ -903,14 +953,16 @@ CRITICAL RULES TO MAKE THIS 100% HUMAN AND ZERO PERCENT AI:
 1. WRITE LIKE A REAL HUMAN TYPING ON A PHONE:
    - Use simple, straightforward everyday words. Keep it natural, relaxed, and conversational.
    - Contractions ("wasn't", "didn't", "we've", "it's") make it sound authentic and human.
-   - Mention real situational context naturally (e.g., "visited with family", "checked in after a long travel", "found them through a friend's recommendation", "stopped by on our way").
-2. ABSOLUTELY BANNED AI CLICHÉS & PATTERNS (NEVER USE ANY OF THESE):
+   - Mention real situational context naturally (e.g., "visited with family", "checked in after a long travel", "found them through a friend's recommendation", "came in after office hours").
+2. STRICT BANNED REVIEW OPENINGS (CRITICAL - NEVER START WITH ANY OF THESE):
+   - ABSOLUTELY FORBIDDEN: Never start with "Stopped by...", "Dropped by...", "Dropped in...", "Stopped in...", "Popped into...", "Popped in...", "Swung by...", "I stopped by...", "We dropped by...", "Just stopped by...", "Just dropped by...", or any other variation of stopping or dropping by. These make reviews sound repetitive, robotic, and like generic AI spam.
+   - NEVER start with generic: "I recently visited...", "Had the pleasure of visiting...", "If you are looking for...", "Look no further...".
+   - Every single review MUST have completely distinct, fresh first 3-5 words matching the assigned Mandatory Starting Hook above.
+3. ABSOLUTELY BANNED AI CLICHÉS & PATTERNS (NEVER USE ANY OF THESE):
    - Never say: "hidden gem", "nestled in", "from the moment I walked in", "look no further", "a testament to", "truly shines", "kudos to", "epitome of", "pleasantly surprised", "exceeded all expectations", "whether you are looking for...", "delightful", "impressed beyond measure".
    - Never use marketing/PR voice or sound like a commercial brochure.
    - Never use repetitive sentence templates like "Not only X, but also Y".
    - Do NOT start with "Super clean and well-stocked store!" or "Picked up some...".
-3. UNIQUE OPENINGS:
-   - Start directly with your personal situation or direct observation. Every single review must have a distinct, fresh opening.
 4. MATCH THE BUSINESS CONTEXT NATURALLY (${params.category}):
    - If hotel, lodge, or yatri nivas (e.g. Asha Yatry Nivas in Kolhapur):
      Talk like a real person visiting Kolhapur for temple darshan or work. Mention clean bedsheets, neat washroom, geyser/hot water in the morning, safe stay with family, easy auto/rickshaw availability, peaceful sleep, and humble front desk.
@@ -926,18 +978,21 @@ CRITICAL RULES TO MAKE THIS 100% HUMAN AND ZERO PERCENT AI:
 
   // Try gemini-3.5-flash-lite first for lightning fast (~1s) review generation.
   // If it hits rate limit (429) or errors, failover to gemini-3.6-flash.
+  let rawReview: string;
   try {
-    return await callGeminiModel(genAI, "gemini-3.5-flash-lite", prompt, 6500);
+    rawReview = await callGeminiModel(genAI, "gemini-3.5-flash-lite", prompt, 6500);
   } catch (err: any) {
     const isRateLimit = err?.message?.includes("429") || err?.status === 429;
     console.warn(`Gemini 3.5-flash-lite failed (${isRateLimit ? "429 Rate Limit" : err?.message}), attempting failover to gemini-3.6-flash...`);
     try {
-      return await callGeminiModel(genAI, "gemini-3.6-flash", prompt, 6500);
+      rawReview = await callGeminiModel(genAI, "gemini-3.6-flash", prompt, 6500);
     } catch (fallbackErr: any) {
       console.warn("Gemini failover also failed, will use smart combinatorial NLP:", fallbackErr?.message);
       throw fallbackErr;
     }
   }
+
+  return cleanReviewOpening(rawReview, params.businessName);
 }
 
 // ---------------------------------------------------------------------------
@@ -951,7 +1006,7 @@ export async function generateCustomerReview(params: GenerateReviewParams): Prom
     try {
       const review = await generateWithGemini(apiKey, params);
       if (review && review.length > 15) {
-        return { review, source: "gemini" };
+        return { review: cleanReviewOpening(review, params.businessName), source: "gemini" };
       }
     } catch (err) {
       // Gracefully fall through to smart dynamic NLP engine
@@ -959,7 +1014,7 @@ export async function generateCustomerReview(params: GenerateReviewParams): Prom
   }
 
   return {
-    review: generateSmartTemplateReview(params),
+    review: cleanReviewOpening(generateSmartTemplateReview(params), params.businessName),
     source: "smart_nlp",
   };
 }
