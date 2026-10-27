@@ -47,6 +47,7 @@ export default function CustomerReviewPage() {
   const [business, setBusiness] = useState<BusinessData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isExpired, setIsExpired] = useState(false);
 
   // Customer Selections
   const [rating, setRating] = useState(5);
@@ -88,6 +89,9 @@ export default function CustomerReviewPage() {
             }),
           }).catch(() => {});
         } else {
+          if (data.isExpired || res.status === 403) {
+            setIsExpired(true);
+          }
           setError(data.error || "Business not found");
         }
       } catch {
@@ -240,6 +244,36 @@ export default function CustomerReviewPage() {
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-xs font-medium text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isExpired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50/70 p-4 font-sans">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center border border-slate-200/80 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+            <AlertCircle className="w-7 h-7 text-amber-500" />
+          </div>
+          <div className="space-y-1.5">
+            <span className="inline-block px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider rounded-full">
+              Trial Ended
+            </span>
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">Review Funnel Inactive</h2>
+            <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
+              The 7-day free trial for this review funnel has ended. Review generation and smart routing are currently paused.
+            </p>
+          </div>
+          <div className="pt-2 border-t border-slate-100">
+            <p className="text-[11px] text-slate-400 mb-2.5">Are you the business owner?</p>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
+            >
+              Log In to Upgrade & Reactivate
+            </Link>
+          </div>
         </div>
       </div>
     );

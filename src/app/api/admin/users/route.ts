@@ -62,9 +62,19 @@ export async function GET(req: NextRequest) {
         null;
 
 
-      const isTrialActive = u.trialEndsAt ? new Date(u.trialEndsAt).getTime() > Date.now() : false;
-      const isExplicitlyRevoked = u.isPro === false || biz?.isPro === false;
-      const isPro = !isExplicitlyRevoked && (u.isPro === true || biz?.isPro === true || isTrialActive);
+      const trialEnds = u.trialEndsAt || biz?.trialEndsAt;
+      const isTrialActive = trialEnds ? new Date(trialEnds).getTime() > Date.now() : false;
+      const isTrialPlan = (u.planName || biz?.planName || "").toLowerCase().includes("trial");
+      const isExplicitlyRevoked = u.isPro === false || biz?.isPro === false || u.isRevoked === true || biz?.isRevoked === true;
+
+      let isPro = false;
+      if (!isExplicitlyRevoked) {
+        if (isTrialPlan || trialEnds) {
+          isPro = isTrialActive;
+        } else {
+          isPro = u.isPro === true || biz?.isPro === true;
+        }
+      }
 
       userMap.set(key, {
         id: u.id || key,

@@ -212,23 +212,34 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const hasTrial = Boolean(business.trialEndsAt || userDoc?.trialEndsAt || (business.planName || "").toLowerCase().includes("trial"));
+    const trialExpiry = business.trialEndsAt || userDoc?.trialEndsAt;
+    const isTrialExpired = trialExpiry ? new Date(trialExpiry).getTime() <= Date.now() : (business.planName || "").toLowerCase().includes("trial");
+    const isLifetimePaid = ((business.planName || userDoc?.planName || "").toLowerCase().includes("lifetime") || (business.planName || "").toLowerCase() === "vip pro license") && !hasTrial;
+
     // Determine final isProAccount status
     let isProAccount = false;
     if (isFounderSuperAdmin && !isImpersonating) {
       isProAccount = true;
-    } else if (userDoc?.isPro === false || business?.isPro === false) {
+    } else if (userDoc?.isPro === false || business?.isPro === false || business?.isRevoked === true || userDoc?.isRevoked === true) {
       // Explicitly revoked by Admin Vault
       isProAccount = false;
       isTrialActive = false;
-    } else if (business?.isPro === true || userDoc?.isPro === true || isTrialActive) {
+    } else if (hasTrial && isTrialExpired && !isLifetimePaid) {
+      // Trial has expired and not upgraded to lifetime paid
+      isProAccount = false;
+      isTrialActive = false;
+    } else if (isTrialActive) {
+      isProAccount = true;
+    } else if (isLifetimePaid || business?.isPro === true || userDoc?.isPro === true) {
       isProAccount = true;
     }
 
     if (business) {
       business.isPro = isProAccount;
       if (!isProAccount) {
-        business.planName = "Unpaid";
-        business.trialEndsAt = null;
+        business.planName = hasTrial && isTrialExpired ? "Trial Expired" : "Unpaid";
+        business.trialEndsAt = business.trialEndsAt || null;
       }
     }
 

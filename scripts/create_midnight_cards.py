@@ -21,7 +21,7 @@ def draw_star(draw, cx, cy, r_outer, r_inner, fill):
         coords.append((cx + math.cos(angle) * r, cy + math.sin(angle) * r))
     draw.polygon(coords, fill=fill)
 
-def generate_midnight_card(business_name, qr_filename, headline, out_filename):
+def generate_midnight_card(business_name, qr_filename, headline, out_filename, sub_line1=None, sub_line2=None):
     width, height = 560, 836
     img = Image.new('RGB', (width, height), color=(0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -65,8 +65,8 @@ def generate_midnight_card(business_name, qr_filename, headline, out_filename):
     draw.text((width // 2, 604), headline, fill=(251, 191, 36), font=font_headline, anchor="mm")
 
     # 6. Subtitle Instructions
-    line1 = "Scan with your phone to leave a quick 5-star Google review"
-    line2 = "& support our team!"
+    line1 = sub_line1 or "Scan with your phone to leave a quick 5-star Google review"
+    line2 = sub_line2 or "& support our team!"
     draw.text((width // 2, 642), line1, fill=(156, 163, 175), font=font_sub, anchor="mm")
     draw.text((width // 2, 664), line2, fill=(156, 163, 175), font=font_sub, anchor="mm")
 
@@ -113,4 +113,24 @@ generate_midnight_card(
     qr_filename="axon-accounting-qr.png",
     headline="Happy with our accounting & tax services?",
     out_filename="axon-accounting-midnight-card.png"
+)
+
+# Generate Manastra by darbar
+generate_midnight_card(
+    business_name="Manastra by darbar",
+    qr_filename="manastra-by-darbar-qr.png",
+    headline="Loved your shopping experience?",
+    out_filename="manastra-by-darbar-midnight-card.png",
+    sub_line1="Scan with your phone to leave a quick 5-star Google review",
+    sub_line2="& share your clothing, fitting & styling experience!"
+)
+
+# Generate Raghupur fort camp
+generate_midnight_card(
+    business_name="Raghupur fort camp",
+    qr_filename="raghupur-fort-camp-qr.png",
+    headline="Loved your camping & trek experience?",
+    out_filename="raghupur-fort-camp-midnight-card.png",
+    sub_line1="Scan with your phone to leave a quick 5-star Google review",
+    sub_line2="& share your sunset, trek & mountain stay experience!"
 )

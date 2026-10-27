@@ -75,12 +75,31 @@ export async function POST(req: NextRequest) {
       try {
         const fsBiz = await FirestoreDB.getBusinessBySlug(businessSlug);
         if (fsBiz) {
+          // Subscription & Trial Access Guard
+          const isDemo = businessSlug === "welurik-media" || businessSlug === "the-coffee-house";
+          if (!isDemo) {
+            const isRevoked = fsBiz.isRevoked === true || fsBiz.isPro === false;
+            const trialEndsAt = fsBiz.trialEndsAt;
+            const isTrialPlan = (fsBiz.planName || "").toLowerCase().includes("trial");
+            const isTrialExpired = trialEndsAt ? new Date(trialEndsAt).getTime() <= Date.now() : (isTrialPlan && fsBiz.isPro !== true);
+            const isLifetime = (fsBiz.planName || "").toLowerCase().includes("lifetime") && !isTrialPlan;
+
+            if (isRevoked || (isTrialExpired && !isLifetime)) {
+              return NextResponse.json(
+                { error: "Review generation is disabled because this business trial has expired.", isExpired: true },
+                { status: 403 }
+              );
+            }
+          }
+
           businessName = fsBiz.name || clientBusinessName || businessName;
           category = fsBiz.category || clientCategory || category;
           location = fsBiz.location || clientLocation || "";
           businessId = fsBiz.id || fsBiz.slug;
         }
-      } catch {}
+      } catch (err: any) {
+        if (err && err.status === 403) throw err;
+      }
 
       if (!businessId) {
         try {

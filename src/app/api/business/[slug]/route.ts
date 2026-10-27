@@ -67,6 +67,29 @@ export async function GET(
       return NextResponse.json({ success: false, error: "Business not found" }, { status: 404 });
     }
 
+    // Subscription & Trial Access Guard:
+    // Verify business has active subscription or non-expired trial
+    const isDemoSlug = slug === "welurik-media" || slug === "the-coffee-house";
+    if (!isDemoSlug) {
+      const isRevoked = business.isRevoked === true || business.isPro === false;
+      const trialEndsAt = business.trialEndsAt;
+      const isTrialPlan = (business.planName || "").toLowerCase().includes("trial");
+      const isTrialExpired = trialEndsAt ? new Date(trialEndsAt).getTime() <= Date.now() : (isTrialPlan && business.isPro !== true);
+      const isLifetime = (business.planName || "").toLowerCase().includes("lifetime") && !isTrialPlan;
+
+      if (isRevoked || (isTrialExpired && !isLifetime)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "This review link is currently inactive because the trial period for this business has expired.",
+            isExpired: true,
+            businessName: business.name,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     const catConfig = getCategoryById(business.category || "cafe");
 
     // Clean and normalize services
