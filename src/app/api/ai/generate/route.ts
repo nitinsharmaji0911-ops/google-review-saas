@@ -27,7 +27,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const businessSlug = body.businessSlug || body.slug;
+    let businessSlug = body.businessSlug || body.slug;
+    if (businessSlug === "unique-ladies-beauty-salon" || businessSlug === "uniqueladiesbeautysaloon") {
+      businessSlug = "unique-ladies-beauty-saloon";
+    }
     const {
       selectedTopics = body.topics || [],
       selectedServices = body.services || [],

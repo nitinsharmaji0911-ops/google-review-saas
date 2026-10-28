@@ -30,6 +30,9 @@ export async function GET(
     if (slug === "ashayatrynivas" || slug === "asha-yatri-nivas" || slug === "ashayatrinivas") {
       slug = "asha-yatry-nivas";
     }
+    if (slug === "unique-ladies-beauty-salon" || slug === "uniqueladiesbeautysaloon") {
+      slug = "unique-ladies-beauty-saloon";
+    }
     if (!slug) {
       return NextResponse.json({ success: false, error: "Missing slug" }, { status: 400 });
     }
