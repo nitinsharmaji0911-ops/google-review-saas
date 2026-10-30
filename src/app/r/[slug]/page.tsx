@@ -703,19 +703,20 @@ const DEFAULT_MIXED_TOPICS = [
                 )}
               </div>
               {isGenerating ? (
-                <div className="w-full min-h-[104px] p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-center gap-2 animate-pulse">
+                <div className="w-full min-h-[120px] p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-center gap-2.5 animate-pulse">
                   <div className="h-3 bg-slate-200 rounded-full w-4/5" />
                   <div className="h-3 bg-slate-200 rounded-full w-full" />
+                  <div className="h-3 bg-slate-200 rounded-full w-5/6" />
                   <div className="h-3 bg-slate-200 rounded-full w-3/5" />
                 </div>
               ) : (
                 <textarea
-                  rows={4}
+                  rows={5}
                   value={generatedReview}
                   onChange={(e) => setGeneratedReview(e.target.value)}
                   disabled={isRegenerating}
                   placeholder="Type your review here..."
-                  className={`w-full text-xs leading-relaxed p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none font-normal transition-opacity ${
+                  className={`w-full text-xs leading-relaxed p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none font-normal transition-opacity min-h-[120px] ${
                     isRegenerating ? "opacity-40" : "opacity-100"
                   }`}
                 />

@@ -728,68 +728,131 @@ export function generateSmartTemplateReview(params: GenerateReviewParams): strin
   // 5. SALON & BEAUTY PARLOUR
   if (catLower.includes("salon") || catLower.includes("beauty") || catLower.includes("makeup") || catLower.includes("spa") || catLower.includes("parlour") || catLower.includes("hair")) {
     const salonOpenings = [
-      `Had a wonderful experience with ${businessName}.`,
-      `Best salon and beauty service${locStr}!`,
-      `Loved my makeover session with ${businessName}.`,
+      `Had a wonderful experience with ${businessName}${locStr}.`,
+      `Hands down one of the best salons and beauty studios${locStr}!`,
+      `Loved my makeover and styling session with ${businessName}.`,
       `Really impressed with the hygiene standards and gentle hands at ${businessName}.`,
-      `So convenient, professional, and relaxing!`,
+      `So convenient, professional, and relaxing from start to finish!`,
     ];
     const salonBodies = [
       humanizedPrimary.experience + ".",
       `The beautician was very sweet, gentle, and used sanitized single-use tools.`,
-      `The products used were gentle on the skin with zero irritation or redness.`,
-      `Everything was done with so much patience and attention to detail.`,
+      `The products used were premium quality and gentle on the skin with zero irritation or redness.`,
+      `Everything was done with so much patience and attention to detail without rushing.`,
     ];
+    const salonSecondary = [
+      `The ambience is calm and spotless, making the whole visit super relaxing.`,
+      `Their pricing is completely reasonable and transparent with zero hidden costs.`,
+      `They really listened to what look I wanted and customized the service accordingly.`,
+    ];
+    const salonService = primaryServiceRaw ? ` Their work on ${primaryServiceRaw} was absolutely top class.` : "";
     const salonClosings = [
       `Definitely my go-to salon from now on!${commentAddon}`,
-      `Left me feeling completely refreshed and glowing.${commentAddon} 10/10!`,
-      `Highly recommended to all ladies looking for quality beauty care.${commentAddon}`,
+      `Left me feeling completely refreshed, confident, and glowing.${commentAddon} 10/10!`,
+      `Highly recommended to anyone looking for quality, professional beauty care.${commentAddon}`,
     ];
-    return `${pickRandom(salonOpenings)} ${pickRandom(salonBodies)} ${pickRandom(salonClosings)}`;
+
+    if (tone === "short") {
+      return `${pickRandom(salonOpenings)} ${pickRandom(salonBodies)} ${pickRandom(salonClosings)}`;
+    }
+    return `${pickRandom(salonOpenings)} ${pickRandom(salonBodies)} ${pickRandom(salonSecondary)}${salonService} ${pickRandom(salonClosings)}`;
   }
 
-  // 6. CAFE & RESTAURANT
-  if (catLower.includes("cafe") || catLower.includes("restaurant") || catLower.includes("food") || catLower.includes("bakery") || catLower.includes("coffee")) {
+  // 6. HOTEL, LODGE & HOSPITALITY
+  if (catLower.includes("hotel") || catLower.includes("lodge") || catLower.includes("stay") || catLower.includes("resort") || catLower.includes("yatri") || catLower.includes("camp")) {
+    const hotelOpenings = [
+      `Had a very comfortable and peaceful stay at ${businessName}${locStr}.`,
+      `Booked a stay at ${businessName} and the whole experience was completely hassle-free.`,
+      `Really glad we chose ${businessName} for our halt${locStr}.`,
+      `A great, safe, and dependable place to stay${locStr} with family.`,
+    ];
+    const hotelBodies = [
+      humanizedPrimary.experience + ".",
+      `The rooms were spacious, clean, and well-maintained with fresh linens and clean washrooms.`,
+      `Hot water was readily available and the check-in process was smooth and quick.`,
+      `The front desk and support staff were extremely humble, responsive, and polite.`,
+    ];
+    const hotelSecondary = [
+      `The location is very convenient with easy access to nearby landmarks and transport.`,
+      `Felt very secure throughout the stay and had a quiet, undisturbed sleep.`,
+      `Very fair room rates for the comfort and hygiene provided.`,
+    ];
+    const hotelService = primaryServiceRaw ? ` The ${primaryServiceRaw} was in excellent condition.` : "";
+    const hotelClosings = [
+      `Will definitely be staying here again whenever we visit the city.${commentAddon}`,
+      `Highly recommend this property for both families and solo travelers!${commentAddon}`,
+      `Total value for money and warm hospitality all around.${commentAddon}`,
+    ];
+
+    if (tone === "short") {
+      return `${pickRandom(hotelOpenings)} ${pickRandom(hotelBodies)} ${pickRandom(hotelClosings)}`;
+    }
+    return `${pickRandom(hotelOpenings)} ${pickRandom(hotelBodies)} ${pickRandom(hotelSecondary)}${hotelService} ${pickRandom(hotelClosings)}`;
+  }
+
+  // 7. CAFE & RESTAURANT
+  if (catLower.includes("cafe") || catLower.includes("restaurant") || catLower.includes("food") || catLower.includes("bakery") || catLower.includes("coffee") || catLower.includes("snacks")) {
     const cafeOpenings = [
-      `Tried the food at ${businessName} today and thoroughly enjoyed every dish!`,
-      `Honestly one of the best spots around${locStr}.`,
+      `Tried the food at ${businessName}${locStr} today and thoroughly enjoyed every dish!`,
+      `Honestly one of the best food spots around${locStr}.`,
       `Had a really pleasant time dining at ${businessName}.`,
-      `Such a cozy and welcoming place for family and friends!`,
-      `Grabbed a quick bite here and was super impressed by the fresh taste.`,
+      `Such a cozy and welcoming place to visit with family and friends!`,
+      `Grabbed a bite here and was super impressed by the fresh taste and flavors.`,
     ];
     const cafeBodies = [
       humanizedPrimary.experience + ".",
-      `Everything was fresh, flavorful, and served with a smile.`,
-      `The atmosphere is relaxing with comfortable seating and great vibe.`,
-      `The staff was attentive and made sure our order arrived hot and fresh.`,
+      `Everything was fresh, flavorful, and served piping hot with great presentation.`,
+      `The atmosphere is relaxing with comfortable seating, good hygiene, and a great vibe.`,
+      `The staff was courteous, quick on their feet, and made sure our order arrived without delays.`,
     ];
+    const cafeSecondary = [
+      `Portion sizes were generous and the pricing is very reasonable for the quality.`,
+      `The kitchen maintains solid hygiene standards and the dining area is neat and tidy.`,
+      `You can tell they use genuine, fresh ingredients in their preparation.`,
+    ];
+    const cafeService = primaryServiceRaw ? ` Highly recommend trying their ${primaryServiceRaw}.` : "";
     const cafeClosings = [
-      `Definitely making this a regular spot.${commentAddon}`,
+      `Definitely making this a regular spot for get-togethers.${commentAddon}`,
       `Great food, welcoming staff, and fair prices.${commentAddon} 10/10!`,
       `Will definitely be bringing friends along next time.${commentAddon}`,
     ];
-    return `${pickRandom(cafeOpenings)} ${pickRandom(cafeBodies)} ${pickRandom(cafeClosings)}`;
+
+    if (tone === "short") {
+      return `${pickRandom(cafeOpenings)} ${pickRandom(cafeBodies)} ${pickRandom(cafeClosings)}`;
+    }
+    return `${pickRandom(cafeOpenings)} ${pickRandom(cafeBodies)} ${pickRandom(cafeSecondary)}${cafeService} ${pickRandom(cafeClosings)}`;
   }
 
-  // 7. GENERAL / RETAIL SERVICES
+  // 8. GENERAL / RETAIL SERVICES
   const genOpenings = [
-    `Had a really positive experience with ${businessName}.`,
-    `Great customer service and trustworthy work at ${businessName}.`,
+    `Had a really positive and seamless experience with ${businessName}${locStr}.`,
+    `Great customer service and trustworthy, honest work at ${businessName}.`,
     `Really glad I decided to go with ${businessName}${locStr}.`,
     `Always a pleasure dealing with a business that genuinely values customer satisfaction.`,
-    `Prompt, professional, and reliable — that sums up ${businessName}.`,
+    `Prompt, professional, and reliable — that sums up our experience with ${businessName}.`,
   ];
   const genBodies = [
     humanizedPrimary.experience + ".",
-    `The staff was courteous, took time to explain everything clearly, and delivered on schedule.`,
-    `Quality of service was outstanding and the pricing was completely transparent.`,
+    `The staff was courteous, took time to explain everything clearly, and delivered right on schedule.`,
+    `Quality of service was outstanding and the pricing was completely transparent with no surprises.`,
+    `They were very patient with our queries and handled everything with thorough professionalism.`,
   ];
+  const genSecondary = [
+    `Communication was smooth throughout and they kept us updated at every step.`,
+    `You get total peace of mind knowing the work is in capable, honest hands.`,
+    `Fair pricing, fast turnaround, and respectful conduct from the entire team.`,
+  ];
+  const genService = primaryServiceRaw ? ` Their handling of ${primaryServiceRaw} was exemplary.` : "";
   const genClosings = [
-    `Will definitely use their services again.${commentAddon}`,
-    `Highly recommended for anyone looking for reliable service in the area.${commentAddon}`,
-    `Deserves a full 5-star rating for great work and honest pricing.${commentAddon}`,
+    `Will definitely use their services again without hesitation.${commentAddon}`,
+    `Highly recommended for anyone looking for dependable, quality service in the area.${commentAddon}`,
+    `Deserves a full 5-star rating for their work ethic and customer dedication.${commentAddon}`,
   ];
-  return `${pickRandom(genOpenings)} ${pickRandom(genBodies)} ${pickRandom(genClosings)}`;
+
+  if (tone === "short") {
+    return `${pickRandom(genOpenings)} ${pickRandom(genBodies)} ${pickRandom(genClosings)}`;
+  }
+  return `${pickRandom(genOpenings)} ${pickRandom(genBodies)} ${pickRandom(genSecondary)}${genService} ${pickRandom(genClosings)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -862,7 +925,7 @@ async function callGeminiModel(
     generationConfig: {
       temperature: 0.95,
       ...(modelName.includes("2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-      maxOutputTokens: 350,
+      maxOutputTokens: 500,
     },
   });
 
@@ -886,9 +949,9 @@ async function generateWithGemini(
   const isMixed = rating === 3;
 
   const toneLength = {
-    short: "1-2 punchy, natural sentences (around 18-25 words).",
-    natural: "2-3 conversational sentences (around 35-45 words). Sounds like a real customer on their phone.",
-    detailed: "3-4 sentences with natural detail (around 55-70 words). Sounds like a helpful Google Local Guide.",
+    short: "2-3 punchy, natural sentences (around 35-50 words). Sounds like a quick, positive mobile review.",
+    natural: "4-5 conversational, detailed sentences (around 75-105 words). Sounds like a genuine, thoughtful local customer giving a full account of their visit with real specifics.",
+    detailed: "5-7 comprehensive sentences with rich detail and depth (around 120-160 words). Sounds like an active Google Local Guide explaining the entire experience, services, staff, and practical tips.",
   }[params.tone || "natural"];
 
   const randomStyles = [
@@ -950,10 +1013,14 @@ Target Length: ${toneLength}
 ${sentimentInstructions}
 
 CRITICAL RULES TO MAKE THIS 100% HUMAN AND ZERO PERCENT AI:
-1. WRITE LIKE A REAL HUMAN TYPING ON A PHONE:
+1. WRITE LIKE A REAL HUMAN TYPING A DETAILED REVIEW ON A PHONE:
    - Use simple, straightforward everyday words. Keep it natural, relaxed, and conversational.
    - Contractions ("wasn't", "didn't", "we've", "it's") make it sound authentic and human.
    - Mention real situational context naturally (e.g., "visited with family", "checked in after a long travel", "found them through a friend's recommendation", "came in after office hours").
+   - WRITE A SUBSTANTIAL, COMPREHENSIVE REVIEW (DO NOT WRITE A TINY 1-2 LINE SUMMARY):
+     * The review MUST have real substance, body, and descriptive depth matching Target Length (${toneLength}).
+     * Walk through the full visit: what brought you in, how the staff received you, specific observations on the service/quality/hygiene/timing, fair pricing or value, and who you'd recommend it to.
+     * Do NOT stop after just 1 or 2 shallow lines. A helpful, credible review gives readers real specifics to trust.
 2. STRICT BANNED REVIEW OPENINGS (CRITICAL - NEVER START WITH ANY OF THESE):
    - ABSOLUTELY FORBIDDEN: Never start with "Stopped by...", "Dropped by...", "Dropped in...", "Stopped in...", "Popped into...", "Popped in...", "Swung by...", "I stopped by...", "We dropped by...", "Just stopped by...", "Just dropped by...", or any other variation of stopping or dropping by. These make reviews sound repetitive, robotic, and like generic AI spam.
    - NEVER start with generic: "I recently visited...", "Had the pleasure of visiting...", "If you are looking for...", "Look no further...".
